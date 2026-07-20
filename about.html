@@ -1,0 +1,1254 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="About Oryn — A Study in Taste & Texture. An experiential patisserie from Delhi NCR where stories are translated into taste."
+    />
+    <title>About Oryn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Amita:wght@400;700&family=Comforter+Brush&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <style>
+      /* ── FONTS ──────────────────────────────────────────────
+       Headings  → TAN Vivre Libre   (drop the file in /fonts)
+       Body text → EB Garamond       (loaded via Google Fonts)
+       Repointing --f-display cascades to every heading, since
+       all headings resolve their family through this variable. */
+      /* Headings use Cormorant Garamond. To switch to TAN Vivre Libre (paid
+         font), drop the files in /fonts and re-add the @font-face + prepend
+         "TAN Vivre Libre" to --f-display below. */
+      :root {
+        --f-display: "Cormorant Garamond", Georgia, serif;
+      }
+
+      /* Marquee (running text) — full brand blue + heavier stroke so it's clearly legible */
+      .marquee-item {
+        opacity: 1;
+        font-weight: 500;
+      }
+
+      /* ── HERO — quote centred over a full-bleed banner photo ── */
+      #hero {
+        position: relative;
+        background: var(--blue) center / cover no-repeat
+          url("23.png");
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        min-height: 92vh;
+        padding: calc(var(--nav-h) + 20px) var(--px) 60px;
+      }
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+        max-width: 780px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      .hero-copy {
+        text-align: center;
+      }
+      .hero-quote {
+        font-family: var(--f-display);
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(1.7rem, 3vw, 2.6rem);
+        color: var(--white);
+        line-height: 1.44;
+        margin-bottom: 28px;
+      }
+      .hero-rule {
+        width: 44px;
+        height: 1px;
+        background: var(--white);
+        opacity: 0.28;
+        margin: 28px auto;
+      }
+      .hero-tagline {
+        font-family: var(--f-body);
+        font-size: clamp(0.86rem, 1.1vw, 1rem);
+        letter-spacing: 0.4em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      @media (max-width: 900px) {
+        #hero {
+          min-height: auto;
+          padding: calc(var(--nav-h) + 48px) var(--px) 56px;
+          background-position: center 55%;
+        }
+      }
+      @media (max-width: 640px) {
+        .hero-quote {
+          font-size: clamp(1.6rem, 6.5vw, 2.1rem);
+        }
+        #hero {
+          background-position: center 60%;
+        }
+      }
+
+      /* ── TYPE SYSTEM (about-page consistency) ── */
+      h1,
+      h2,
+      h3,
+      h4,
+      .h1,
+      .h2,
+      .h3,
+      .h4,
+      .ia-lead,
+      .diff-quote,
+      .mvv-head {
+        font-family: var(--f-display);
+        font-weight: 400;
+      }
+
+      /* ── INTRO (lead story — given extra presence & breathing room) ── */
+      #intro-about {
+        padding: calc(var(--py) + 24px) var(--px);
+      }
+      #intro-about .story-title {
+        padding-bottom: 20px;
+      }
+      .ia-inner {
+        max-width: var(--max);
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 100px;
+        align-items: center;
+      }
+      .ia-lead {
+        font-family: var(--f-display);
+        font-size: clamp(1.55rem, 2.6vw, 2.25rem);
+        font-weight: 400;
+        color: var(--blue);
+        line-height: 1.46;
+        margin-bottom: 36px;
+      }
+      .ia-body {
+        font-family: var(--f-body);
+        line-height: 1.9;
+        color: rgba(12, 54, 123, 0.6);
+      }
+
+      /* ── THE MEANING BEHIND ORYN — full-bleed banner image with a blue scrim for legibility ── */
+      #meaning {
+        position: relative;
+        background: var(--blue) center 55% / cover no-repeat
+          url("about-images/meaning-banner.png");
+        padding: calc(var(--py) + 26px) var(--px);
+        overflow: hidden;
+      }
+      #meaning::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(9, 38, 88, 0.78) 0%,
+          rgba(12, 54, 123, 0.66) 45%,
+          rgba(9, 38, 88, 0.84) 100%
+        );
+      }
+      .mn-inner {
+        position: relative;
+        z-index: 1;
+        max-width: 1080px;
+        margin: 0 auto;
+        text-align: left;
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 64px;
+        align-items: center;
+      }
+      .mn-body {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      /* Heading sits on the dark banner photo — needs white for contrast,
+         unlike every other ".story-title" which sits on a light section. */
+      #meaning .story-title {
+        color: var(--white);
+      }
+      /* placeholder image — Oryn logo, right-hand side */
+      .mn-logo-frame {
+        aspect-ratio: 1/1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        display: grid;
+        place-items: center;
+        padding: 14%;
+      }
+      .mn-logo-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        opacity: 0.92;
+      }
+      @media (max-width: 900px) {
+        #meaning {
+          padding: calc(var(--py) + 20px) var(--px);
+          background-position: center 62%;
+        }
+        .mn-inner {
+          grid-template-columns: 1fr;
+          gap: 40px;
+        }
+        .mn-logo-frame {
+          max-width: 220px;
+          margin: 0 auto;
+        }
+      }
+      @media (max-width: 640px) {
+        #meaning {
+          padding: calc(var(--py) + 4px) var(--px);
+          background-position: center 68%;
+        }
+        #meaning::before {
+          background: linear-gradient(
+            180deg,
+            rgba(9, 38, 88, 0.84) 0%,
+            rgba(12, 54, 123, 0.72) 45%,
+            rgba(9, 38, 88, 0.88) 100%
+          );
+        }
+      }
+
+      /* ── OUR STORY ── */
+      #story {
+        padding: var(--py) var(--px);
+      }
+      .story-inner {
+        max-width: var(--max);
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 100px;
+        align-items: center;
+      }
+      .story-copy {
+        max-width: 64ch;
+      }
+      .story-title {
+        line-height: 1.12;
+        letter-spacing: -0.01em;
+      }
+      .story-body {
+        font-family: var(--f-body);
+        color: rgba(12, 54, 123, 0.6);
+        margin-bottom: 16px;
+      }
+      .story-body:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ── WHAT MAKES US DIFFERENT ── */
+      #different {
+        padding: var(--py) var(--px);
+        background: #f8f7f4;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      /* Decorative floral frame — tiled motif, edges only, faded to a clean centre */
+      #different::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image: url("wmremove-transformed.jpeg");
+        background-repeat: repeat;
+        background-size: 440px auto;
+        opacity: 0.08;
+        mix-blend-mode: multiply; /* drops the cream ground — only blue linework tints the section */
+        /* Reveal the motif toward the outer edges/corners only; keep the reading area clear */
+        -webkit-mask-image: radial-gradient(
+          ellipse 60% 56% at 50% 50%,
+          transparent 38%,
+          rgba(0, 0, 0, 0.5) 72%,
+          #000 100%
+        );
+        mask-image: radial-gradient(
+          ellipse 60% 56% at 50% 50%,
+          transparent 38%,
+          rgba(0, 0, 0, 0.5) 72%,
+          #000 100%
+        );
+      }
+      .diff-inner {
+        max-width: 980px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+      .diff-quote {
+        font-family: var(--f-display);
+        font-weight: 400;
+        font-size: clamp(1.8rem, 3.8vw, 3.25rem);
+        color: var(--blue);
+        line-height: 1.26;
+        margin-bottom: 34px;
+      }
+      .diff-body {
+        font-family: var(--f-body);
+        color: rgba(12, 54, 123, 0.6);
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      .diff-rule {
+        width: 48px;
+        height: 1px;
+        background: var(--blue);
+        opacity: 0.18;
+        margin: 30px auto;
+      }
+
+      /* ── OUR PHILOSOPHY — matches "Our Story": clean image + copy, no overlay ── */
+      #philosophy {
+        padding: var(--py) var(--px);
+      }
+
+      /* ── MISSION / VISION / VALUES ── */
+      #mvv {
+        padding: var(--py) var(--px);
+        background: #f8f7f4;
+      }
+      .mvv-inner {
+        max-width: var(--max);
+        margin: 0 auto;
+      }
+      .mvv-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: rgba(12, 54, 123, 0.16);
+        margin-top: 64px;
+      }
+      .mvv-card {
+        background: #f8f7f4;
+        padding: 60px 46px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition:
+          transform 0.45s var(--ease),
+          box-shadow 0.45s var(--ease);
+      }
+      .mvv-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 26px 56px rgba(12, 54, 123, 0.14);
+        z-index: 2;
+      }
+      .mvv-eyebrow {
+        font-family: var(--f-body);
+        font-size: 0.64rem;
+        letter-spacing: 0.36em;
+        text-transform: uppercase;
+        color: rgba(12, 54, 123, 0.32);
+        margin-bottom: 18px;
+      }
+      .mvv-head {
+        font-family: var(--f-display);
+        font-size: clamp(1.4rem, 2vw, 1.8rem);
+        color: var(--blue);
+        margin-bottom: 24px;
+        line-height: 1.22;
+      }
+      .mvv-body {
+        font-family: var(--f-body);
+        color: rgba(12, 54, 123, 0.58);
+      }
+      .val-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 22px;
+      }
+      .val-chip {
+        font-family: var(--f-body);
+        font-size: 0.66rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        padding: 8px 15px;
+        border: 1px solid rgba(12, 54, 123, 0.2);
+        color: rgba(12, 54, 123, 0.6);
+      }
+
+      /* ── CTA — cropped photo banners, full-bleed at the top of each panel ── */
+      #cta {
+        padding: var(--py) var(--px);
+      }
+      .cta-grid {
+        max-width: var(--max);
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        background: rgba(12, 54, 123, 0.08);
+      }
+      .cta-panel {
+        padding: 56px 48px;
+        display: flex;
+        flex-direction: column;
+      }
+      .cta-panel.light {
+        background: var(--white);
+      }
+      .cta-panel.dark {
+        background: var(--blue);
+      }
+      .cta-ph {
+        margin: -56px -48px 32px;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+      }
+      .cta-ph img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.7s var(--ease-out);
+      }
+      .cta-panel:hover .cta-ph img {
+        transform: scale(1.045);
+      }
+      .cta-panel.light .cta-ph img {
+        object-position: center 88%;
+      }
+      .cta-panel.dark .cta-ph img {
+        object-position: center 80%;
+      }
+      .cta-panel .h3 {
+        font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+        font-weight: 400;
+        line-height: 1.18;
+      }
+      .cta-panel.light .body-md {
+        color: rgba(12, 54, 123, 0.82);
+      }
+      .cta-panel.dark .body-md {
+        color: rgba(255, 255, 255, 0.86);
+      }
+      .cta-panel .btn {
+        align-self: flex-start;
+        margin-top: auto;
+      }
+      #cta .btn {
+        padding: 18px 46px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        letter-spacing: 0.22em;
+        transition:
+          background 0.4s var(--ease),
+          color 0.4s var(--ease),
+          transform 0.4s var(--ease),
+          box-shadow 0.4s var(--ease);
+      }
+      #cta .btn:hover {
+        transform: translateY(-2px);
+      }
+      #cta .btn-b:hover {
+        box-shadow: 0 16px 34px rgba(12, 54, 123, 0.24);
+      }
+      #cta .btn-w:hover {
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+      }
+      @media (max-width: 1100px) {
+        .cta-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 640px) {
+        .cta-panel {
+          padding: 44px 26px;
+        }
+        .cta-ph {
+          margin: -44px -26px 26px;
+        }
+        #cta .btn {
+          padding: 16px 36px;
+        }
+      }
+
+      /* ── IMAGE PLACEHOLDERS ── */
+      .ph {
+        position: relative;
+        overflow: hidden;
+        background: rgba(12, 54, 123, 0.045);
+        border: 1px solid rgba(12, 54, 123, 0.12);
+        display: grid;
+        place-items: center;
+      }
+      .ph::after {
+        content: attr(data-ph);
+        font-family: var(--f-body);
+        font-size: 0.58rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: rgba(12, 54, 123, 0.34);
+        text-align: center;
+        line-height: 1.9;
+        padding: 0 18px;
+      }
+      .ph-w {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      .ph-w::after {
+        color: rgba(255, 255, 255, 0.42);
+      }
+
+      /* ── FOOTER — logo, description & tagline grouped as one cohesive brand block ── */
+      footer {
+        padding: var(--py) var(--px);
+      }
+      .ft-top {
+        align-items: start;
+      }
+      /* trimmed wordmark → sized by height; its left edge now aligns with the text below */
+      .ft-logo {
+        display: block;
+        height: 66px;
+        width: auto;
+        margin: 0 0 14px;
+      }
+      .ft-about {
+        max-width: 340px;
+        margin-bottom: 12px;
+      }
+      .ft-acc {
+        display: block;
+        margin: 0;
+      }
+
+      /* ── SECTION TITLES — stronger visual hierarchy ── */
+      .eye {
+        font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+        letter-spacing: 0.2em;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-bottom: 20px;
+      }
+      .eye-b {
+        color: rgba(12, 54, 123, 0.95);
+      }
+      .eye-w {
+        color: rgba(255, 255, 255, 0.95);
+      }
+      .mvv-eyebrow {
+        font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+        letter-spacing: 0.2em;
+        font-weight: 600;
+        line-height: 1.3;
+        color: rgba(12, 54, 123, 0.95);
+        margin-bottom: 20px;
+      }
+
+      /* ── UNIFIED BODY PARAGRAPHS — matches The Oryn Table's shared body
+       paragraph treatment (.intro-p, .what-txt > p, .fmt-t, .ec-desc, .jny-body) ── */
+      .ia-body,
+      .story-body,
+      .diff-body,
+      .mn-body,
+      .mvv-body,
+      .cta-panel .body-md {
+        font-size: clamp(1.08rem, 1.35vw, 1.22rem);
+        line-height: 1.72;
+        font-weight: 400;
+        letter-spacing: 0;
+        max-width: 60ch;
+      }
+      /* light sections — brand-blue text */
+      .ia-body,
+      .story-body,
+      .diff-body {
+        color: rgba(12, 54, 123, 0.82);
+      }
+      /* blue sections — white text */
+      .mn-body {
+        color: rgba(255, 255, 255, 0.86);
+      }
+
+      /* ── SCROLL REVEAL — refined fade-up: ~0.55s, gentle 24px lift, soft easing ── */
+      .r,
+      .r-l,
+      .r-r,
+      .r-s {
+        transition-duration: 0.55s;
+        transition-timing-function: var(--ease-out);
+      }
+      .r {
+        transform: translateY(24px);
+      }
+      .r-l {
+        transform: translateX(-24px);
+      }
+      .r-r {
+        transform: translateX(24px);
+      }
+      .r-s {
+        transform: scale(0.985);
+      }
+      /* stagger between grouped elements ~100ms */
+      .d1 {
+        transition-delay: 0.1s;
+      }
+      .d2 {
+        transition-delay: 0.2s;
+      }
+      .d3 {
+        transition-delay: 0.3s;
+      }
+
+      /* ── WIDER MEASURE (these two centred sections only) — less side whitespace ── */
+      #meaning .mn-body,
+      #different .diff-body {
+        max-width: 70ch; /* ≈ 780px — balanced on large screens, still centred */
+        margin: 0 auto;
+      }
+
+      /* ── SECTION RHYTHM — consistent, slightly larger gaps between major sections ── */
+      #intro-about,
+      #story,
+      #different,
+      #philosophy,
+      #mvv {
+        padding-top: calc(var(--py) - 8px);
+        padding-bottom: calc(var(--py) - 8px);
+      }
+      /* Quote gets a touch more air above & below — an intentional editorial pause */
+      #different {
+        padding-top: calc(var(--py) + 18px);
+        padding-bottom: calc(var(--py) + 18px);
+      }
+
+      /* ── IMAGE MICRO-INTERACTION — restrained 1.02 scale, soft ease-out ── */
+      .img-cover img {
+        transition: transform 0.58s var(--ease-out);
+      }
+      .img-cover:hover img {
+        transform: scale(1.02);
+      }
+
+      /* ── FOOTER SEPARATION — breathing room after the final section ── */
+      footer {
+        margin-top: 28px;
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 1100px) {
+        .ia-inner,
+        .mn-inner,
+        .story-inner {
+          grid-template-columns: 1fr;
+          gap: 48px;
+        }
+        .mvv-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 900px) {
+        #intro-about {
+          padding: var(--py) var(--px);
+        }
+        .mvv-card {
+          padding: 48px 36px;
+        }
+        /* smaller tile + tighter clear centre so florals stay at the very edges */
+        #different::before {
+          background-size: 340px auto;
+          opacity: 0.06;
+          -webkit-mask-image: radial-gradient(
+            ellipse 66% 60% at 50% 50%,
+            transparent 46%,
+            rgba(0, 0, 0, 0.5) 78%,
+            #000 100%
+          );
+          mask-image: radial-gradient(
+            ellipse 66% 60% at 50% 50%,
+            transparent 46%,
+            rgba(0, 0, 0, 0.5) 78%,
+            #000 100%
+          );
+        }
+      }
+      @media (max-width: 640px) {
+        .mvv-card {
+          padding: 40px 26px;
+        }
+        .ia-lead {
+          margin-bottom: 28px;
+        }
+        .ft-about {
+          max-width: 100%;
+        }
+        /* barely-there on phones — a whisper of texture in the corners */
+        #different::before {
+          opacity: 0.045;
+          background-size: 260px auto;
+        }
+      }
+
+      /* ── QUOTE TYPOGRAPHY — matches The Oryn Table's ".what-txt blockquote"
+       treatment: italic display serif, ~2.2rem. Applied to the hero quote and
+       "Most bakeries begin with recipes…" — editorial quotes, not headings. ── */
+      .hero-quote,
+      #different .diff-quote {
+        font-family: var(--f-display);
+        font-weight: 400;
+        font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+        line-height: 1.35;
+        margin-bottom: 28px;
+      }
+      .hero-quote {
+        font-size: clamp(1.9rem, 3.6vw, 3.2rem);
+      }
+
+      /* ── SECTION HEADINGS — matches The Oryn Table's ".intro-h" treatment:
+       display serif, regular weight, upright (not italic), ~4.5rem at its
+       largest. Applied to "Born from a simple belief.", "Not Just Baked.
+       Thought Through.", "Mission, Vision & Values", and the CTA titles —
+       all plain declarative headings. ── */
+      #story .h2,
+      #philosophy .h2,
+      #mvv .h1,
+      #cta .h3 {
+        font-family: var(--f-display);
+        font-style: normal;
+        font-weight: 400;
+        font-size: clamp(2.45rem, 5.5vw, 4.5rem);
+        line-height: 1.08;
+        letter-spacing: normal;
+        margin-bottom: 22px;
+      }
+
+      /* ── BODY COPY — "Who We Are", "Our Story", "Our Philosophy" & "The
+       Meaning Behind Oryn"; sizing now comes from the unified body-paragraph
+       rule above (matching the Contact page). Colour stays per-section for
+       correct contrast. ── */
+      #intro-about .ia-body,
+      #story .story-body,
+      #philosophy .story-body,
+      #meaning .mn-body {
+        text-align: left;
+        margin-bottom: 16px;
+      }
+      /* "Every creation…" — match the lead sentence's width above it */
+      #intro-about .ia-body {
+        max-width: none;
+      }
+      /* light sections → brand-blue text */
+      #intro-about .ia-body,
+      #story .story-body,
+      #philosophy .story-body {
+        color: rgba(12, 54, 123, 0.82);
+      }
+      /* blue section → white text; aligned to the section's left edge */
+      #meaning .mn-body {
+        color: rgba(255, 255, 255, 0.86);
+        margin-left: 0;
+        margin-right: auto;
+        padding-top: 20px;
+      }
+      /* "What Makes Us Different" body — centred per this section's design. */
+      #different .diff-body {
+        margin-bottom: 16px;
+      }
+      /* Mission / Vision / Values card body. */
+      #mvv .mvv-body {
+        color: rgba(12, 54, 123, 0.82);
+        margin-bottom: 16px;
+      }
+      /* "Who We Are" lead-in sentence — matches the regular body copy size. */
+      #intro-about .ia-lead {
+        font-family: var(--f-body);
+        font-size: clamp(1.08rem, 1.35vw, 1.22rem);
+        font-weight: 400;
+        line-height: 1.72;
+        color: rgba(12, 54, 123, 0.82);
+        margin-bottom: 16px;
+      }
+      /* SUB-HEADINGS (MVV card titles) — "Welcome & Context" (.fmt-h) type
+       from the Oryn Table: display serif, regular weight, tight leading,
+       including its font-size. Colour kept per this section. */
+      .mvv-head {
+        font-family: var(--f-display);
+        font-size: clamp(1.5rem, 2.1vw, 1.9rem);
+        font-weight: 400;
+        font-style: normal;
+        line-height: 1.2;
+        letter-spacing: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cursor-dot" id="cDot"></div>
+    <div class="cursor-ring" id="cRing"></div>
+    <div id="loader">
+      <img class="ldr-logo" src="Logo Design/Logo Design - V2.png" alt="Oryn" />
+      <div class="ldr-bar"></div>
+    </div>
+
+    <div id="mob-nav">
+    <a href="index.html" onclick="closeMob()">Home</a>
+    <div class="mob-dd">
+      <button type="button" class="mob-dd-btn">Collections
+        <svg class="dd-chev" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="mob-dd-panel">
+        <a href="best-sellers.html" onclick="closeMob()">Best Sellers</a>
+        <a href="muffins.html" onclick="closeMob()">A Delhi Love Story</a>
+        <a href="cookies.html" onclick="closeMob()">Cookie Collection</a>
+        <a href="woh-din-yaad-hai.html" onclick="closeMob()">WOH DIN - Yaad Hai?</a>
+        <a href="flavours-of-india.html" onclick="closeMob()">Flavours of India</a>
+        <a href="saanjh.html" onclick="closeMob()">Saanjh</a>
+        <a href="banana-cookie-melt.html" onclick="closeMob()">Banana Cookie Melt</a>
+      </div>
+    </div>
+    <a href="all-products.html" onclick="closeMob()">All Products</a>
+    <a href="the-oryn-table.html" onclick="closeMob()">The Oryn Table</a>
+    <a href="about.html" onclick="closeMob()">About</a>
+    <a href="contact.html" onclick="closeMob()">Contact</a>
+    <a href="order.html" onclick="closeMob()">Order</a>
+  </div>
+
+    <nav id="nav">
+      <a href="index.html" class="nav-logo-wrap">
+        <img class="nav-logo" src="logo-oryn.png" alt="Oryn" />
+      </a>
+      <div class="nav-center">
+        <a href="index.html" class="nav-link">Home</a>
+        <div class="nav-dd">
+          <button class="nav-link nav-dd-btn">
+            Collections
+            <svg class="dd-chev" viewBox="0 0 10 6" fill="none">
+              <path
+                d="M1 1l4 4 4-4"
+                stroke="currentColor"
+                stroke-width="1.2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+          <div class="nav-dd-panel">
+            <div class="dd-item-flyout">
+              <a href="best-sellers.html" class="dd-item"><strong>Best Sellers</strong><span>Our Most-Loved Picks</span></a>
+              <div class="dd-flyout-panel">
+                <a href="saanjh.html" class="dd-flyout-item">Saanjh</a>
+                <a href="banana-cookie-melt.html" class="dd-flyout-item">Banana Cookie Melt</a>
+              </div>
+            </div>
+            <div class="dd-sep"></div>
+            <div class="dd-item-flyout">
+              <a href="muffins.html" class="dd-item"
+                ><strong>A Delhi Love Story</strong
+                ><span>Signature Muffin Collection</span></a
+              >
+              <div class="dd-flyout-panel">
+                <a href="muffin-citrus-spice-bloom.html" class="dd-flyout-item">Citrus Spice Bloom</a>
+                <a href="muffin-mace-latte.html" class="dd-flyout-item">Mace Latte</a>
+                <a href="muffin-matcha-butterscotch.html" class="dd-flyout-item">Matcha Butterscotch</a>
+                <a href="muffin-spiced-cocoa-ember.html" class="dd-flyout-item">Spiced Cocoa Ember</a>
+                <a href="muffin-salted-caramel.html" class="dd-flyout-item">Salted Caramel Power Crunch</a>
+              </div>
+            </div>
+            <div class="dd-item-flyout">
+              <a href="cookies.html" class="dd-item"
+                ><strong>Cookie Collection</strong
+                ><span>Pan India Delivery</span></a
+              >
+              <div class="dd-flyout-panel">
+                <a href="cookie-aurelia.html" class="dd-flyout-item">Aurelia</a>
+                <a href="cookie-jade-caramel.html" class="dd-flyout-item">Jade Caramel</a>
+                <a href="cookie-cloud-crumb.html" class="dd-flyout-item">Cloud Crumb</a>
+              </div>
+            </div>
+            <div class="dd-item-flyout">
+              <a href="woh-din-yaad-hai.html" class="dd-item"
+                ><strong>WOH DIN - Yaad Hai?</strong
+                ><span>Nostalgia Collection</span></a
+              >
+              <div class="dd-flyout-panel">
+                <a href="almond-cinnamon-cookies.html" class="dd-flyout-item">Almond Cinnamon Cookies</a>
+                <a href="almond-chocolate-biscotti.html" class="dd-flyout-item">Almond Chocolate Biscotti</a>
+                <a href="almond-nuts-tea-cake.html" class="dd-flyout-item">Almond &amp; Nuts Tea Cake</a>
+                <a href="dark-chocolate-almond-bars.html" class="dd-flyout-item">Dark Chocolate Almond Bars</a>
+              </div>
+            </div>
+            <div class="dd-sep"></div>
+            <div class="dd-item-flyout">
+              <a href="flavours-of-india.html" class="dd-item"
+                ><strong>Flavours of India</strong
+                ><span>Regional Heritage</span></a
+              >
+              <div class="dd-flyout-panel">
+                <a href="eclair-malabar-gold.html" class="dd-flyout-item">Malabar Gold Éclair</a>
+                <a href="cupcake-nolen-halo.html" class="dd-flyout-item">Nolen Halo Cupcake</a>
+                <a href="bento-apricus.html" class="dd-flyout-item">Apricus Bento Cake</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a href="all-products.html" class="nav-link">All Products</a>
+        <a href="the-oryn-table.html" class="nav-link">The Oryn Table</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </div>
+      <a href="order.html" class="nav-cta-btn desktop-only">Order</a>
+      <button class="hamburger" id="ham" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero" data-dark data-hero-dark>
+      <div class="hero-inner">
+        <div class="hero-copy r">
+          <p class="hero-quote">
+            Some stories are remembered. <br> <strong>Ours</strong> are meant to be <strong>tasted</strong>.
+          </p>
+          <div class="hero-rule"></div>
+          <p class="hero-tagline">A Study in Taste &amp; Texture</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTRO -->
+    <section id="intro-about">
+      <div class="ia-inner inner">
+        <div class="r-l">
+          <h2 class="h2 story-title">Who We Are</h2>
+          <p class="ia-lead">
+            At <strong>Oryn</strong>, we believe the most memorable desserts are
+            not defined by <em>sweetness alone</em>. They are remembered for
+            <strong>how they made us feel</strong>. A familiar flavour that
+            takes you back to a forgotten memory. A texture that surprises you.
+            <em>A moment shared with someone important.</em>
+          </p>
+          <p class="ia-body">
+            Every creation at Oryn begins with an idea, a feeling, or a story
+            before it ever becomes a dessert. Through thoughtful craftsmanship,
+            layered textures, and carefully considered flavours, we create
+            experiences that linger long after the final bite. Oryn is not
+            simply a patisserie. It is a place where stories are translated into
+            taste.
+          </p>
+        </div>
+        <div class="img-cover img-4-5 r-r">
+          <img
+            src="about-images/Oryn - Instagram Post.jpg"
+            alt="Oryn — A Study in Taste &amp; Texture"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </section>
+
+    <div class="marquee">
+      <div class="marquee-track">
+        <span class="marquee-item">A Study in Taste &amp; Texture</span>
+        <span class="marquee-item">Stories Translated Into Taste</span>
+        <span class="marquee-item">Not Just Baked. Thought Through.</span>
+        <span class="marquee-item">Experiential Patisserie</span>
+        <span class="marquee-item">A Study in Taste &amp; Texture</span>
+        <span class="marquee-item">Stories Translated Into Taste</span>
+        <span class="marquee-item">Not Just Baked. Thought Through.</span>
+        <span class="marquee-item">Experiential Patisserie</span>
+        <span class="marquee-item">A Study in Taste &amp; Texture</span>
+        <span class="marquee-item">Stories Translated Into Taste</span>
+        <span class="marquee-item">Not Just Baked. Thought Through.</span>
+        <span class="marquee-item">Experiential Patisserie</span>
+        <span class="marquee-item">A Study in Taste &amp; Texture</span>
+        <span class="marquee-item">Stories Translated Into Taste</span>
+        <span class="marquee-item">Not Just Baked. Thought Through.</span>
+        <span class="marquee-item">Experiential Patisserie</span>
+        <span class="marquee-item">A Study in Taste &amp; Texture</span>
+        <span class="marquee-item">Stories Translated Into Taste</span>
+        <span class="marquee-item">Not Just Baked. Thought Through.</span>
+        <span class="marquee-item">Experiential Patisserie</span>
+        <span class="marquee-item">A Study in Taste &amp; Texture</span>
+        <span class="marquee-item">Stories Translated Into Taste</span>
+        <span class="marquee-item">Not Just Baked. Thought Through.</span>
+        <span class="marquee-item">Experiential Patisserie</span>
+      </div>
+    </div>
+
+    <!-- THE MEANING BEHIND ORYN -->
+    <section id="meaning" data-dark>
+      <div class="mn-inner">
+        <div class="r-l">
+          <h2 class="h2 story-title">The Meaning Behind Oryn</h2>
+          <p class="mn-body r d1">
+            The name <strong>Oryn</strong> draws inspiration from the word
+            <em>origin</em> - the place where everything begins. Every flavour has
+            an origin. Every memory has an origin. Every story has an origin. For
+            us, origin is not just about ingredients or recipes; it is about
+            <strong>intention</strong>. It is the thought behind every flavour
+            pairing, the inspiration behind every collection, and the purpose
+            behind every detail. Before a dessert becomes a product, it begins as
+            an idea. Oryn exists to honour that beginning - with <em>clarity</em>,
+            <em>care</em>, and <strong>craft</strong>.
+          </p>
+        </div>
+        <div>
+          <img src="Oryn - Transparent Logo.png" alt="Oryn"/>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUR STORY -->
+    <section id="story">
+      <div class="story-inner inner">
+        <div class="img-cover img-4-5 r-l">
+          <img
+            src="about-images/Oryn - Instagram Post about.jpg"
+            alt="Our Story — Oryn"
+            loading="lazy"
+          />
+        </div>
+        <div class="r-r story-copy">
+          <span class="eye eye-b mb16">Our Story</span>
+          <h2 class="h2 story-title">Born from a simple belief</h2>
+          <p class="story-body">
+            <strong>Oryn</strong> was born from a simple belief:
+            <em
+              >the world does not need more desserts, it needs more meaningful
+              experiences.</em
+            >
+            In an industry where products often take centre stage, we wanted to
+            focus on the <strong>emotions, memories, and rituals</strong> that
+            make food truly memorable.
+          </p>
+          <p class="story-body d1">
+            We began exploring how
+            <strong>flavour, texture, culture, and storytelling</strong> could
+            come together to create something more personal.
+          </p>
+          <p class="story-body d2">
+            What emerged was a
+            <em>modern patisserie built on intention</em> where every collection
+            starts with a narrative and every dessert is crafted to evoke a
+            feeling. Whether inspired by a <strong>Delhi love story</strong>,
+            the nostalgia of regional India, or the comfort of an evening cup of
+            chai, every <strong>Oryn</strong> creation is designed to be
+            <em>experienced, not merely consumed.</em>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT MAKES US DIFFERENT -->
+    <section id="different">
+      <div class="diff-inner r">
+        <span class="eye eye-b mb16" style="display: block; text-align: center"
+          >What Makes Us Different</span
+        >
+        <div class="diff-rule"></div>
+        <H3 class="diff-quote">
+          "Most bakeries begin with recipes. <br />We begin with stories."
+        </H3>
+        <p class="diff-body">
+          Every Oryn collection starts with a question: what feeling are we
+          trying to capture? Sometimes it is nostalgia. Sometimes it is comfort.
+          Sometimes it is celebration, curiosity, or connection. From there, we
+          carefully build flavour profiles, textures, and experiences around
+          that emotion. This approach allows us to create desserts that feel
+          personal and memorable. We don't simply think about how a dessert
+          tastes; we think about how it unfolds, how it feels, and what it
+          leaves behind.
+        </p>
+      </div>
+    </section>
+
+    <!-- MISSION / VISION / VALUES -->
+    <section id="mvv">
+      <div class="mvv-inner">
+        <div class="tc r">
+          <span class="eye eye-b mb16">What Guides Us</span>
+          <h2 class="h1">Mission, Vision &amp; Values</h2>
+        </div>
+        <div class="mvv-grid">
+          <div class="mvv-card r">
+            <p class="mvv-eyebrow">Our Mission</p>
+            <h3 class="mvv-head">Meaningful dessert experiences.</h3>
+            <p class="mvv-body">
+              Our mission is to create meaningful dessert experiences that bring
+              together craftsmanship, storytelling, and emotion. We aim to
+              transform everyday indulgence into something memorable by creating
+              desserts that invite people to slow down, connect, celebrate, and
+              savour the moment.
+            </p>
+          </div>
+          <div class="mvv-card r d1">
+            <p class="mvv-eyebrow">Our Vision</p>
+            <h3 class="mvv-head">
+              India's most distinctive experiential patisserie.
+            </h3>
+            <p class="mvv-body">
+              We envision Oryn becoming India's most distinctive experiential
+              patisserie a brand recognised not only for exceptional desserts
+              but for creating experiences that people remember, share, and
+              return to. We aspire to redefine the way people engage with
+              desserts by placing storytelling, culture, and thoughtful
+              craftsmanship at the centre of every creation.
+            </p>
+          </div>
+          <div class="mvv-card r d2">
+            <p class="mvv-eyebrow">Our Values</p>
+            <h3 class="mvv-head">Purpose Behind Every Creation.</h3>
+            <p class="mvv-body">
+              At Oryn, we are guided by intention, curiosity, craftsmanship, and
+              authenticity. We believe in creating with purpose, exploring
+              flavours without boundaries, honouring the details that others
+              overlook, and building meaningful connections through food. Every
+              decision we make, from product development to presentation,
+              reflects these values.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUR PHILOSOPHY -->
+    <section id="philosophy">
+      <div class="story-inner inner">
+        <div class="img-cover img-4-5 r-l">
+          <img
+            src="About Us Banner.png"
+            alt="Our Philosophy — Oryn"
+            loading="lazy"
+          />
+        </div>
+        <div class="r-r story-copy">
+          <span class="eye eye-b mb16">Our Philosophy</span>
+          <h2 class="h2 story-title">Not Just Baked.<br> <span style="white-space:nowrap">Thought Through.</span></h2>
+          <p class="story-body">
+            This philosophy sits at the heart of everything we create. Every
+            layer, every ingredient, every texture serves a purpose.
+          </p>
+          <p class="story-body d1">
+            We study how flavours evolve on the palate, how contrasting
+            textures interact, and how every element contributes to the
+            overall experience.
+          </p>
+          <p class="story-body d2">
+            Nothing is added without reason. Every detail is intentional.
+            Every creation is crafted to deliver balance, curiosity, and
+            delight.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta">
+      <div class="cta-grid r">
+        <div class="cta-panel light">
+          <div class="cta-ph">
+            <img
+              src="2 (1).png"
+              alt="Oryn — Discover Our Collections"
+              loading="lazy"
+            />
+          </div>
+          <span class="eye eye-b mb16">Explore</span>
+          <h3 class="h3 mb16">Discover Our Collections</h3>
+          <p class="body-md opacity-b mb28">
+            From A Delhi Love Story to the nostalgia of Flavours of India every
+            collection is a story crafted to be experienced, not merely
+            consumed.
+          </p>
+          <a href="muffins.html" class="btn btn-b">See Collections</a>
+        </div>
+        <div class="cta-panel dark" data-dark>
+          <div class="cta-ph">
+            <img
+              src="table_Image.jfif"
+              alt="Join the Oryn Table"
+              loading="lazy"
+            />
+          </div>
+          <span class="eye eye-w mb16">Experience</span>
+          <h3 class="h3 w-white mb16">Join the <br> Oryn Table</h3>
+          <p class="body-md mb28">
+            Our signature experiential gathering an evening of dessert, culture,
+            and conversation, designed to be remembered.
+          </p>
+          <a href="the-oryn-table.html" class="btn btn-w">Discover the Table</a>
+        </div>
+      </div>
+    </section>
+
+    <footer data-dark>
+    <div class="ft-inner">
+      <div class="ft-top">
+        <div>
+          <img class="ft-logo" src="logo-oryn.png" alt="Oryn">
+          <p class="ft-about">An experiential patisserie that blends craftsmanship, aesthetics, and storytelling to create memorable dessert experiences.</p>
+          <span class="ft-acc">Not Just Baked.<br> Thought Through.</span>
+        </div>
+        <div>
+          <p class="ft-col-h">Collections</p>
+          <ul class="ft-links">
+            <li><a href="best-sellers.html">Best Sellers</a></li>
+            <li><a href="muffins.html">A Delhi Love Story</a></li>
+            <li><a href="cookies.html">Cookie Collection</a></li>
+            <li><a href="woh-din-yaad-hai.html">WOH DIN - Yaad Hai?</a></li>
+            <li><a href="flavours-of-india.html">Flavours of India</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Explore</p>
+          <ul class="ft-links">
+            <li><a href="about.html">About Oryn</a></li>
+            <li><a href="index.html#collections">Collection</a></li>
+            <li><a href="the-oryn-table.html">The Oryn Table</a></li>
+            <li><a href="order.html">Ordering &amp; Gifting</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Get In Touch</p>
+          <ul class="ft-links">
+            <li><a href="contact.html">Query</a></li>
+            <li><a href="mailto:oryn.patisserie@gmail.com">Email Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Socials</p>
+          <ul class="ft-links">
+            <li><a href="https://instagram.com/oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg>Instagram</a></li>
+            <li><a href="https://www.threads.com/@oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c-4.5 0-7 2.8-7 7.2v3.6c0 4.4 2.5 7.2 7 7.2s7-2.8 7-7.2c0-2.7-1.6-4.4-4-4.4-2.1 0-3.6 1.2-3.6 3 0 1.4 1 2.2 2.4 2.2 1.1 0 2.1-.5 2.6-1.4"/></svg>Threads</a></li>
+            <li><a href="https://www.facebook.com/share/1AU4rWwGFM/" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 3h-2a5 5 0 0 0-5 5v3H6v4h2v6h4v-6h3l1-4h-4V8a1 1 0 0 1 1-1h3z"/></svg>Facebook</a></li>
+            <li><a href="https://youtube.com/@oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="6.5" width="19" height="11" rx="3.5"/><path d="M10.5 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none"/></svg>YouTube</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Sign Up For Updates</p>
+          <form class="ft-signup-form" onsubmit="return false;">
+            <input type="email" placeholder="Enter your email..." required>
+            <button type="submit">Sign Up</button>
+          </form>
+        </div>
+      </div>
+      <div class="ft-bot">
+        <p class="ft-copy">&copy; 2026 Oryn. All rights reserved.</p>
+        <p class="ft-legal"><a href="terms-and-policy.html">Terms &amp; Conditions</a> &middot; <a href="terms-and-policy.html#privacy">Privacy Policy</a></p>
+        <p class="ft-tagline">A Study in Taste &amp; Texture</p>
+      </div>
+    </div>
+  </footer>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>

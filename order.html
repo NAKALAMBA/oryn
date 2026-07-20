@@ -1,0 +1,867 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Order from Oryn — Delhi NCR delivery & pan-India shipping. Artisan desserts, handcrafted to order. Enquire for gifting, custom orders & bulk.">
+  <title>Order — Oryn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Amita:wght@400;700&family=Comforter+Brush&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── HERO ── */
+    #hero { min-height: 70vh; background: var(--blue); display: flex; flex-direction: column; justify-content: flex-end; padding: calc(var(--nav-h)+60px) var(--px) 80px; position: relative; overflow: hidden; }
+    .ord-hero-inner { max-width: var(--max); margin: 0 auto; width: 100%; z-index: 1; }
+    .oh-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; flex-wrap: wrap; }
+    .oh-title { font-family: var(--f-display); font-weight: 300; font-size: clamp(3.2rem, 8vw, 7rem); color: var(--white); line-height: .9; margin-bottom: 0;}
+
+    /* ── ORDER SUB-NAV (sticky) ── */
+    #order-subnav { position: sticky; top: var(--nav-h); z-index: 900; background: var(--blue); padding: 18px var(--px); box-shadow: 0 8px 24px rgba(12,54,123,.14); }
+    .subnav-inner { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: flex-end; gap: 24px; flex-wrap: wrap; }
+    .oh-tag  { font-family: var(--f-body); font-size: .68rem; letter-spacing: .38em; text-transform: uppercase; color: rgba(255,255,255,.38); margin-right: auto; }
+    .oh-anchors { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+    .oh-menu-dd .nav-dd-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+    .oh-menu-panel { min-width: 240px; }
+
+    @media (max-width: 720px) {
+      .subnav-inner { justify-content: center; }
+      .oh-tag { margin-right: 0; width: 100%; text-align: center; }
+    }
+
+    /* ── CART ── */
+    #cart { padding: 72px var(--px) 44px; border-bottom: 1px solid rgba(12,54,123,.06); background: #fbfaf7; }
+    .cart-inner { max-width: var(--max); margin: 0 auto; }
+    .cart-shell { display: grid; grid-template-columns: 1.16fr .84fr; gap: 2px; background: rgba(12,54,123,.06); margin-top: 42px; }
+    .cart-panel, .cart-summary, .cart-empty { background: var(--white); }
+    .cart-panel, .cart-summary { padding: 40px 34px; }
+    .cart-panel-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 20px; }
+    .cart-head, .cart-empty-title { font-family: var(--f-display); font-weight: 400; font-size: clamp(1.8rem,3vw,2.5rem); color: var(--blue); line-height: 1.05; }
+    .cart-clear, .cart-remove { font-family: var(--f-body); font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(12,54,123,.45); }
+    .cart-list { display: grid; gap: 18px; }
+    .cart-item { display: flex; justify-content: space-between; gap: 18px; padding-top: 18px; border-top: 1px solid rgba(12,54,123,.08); }
+    .cart-item:first-child { padding-top: 0; border-top: none; }
+    .cart-item-main { max-width: 68%; }
+    .cart-item-name { font-family: var(--f-display); font-size: 1.3rem; color: var(--blue); margin-bottom: 6px; }
+    .cart-item-meta, .cart-item-unit, .cart-empty-copy { font-family: var(--f-body); font-size: .92rem; line-height: 1.72; color: rgba(12,54,123,.56); }
+    .cart-item-unit { margin-top: 6px; }
+    .cart-item-side { display: grid; justify-items: end; gap: 10px; }
+    .cart-qty { display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(12,54,123,.1); padding: 6px 10px; }
+    .cart-qty button { font-family: var(--f-display); font-size: 1.2rem; color: var(--blue); }
+    .cart-qty span { min-width: 18px; text-align: center; font-family: var(--f-body); font-size: .92rem; color: var(--blue); }
+    .cart-item-total { font-family: var(--f-display); font-size: 1.35rem; color: var(--blue); }
+    .cart-summary-row { display: flex; justify-content: space-between; gap: 18px; padding: 14px 0; border-top: 1px solid rgba(12,54,123,.08); font-family: var(--f-body); color: rgba(12,54,123,.62); }
+    .cart-summary-row strong { font-family: var(--f-display); font-size: 1.25rem; color: var(--blue); font-weight: 400; }
+    .cart-summary-note { font-family: var(--f-body); font-size: .9rem; line-height: 1.76; color: rgba(12,54,123,.52); margin: 22px 0 28px; }
+    .cart-summary-actions, .cart-empty-links { display: flex; gap: 12px; flex-wrap: wrap; }
+    .cart-summary-actions .btn { flex: 1 1 0; text-align: center; justify-content: center; white-space: nowrap; }
+    .cart-empty { padding: 38px 34px; margin-top: 42px; }
+    .cart-empty-copy { max-width: 540px; margin: 16px 0 28px; }
+
+    /* ── DELIVERY ZONES ── */
+    #zones { padding: var(--py) var(--px); }
+    .zones-inner { max-width: var(--max); margin: 0 auto; }
+    .zone-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(12,54,123,.06); margin-top: 56px; }
+    .zone-card { background: var(--white); padding: 56px 44px; }
+    .zone-card.featured { background: var(--blue); }
+    .zc-eye { font-family: var(--f-body); font-size: .65rem; letter-spacing: .32em; text-transform: uppercase; color: rgba(12,54,123,.32); margin-bottom: 12px; }
+    .zc-eye.w { color: rgba(255,255,255,.38); }
+    .zc-title { font-family: var(--f-display); font-weight: 400; font-size: clamp(2rem,4vw,3rem); color: var(--blue); margin-bottom: 20px; }
+    .zc-title.w { color: var(--white); }
+    .zc-cities { font-family: var(--f-body); font-size: 1rem; line-height: 2; color: rgba(12,54,123,.55); margin-bottom: 20px; }
+    .zc-cities.w { color: rgba(255,255,255,.55); }
+    .zc-ship { font-family: var(--f-body); font-size: .78rem; color: rgba(12,54,123,.4); margin-bottom: 24px; font-style: italic; }
+    .zc-ship.w { color: rgba(255,255,255,.4); }
+    .zc-products { margin-top: 24px; }
+    .zc-products-lbl { font-family: var(--f-body); font-size: .62rem; letter-spacing: .26em; text-transform: uppercase; color: rgba(12,54,123,.28); margin-bottom: 10px; }
+    .zc-products-lbl.w { color: rgba(255,255,255,.3); }
+
+    /* ── PRODUCT MENU ── */
+    #menu { padding: var(--py) var(--px); background: #f9f8f6; }
+    .menu-inner { max-width: var(--max); margin: 0 auto; }
+    .menu-section { margin-bottom: 64px; }
+    .menu-section:last-child { margin-bottom: 0; }
+    .ms-head { font-family: var(--f-display); font-weight: 400; font-size: 1.5rem; color: var(--blue); margin-bottom: 4px; }
+    .ms-sub { font-family: var(--f-body); font-size: .75rem; letter-spacing: .24em; text-transform: uppercase; color: rgba(12,54,123,.32); margin-bottom: 28px; }
+    .menu-table { width: 100%; border-collapse: collapse; }
+    .menu-table th { font-family: var(--f-body); font-size: .62rem; letter-spacing: .28em; text-transform: uppercase; color: rgba(12,54,123,.3); padding: 0 0 14px; text-align: left; border-bottom: 1px solid rgba(12,54,123,.08); }
+    .menu-table td { font-family: var(--f-body); font-size: .94rem; color: rgba(12,54,123,.62); padding: 18px 0; border-bottom: 1px solid rgba(12,54,123,.05); vertical-align: top; }
+    .menu-table td:first-child { font-family: var(--f-display); font-size: 1rem; color: var(--blue); font-weight: 400; }
+    .menu-table td:nth-child(3) { font-family: var(--f-display); font-size: 1.1rem; color: var(--blue); font-weight: 500; white-space: nowrap; }
+    .menu-table th:last-child, .menu-table td:last-child { text-align: right; }
+    .menu-badge { display: inline-block; font-family: var(--f-body); font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; border: 1px solid rgba(12,54,123,.15); color: rgba(12,54,123,.4); padding: 3px 8px; margin-left: 8px; vertical-align: middle; }
+
+    /* ── ENQUIRY FORM ── */
+    #enquiry { background: var(--blue); padding: var(--py) var(--px); }
+    .enq-inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .enq-info { }
+    .enq-info h2 { font-family: var(--f-display); font-size: clamp(2.5rem,5vw,4.5rem); font-weight: 300; color: var(--white); line-height: .92; margin-bottom: 24px; }
+    .enq-info p { font-family: var(--f-body); font-size: .96rem; line-height: 1.82; color: rgba(255,255,255,.55); margin-bottom: 18px; }
+    .enq-notes { list-style: none; margin: 28px 0 0; }
+    .enq-notes li { font-family: var(--f-body); font-size: .88rem; color: rgba(255,255,255,.48); padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.07); display: flex; gap: 12px; }
+    .enq-notes li::before { content: '→'; color: rgba(255,255,255,.25); flex-shrink: 0; }
+    .enq-form-wrap { }
+    .enq-form-title { font-family: var(--f-display); font-size: 1.6rem; color: var(--white); margin-bottom: 6px; }
+    .enq-form-sub { font-family: var(--f-body); font-size: .86rem; color: rgba(255,255,255,.4); margin-bottom: 28px; }
+    .enq-section-head {
+      font-family: var(--f-body); font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+      color: rgba(255,255,255,.4); margin: 28px 0 14px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.1);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .enq-form-wrap fieldset:first-of-type .enq-section-head { margin-top: 0; padding-top: 0; border-top: none; }
+    #orderDetailsFieldset { border: none; margin: 0; padding: 0; }
+    .field-hint { font-family: var(--f-body); font-size: .8rem; color: rgba(255,255,255,.75); line-height: 1.6; }
+    .field-hint:not(:empty) { margin-top: 8px; }
+    .field-hint.is-error { color: #ff9d9d; }
+
+    /* ── FAQ ── */
+    #faq { padding: var(--py) var(--px); }
+    .faq-inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .faq-lede h2 { font-family: var(--f-display); font-weight: 300; font-size: clamp(2rem,4vw,3.5rem); color: var(--blue); line-height: 1.1; margin-bottom: 24px; }
+    .faq-lede p { font-family: var(--f-body); font-size: .96rem; line-height: 1.82; color: rgba(12,54,123,.58); }
+
+    /* ── GIFTING ── */
+    #gifting { background: var(--blue); padding: var(--py) var(--px); }
+    .gift-inner { max-width: var(--max); margin: 0 auto; }
+    .gift-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; background: rgba(255,255,255,.08); margin-top: 56px; }
+    .gift-card { background: var(--blue); padding: 44px 32px; }
+    .gift-icon { font-family: var(--f-display); font-size: 2rem; color: rgba(255,255,255,.2); margin-bottom: 16px; }
+    .gift-head { font-family: var(--f-display); font-weight: 400; font-size: 1.2rem; color: var(--white); margin-bottom: 12px; }
+    .gift-body { font-family: var(--f-body); font-size: .88rem; line-height: 1.75; color: rgba(255,255,255,.45); }
+
+    @media (max-width:1100px) {
+      .cart-shell, .zone-cards, .enq-inner, .faq-inner { grid-template-columns: 1fr; }
+      .oh-top { flex-direction: column; align-items: flex-start; }
+      .oh-anchors { justify-content: flex-start; }
+      .gift-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width:640px) {
+      .cart-panel, .cart-summary, .cart-empty { padding: 28px 22px; }
+      .cart-item { flex-direction: column; }
+      .cart-item-main { max-width: 100%; }
+      .cart-item-side { justify-items: start; }
+      .cart-summary-actions, .cart-empty-links { flex-direction: column; align-items: stretch; }
+      .cart-summary-actions .btn, .cart-empty-links .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cursor-dot" id="cDot"></div>
+  <div class="cursor-ring" id="cRing"></div>
+  <div id="loader">
+    <img class="ldr-logo" src="Logo Design/Logo Design - V2.png" alt="Oryn">
+    <div class="ldr-bar"></div>
+  </div>
+
+  <div id="mob-nav">
+    <a href="index.html" onclick="closeMob()">Home</a>
+    <div class="mob-dd">
+      <button type="button" class="mob-dd-btn">Collections
+        <svg class="dd-chev" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="mob-dd-panel">
+        <a href="best-sellers.html" onclick="closeMob()">Best Sellers</a>
+        <a href="muffins.html" onclick="closeMob()">A Delhi Love Story</a>
+        <a href="cookies.html" onclick="closeMob()">Cookie Collection</a>
+        <a href="woh-din-yaad-hai.html" onclick="closeMob()">WOH DIN - Yaad Hai?</a>
+        <a href="flavours-of-india.html" onclick="closeMob()">Flavours of India</a>
+        <a href="saanjh.html" onclick="closeMob()">Saanjh</a>
+        <a href="banana-cookie-melt.html" onclick="closeMob()">Banana Cookie Melt</a>
+      </div>
+    </div>
+    <a href="all-products.html" onclick="closeMob()">All Products</a>
+    <a href="the-oryn-table.html" onclick="closeMob()">The Oryn Table</a>
+    <a href="about.html" onclick="closeMob()">About</a>
+    <a href="contact.html" onclick="closeMob()">Contact</a>
+    <a href="order.html" onclick="closeMob()">Order</a>
+  </div>
+
+  <nav id="nav">
+    <a href="index.html" class="nav-logo-wrap">
+      <img class="nav-logo" src="logo-oryn.png" alt="Oryn">
+    </a>
+    <div class="nav-center">
+      <a href="index.html" class="nav-link">Home</a>
+      <div class="nav-dd">
+        <button class="nav-link nav-dd-btn">Collections
+          <svg class="dd-chev" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="nav-dd-panel">
+          <div class="dd-item-flyout">
+            <a href="best-sellers.html" class="dd-item"><strong>Best Sellers</strong><span>Our Most-Loved Picks</span></a>
+            <div class="dd-flyout-panel">
+              <a href="saanjh.html" class="dd-flyout-item">Saanjh</a>
+              <a href="banana-cookie-melt.html" class="dd-flyout-item">Banana Cookie Melt</a>
+            </div>
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item-flyout">
+            <a href="muffins.html" class="dd-item"><strong>A Delhi Love Story</strong><span>Signature Muffin Collection</span></a>
+            <div class="dd-flyout-panel">
+              <a href="muffin-citrus-spice-bloom.html" class="dd-flyout-item">Citrus Spice Bloom</a>
+              <a href="muffin-mace-latte.html" class="dd-flyout-item">Mace Latte</a>
+              <a href="muffin-matcha-butterscotch.html" class="dd-flyout-item">Matcha Butterscotch</a>
+              <a href="muffin-spiced-cocoa-ember.html" class="dd-flyout-item">Spiced Cocoa Ember</a>
+              <a href="muffin-salted-caramel.html" class="dd-flyout-item">Salted Caramel Power Crunch</a>
+            </div>
+          </div>
+          <div class="dd-item-flyout">
+            <a href="cookies.html" class="dd-item"><strong>Cookie Collection</strong><span>Pan India Delivery</span></a>
+            <div class="dd-flyout-panel">
+              <a href="cookie-aurelia.html" class="dd-flyout-item">Aurelia</a>
+              <a href="cookie-jade-caramel.html" class="dd-flyout-item">Jade Caramel</a>
+              <a href="cookie-cloud-crumb.html" class="dd-flyout-item">Cloud Crumb</a>
+            </div>
+          </div>
+          <div class="dd-item-flyout">
+            <a href="woh-din-yaad-hai.html" class="dd-item"><strong>WOH DIN - Yaad Hai?</strong><span>Nostalgia Collection</span></a>
+            <div class="dd-flyout-panel">
+              <a href="almond-cinnamon-cookies.html" class="dd-flyout-item">Almond Cinnamon Cookies</a>
+              <a href="almond-chocolate-biscotti.html" class="dd-flyout-item">Almond Chocolate Biscotti</a>
+              <a href="almond-nuts-tea-cake.html" class="dd-flyout-item">Almond &amp; Nuts Tea Cake</a>
+              <a href="dark-chocolate-almond-bars.html" class="dd-flyout-item">Dark Chocolate Almond Bars</a>
+            </div>
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item-flyout">
+            <a href="flavours-of-india.html" class="dd-item"><strong>Flavours of India</strong><span>Regional Heritage</span></a>
+            <div class="dd-flyout-panel">
+              <a href="eclair-malabar-gold.html" class="dd-flyout-item">Malabar Gold Éclair</a>
+              <a href="cupcake-nolen-halo.html" class="dd-flyout-item">Nolen Halo Cupcake</a>
+              <a href="bento-apricus.html" class="dd-flyout-item">Apricus Bento Cake</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a href="all-products.html" class="nav-link">All Products</a>
+      <a href="the-oryn-table.html" class="nav-link">The Oryn Table</a>
+      <a href="about.html"          class="nav-link">About</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+    </div>
+    <a href="#enquiry" class="nav-cta-btn desktop-only">Dashboard</a>
+    <button class="hamburger" id="ham" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero" data-dark data-hero-dark>
+    <div class="hero-dots"></div>
+    <div class="ord-hero-inner">
+      <div class="oh-top r">
+        <h1 class="oh-title">Order</h1>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORDER SUB-NAV (sticky) -->
+  <div id="order-subnav" data-dark>
+    <div class="subnav-inner">
+      <div class="oh-anchors">
+        <a href="#cart"    class="btn btn-ow btn-sm oh-anchor" data-anchor="cart">Your Cart</a>
+        <a href="#zones"   class="btn btn-ow btn-sm oh-anchor" data-anchor="zones">Delivery Zones</a>
+        <div class="nav-dd oh-menu-dd">
+          <button type="button" class="btn btn-ow btn-sm oh-anchor nav-dd-btn" data-anchor="menu">Full Menu
+            <svg class="dd-chev" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+          <div class="nav-dd-panel oh-menu-panel">
+            <a href="#menu-love-story" class="dd-flyout-item">A Delhi Love Story</a>
+            <a href="#menu-cookies" class="dd-flyout-item">Cookie Collection</a>
+            <a href="#menu-flavours-india" class="dd-flyout-item">Flavours of India</a>
+            <a href="#menu-woh-din" class="dd-flyout-item">WOH DIN - Yaad Hai?</a>
+            <a href="#menu-saanjh" class="dd-flyout-item">Saanjh</a>
+            <a href="#menu-banana" class="dd-flyout-item">Banana Cookie Melt</a>
+          </div>
+        </div>
+        <a href="#enquiry" class="btn btn-w btn-sm oh-anchor" data-anchor="enquiry">Enquire Now</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART -->
+  <section id="cart">
+    <div class="cart-inner">
+      <div class="tc r">
+        <span class="eye eye-b mb16">Shopping Cart</span>
+      </div>
+      <div data-cart-root class="r d2"></div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section style="padding:64px var(--px);border-bottom:1px solid rgba(12,54,123,.06);">
+    <div style="max-width:var(--max);margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:rgba(12,54,123,.05);" class="r">
+      <div style="background:var(--white);padding:36px 28px;">
+        <p style="font-family:var(--f-display);font-size:2.5rem;font-weight:300;color:rgba(12,54,123,.1);margin-bottom:12px;">01</p>
+        <h3 style="font-family:var(--f-display);font-weight:400;font-size:1.1rem;color:var(--blue);margin-bottom:8px;">Add to Cart</h3>
+        <p style="font-family:var(--f-body);font-size:.86rem;line-height:1.7;color:rgba(12,54,123,.5);">Browse any collection or product page and add the items you want. Your cart follows you across the website.</p>
+      </div>
+      <div style="background:var(--white);padding:36px 28px;">
+        <p style="font-family:var(--f-display);font-size:2.5rem;font-weight:300;color:rgba(12,54,123,.1);margin-bottom:12px;">02</p>
+        <h3 style="font-family:var(--f-display);font-weight:400;font-size:1.1rem;color:var(--blue);margin-bottom:8px;">Review Your Cart</h3>
+        <p style="font-family:var(--f-body);font-size:.86rem;line-height:1.7;color:rgba(12,54,123,.5);">Adjust quantities, remove products, and confirm the mix of items you want us to prepare.</p>
+      </div>
+      <div style="background:var(--white);padding:36px 28px;">
+        <p style="font-family:var(--f-display);font-size:2.5rem;font-weight:300;color:rgba(12,54,123,.1);margin-bottom:12px;">03</p>
+        <h3 style="font-family:var(--f-display);font-weight:400;font-size:1.1rem;color:var(--blue);margin-bottom:8px;">Send an Enquiry</h3>
+        <p style="font-family:var(--f-body);font-size:.86rem;line-height:1.7;color:rgba(12,54,123,.5);">Complete the enquiry form with your cart details. We will confirm availability and share payment details within 24 hours.</p>
+      </div>
+      <div style="background:var(--white);padding:36px 28px;">
+        <p style="font-family:var(--f-display);font-size:2.5rem;font-weight:300;color:rgba(12,54,123,.1);margin-bottom:12px;">04</p>
+        <h3 style="font-family:var(--f-display);font-weight:400;font-size:1.1rem;color:var(--blue);margin-bottom:8px;">Receive &amp; Enjoy</h3>
+        <p style="font-family:var(--f-body);font-size:.86rem;line-height:1.7;color:rgba(12,54,123,.5);">Your order is made fresh and delivered on the confirmed date. For pan-India orders, tracking details will be shared.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DELIVERY ZONES -->
+  <section id="zones">
+    <div class="zones-inner">
+      <div class="tc r">
+        <span class="eye eye-b mb16">Delivery</span>
+        <h2 class="h1 mb8">Where We Deliver</h2>
+        <p class="body-md opacity-b r d1" style="max-width:480px;margin:0 auto;">Some products are available exclusively within Delhi NCR due to their delicate nature. Our shelf-stable collections ship across India.</p>
+      </div>
+      <div class="zone-cards">
+        <div class="zone-card r">
+          <p class="zc-eye">Zone 01</p>
+          <h3 class="zc-title">Delhi NCR</h3>
+          <p class="zc-cities">Delhi · Gurgaon · Noida<br>Greater Noida · Ghaziabad · Faridabad</p>
+          <p class="zc-ship">Delivery charges as applicable. Orders placed minimum 48 hours in advance.</p>
+          <div class="zc-products">
+            <p class="zc-products-lbl">Available Products</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <span class="tag">All Muffins</span>
+              <span class="tag">All Cookies</span>
+              <span class="tag">Saanjh</span>
+              <span class="tag">Banana Cookie Melt</span>
+              <span class="tag">Flavours of India</span>
+              <span class="tag">Custom Orders</span>
+            </div>
+          </div>
+        </div>
+        <div class="zone-card featured r d1" data-dark>
+          <p class="zc-eye w">Zone 02</p>
+          <h3 class="zc-title w">Pan India</h3>
+          <p class="zc-cities w">All major cities &amp; pin codes<br>across India via courier</p>
+          <p class="zc-ship w">Free shipping included on all pan-India orders. 2–5 business days delivery.</p>
+          <div class="zc-products">
+            <p class="zc-products-lbl w">Available Products</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <span class="tag" style="border-color:rgba(255,255,255,.3);color:var(--white)">Cookie Collection</span>
+              <span class="tag" style="border-color:rgba(255,255,255,.3);color:var(--white)">Saanjh</span>
+              <span class="tag" style="border-color:rgba(255,255,255,.3);color:var(--white)">Free Shipping</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FULL PRODUCT MENU -->
+  <section id="menu">
+    <div class="menu-inner">
+      <div class="tc r">
+        <span class="eye eye-b mb16">Menu &amp; Pricing</span>
+        <h2 class="h1 mb8">The Full Menu</h2>
+        <p class="body-md opacity-b r d1" style="max-width:480px;margin:0 auto;">All products are made to order. Prices are per unit unless stated otherwise.</p>
+      </div>
+
+      <!-- A Delhi Love Story -->
+      <div class="menu-section r d1" id="menu-love-story">
+        <h3 class="ms-head">A Delhi Love Story</h3>
+        <p class="ms-sub">Signature Muffin Collection · Delhi NCR Only</p>
+        <table class="menu-table">
+          <thead><tr><th>Product</th><th>Details</th><th>Price</th><th>Add</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Citrus Spice Bloom<span class="menu-badge">Ch. 01</span></td>
+              <td>Orange zest, cardamom, saffron cream</td>
+              <td>₹600</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="CSB-150" data-cart-name="Citrus Spice Bloom" data-cart-price="600" data-cart-details="A Delhi Love Story · Box of 4">Add</button></td>
+            </tr>
+            <tr>
+              <td>Mace Latte<span class="menu-badge">Ch. 02</span></td>
+              <td>Espresso, mace spice, vanilla, caramel</td>
+              <td>₹600</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="ML-150" data-cart-name="Mace Latte" data-cart-price="600" data-cart-details="A Delhi Love Story · Box of 4">Add</button></td>
+            </tr>
+            <tr>
+              <td>Matcha Butterscotch<span class="menu-badge">Ch. 03</span></td>
+              <td>Ceremonial matcha, butterscotch filling, brown sugar</td>
+              <td>₹720</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="MB-180" data-cart-name="Matcha Butterscotch" data-cart-price="720" data-cart-details="A Delhi Love Story · Box of 4">Add</button></td>
+            </tr>
+            <tr>
+              <td>Spiced Cocoa Ember<span class="menu-badge">Ch. 04</span></td>
+              <td>Dark cocoa, cinnamon, anise, warm spice crust</td>
+              <td>₹600</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="SCE-150" data-cart-name="Spiced Cocoa Ember" data-cart-price="600" data-cart-details="A Delhi Love Story · Box of 4">Add</button></td>
+            </tr>
+            <tr>
+              <td>Salted Caramel Power Crunch<span class="menu-badge">Ch. 05</span></td>
+              <td>Salted caramel, toffee crunch, praline, sea salt</td>
+              <td>₹720</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="SCP-180" data-cart-name="Salted Caramel Power Crunch" data-cart-price="720" data-cart-details="A Delhi Love Story · Box of 4">Add</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Cookie Collection -->
+      <div class="menu-section r d1" id="menu-cookies">
+        <h3 class="ms-head">Cookie Collection</h3>
+        <p class="ms-sub">Pan India · Free Shipping</p>
+        <table class="menu-table">
+          <thead><tr><th>Product</th><th>Details</th><th>Price</th><th>Add</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Classic Box of 6</td>
+              <td>2 each of Aurelia, Jade Caramel &amp; Cloud Crumb</td>
+              <td>₹800</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="COOKIE-MIX" data-cart-name="Classic Box of 6" data-cart-price="800" data-cart-details="Cookie Collection · 2 each of Aurelia, Jade Caramel & Cloud Crumb · Pan India">Add</button></td>
+            </tr>
+            <tr>
+              <td>Aurelia</td>
+              <td>Citrus spice cookie · orange, lemon, cardamom, cinnamon</td>
+              <td>Part of box</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="AURELIA-BOX" data-cart-name="Aurelia" data-cart-price="800" data-cart-details="Cookie Collection · Box of 6 · Pan India">Add Box</button></td>
+            </tr>
+            <tr>
+              <td>Jade Caramel</td>
+              <td>Matcha butterscotch · earthy, caramel, complex</td>
+              <td>Part of box</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="JADECARAMEL-BOX" data-cart-name="Jade Caramel" data-cart-price="800" data-cart-details="Cookie Collection · Box of 6 · Pan India">Add Box</button></td>
+            </tr>
+            <tr>
+              <td>Cloud Crumb</td>
+              <td>Choco chip marshmallow · pillowy, vanilla, dark chocolate</td>
+              <td>Part of box</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="CLOUDCRUMB-BOX" data-cart-name="Cloud Crumb" data-cart-price="800" data-cart-details="Cookie Collection · Box of 6 · Pan India">Add Box</button></td>
+            </tr>
+            <tr>
+              <td>Make Your Own Box</td>
+              <td>Build your own box of 6 · mix any combination of all 3 flavours</td>
+              <td>₹800</td>
+              <td><a href="cookies.html#box-options" class="btn btn-ob btn-sm">Build Box →</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Flavours of India -->
+      <div class="menu-section r d1" id="menu-flavours-india">
+        <h3 class="ms-head">Flavours of India</h3>
+        <p class="ms-sub">Regional Heritage Collection · Delhi NCR</p>
+        <table class="menu-table">
+          <thead><tr><th>Product</th><th>Details</th><th>Price</th><th>Add</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Malabar Gold Éclair</td>
+              <td>Kerala · coconut cream, Malabar pepper, cardamom, gold glaze</td>
+              <td>₹600 / set of 3</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="MALABAR-ECL" data-cart-name="Malabar Gold Éclair" data-cart-price="600" data-cart-details="Flavours of India · Set of 3">Add</button></td>
+            </tr>
+            <tr>
+              <td>Nolen Halo Cupcake</td>
+              <td>Kolkata · nolen gur, date palm jaggery, custard cream</td>
+              <td>₹600 / set of 4</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="NOLEN-CUP" data-cart-name="Nolen Halo Cupcake" data-cart-price="600" data-cart-details="Flavours of India · Set of 4">Add</button></td>
+            </tr>
+            <tr>
+              <td>Apricus Bento Cake</td>
+              <td>Gujarat · saffron, cardamom, rose water, pistachio</td>
+              <td>₹450 per box</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="APRICUS-BENTO" data-cart-name="Apricus Bento Cake" data-cart-price="450" data-cart-details="Flavours of India · 1 box">Add</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- WOH DIN - YAAD HAI? -->
+      <div class="menu-section r d1" id="menu-woh-din">
+        <h3 class="ms-head">WOH DIN - Yaad Hai?</h3>
+        <p class="ms-sub">Nostalgia Collection · Delhi NCR</p>
+        <table class="menu-table">
+          <thead><tr><th>Product</th><th>Details</th><th>Price</th><th>Add</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Almond Cinnamon Cookies</td>
+              <td>4 cookies · cinnamon, roasted almonds, nostalgic spice warmth</td>
+              <td>₹500</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="ACC-500" data-cart-name="Almond Cinnamon Cookies" data-cart-price="500" data-cart-details="WOH DIN - Yaad Hai? · Pack of 4">Add</button></td>
+            </tr>
+            <tr>
+              <td>Almond Chocolate Biscotti</td>
+              <td>6 biscotti · premium cocoa, roasted almonds, crisp bite</td>
+              <td>₹500</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="ACB-500" data-cart-name="Almond Chocolate Biscotti" data-cart-price="500" data-cart-details="WOH DIN - Yaad Hai? · Pack of 6">Add</button></td>
+            </tr>
+            <tr>
+              <td>Almond &amp; Nuts Tea Cake</td>
+              <td>1 loaf · almond flour, pistachio, walnut, tea-time cake</td>
+              <td>₹600</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="ANTC-600" data-cart-name="Almond &amp; Nuts Tea Cake" data-cart-price="600" data-cart-details="WOH DIN - Yaad Hai? · 1 loaf">Add</button></td>
+            </tr>
+            <tr>
+              <td>Dark Chocolate Almond Bars</td>
+              <td>4 mini bars · dark chocolate, roasted almonds, bittersweet finish</td>
+              <td>₹400</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="DCAB-400" data-cart-name="Dark Chocolate Almond Bars" data-cart-price="400" data-cart-details="WOH DIN - Yaad Hai? · Pack of 4">Add</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Saanjh -->
+      <div class="menu-section r d1" id="menu-saanjh">
+        <h3 class="ms-head">Saanjh</h3>
+        <p class="ms-sub">Brown Butter Financier · Pan India · Free Shipping</p>
+        <table class="menu-table">
+          <thead><tr><th>Product</th><th>Details</th><th>Price</th><th>Add</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Saanjh — Box of 6</td>
+              <td>Brown butter financier · beurre noisette, almond, chai spice blend</td>
+              <td>₹400</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="SAANJH-BOX" data-cart-name="Saanjh" data-cart-price="400" data-cart-details="Brown Butter Financier · Box of 6 · Pan India">Add</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Banana Cookie Melt -->
+      <div class="menu-section r d1" id="menu-banana">
+        <h3 class="ms-head">Banana Cookie Melt</h3>
+        <p class="ms-sub">Signature Loaf · Eggless · Delhi NCR</p>
+        <table class="menu-table">
+          <thead><tr><th>Product</th><th>Details</th><th>Price</th><th>Add</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Classic Loaf — 350g</td>
+              <td>Eggless banana loaf · cookie crumb filling · dark chocolate</td>
+              <td>₹350</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="BCM-350" data-cart-name="Banana Cookie Melt - Classic Loaf" data-cart-price="350" data-cart-details="Banana Cookie Melt · 350g · Delhi NCR">Add</button></td>
+            </tr>
+            <tr>
+              <td>Large Loaf — 500g</td>
+              <td>Same recipe · larger size · ideal for sharing &amp; gifting</td>
+              <td>₹500</td>
+              <td><button type="button" class="btn btn-ob btn-sm" data-add-to-cart="true" data-cart-sku="BCM-500" data-cart-name="Banana Cookie Melt - Large Loaf" data-cart-price="500" data-cart-details="Banana Cookie Melt · 500g · Delhi NCR">Add</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ENQUIRY FORM -->
+  <section id="enquiry" data-dark>
+    <div class="enq-inner inner">
+      <div class="enq-info r-l">
+        <span class="eye eye-w mb16">Place an Order</span>
+        <h2>Ready to<br>Order?</h2>
+        <p>All Oryn products are made to order. Fill in this form and we will get back to you within 24 hours with availability, confirmation, and payment details.</p>
+        <p>For urgent enquiries or large custom orders, please reach out directly via Instagram at @oryn.patisserie</p>
+        <ul class="enq-notes r d2">
+          <li>Delhi NCR orders require 48 hours advance notice</li>
+          <li>Pan-India orders require 72 hours advance notice</li>
+          <li>Custom gifting and bulk orders available on request</li>
+          <li>Corporate accounts available for repeat orders</li>
+          <li>Custom flavours available with 5+ days notice</li>
+          <li>Events &amp; catering enquiries welcome</li>
+        </ul>
+      </div>
+      <div class="enq-form-wrap r-r">
+        <p class="enq-form-title">Order Enquiry</p>
+        <p class="enq-form-sub">We will confirm your order within 24 hours.</p>
+        <form data-enquiry data-enquiry-type="order">
+          <div class="fg fg-b">
+            <label>Your Cart Summary</label>
+            <textarea rows="4" data-cart-summary readonly></textarea>
+          </div>
+
+          <p class="enq-section-head">Delivery Information</p>
+
+          <div class="fg fg-b">
+            <label>Full Name</label>
+            <input type="text" name="fullName" placeholder="Your name" required>
+          </div>
+          <div class="fg fg-b">
+            <label>Email Address</label>
+            <input type="email" name="email" id="orderEmail" placeholder="your@email.com" required>
+            <p class="field-hint" id="orderEmailHint"></p>
+          </div>
+          <div class="fg fg-b">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" id="orderPhone" placeholder="+91 ···" required>
+          </div>
+          <div class="fg fg-b">
+            <label>Delivery City / Pin Code</label>
+            <input type="text" name="city" placeholder="Delhi, Gurgaon, Mumbai, etc." required>
+          </div>
+          <fieldset id="orderDetailsFieldset">
+            <p class="enq-section-head">Order Details</p>
+            <div class="fg fg-b">
+              <label>What would you like to order?</label>
+              <select name="product">
+                <option value="">Select a product</option>
+                <optgroup label="A Delhi Love Story (Delhi NCR)">
+                  <option>Citrus Spice Bloom Muffin — ₹600</option>
+                  <option>Mace Latte Muffin — ₹600</option>
+                  <option>Matcha Butterscotch Muffin — ₹720</option>
+                  <option>Spiced Cocoa Ember Muffin — ₹600</option>
+                  <option>Salted Caramel Power Crunch — ₹720</option>
+                </optgroup>
+                <optgroup label="Cookie Collection (Pan India · Free Shipping)">
+                  <option>Cookie Box of 6 — ₹800</option>
+                  <option>Make Your Own Box — ₹800</option>
+                </optgroup>
+                <optgroup label="Flavours of India (Delhi NCR)">
+                  <option>Malabar Gold Éclair (Kerala) — ₹600 / set of 3</option>
+                  <option>Nolen Halo Cupcake (Kolkata) — ₹600 / set of 4</option>
+                  <option>Apricus Bento Cake (Gujarat) — ₹450</option>
+                </optgroup>
+                <optgroup label="Saanjh (Pan India · Free Shipping)">
+                  <option>Saanjh Financier Box of 6 — ₹400</option>
+                </optgroup>
+                <optgroup label="WOH DIN - Yaad Hai? (Delhi NCR)">
+                  <option>Almond Cinnamon Cookies — ₹500 / pack of 4</option>
+                  <option>Almond Chocolate Biscotti — ₹500 / pack of 6</option>
+                  <option>Almond &amp; Nuts Tea Cake — ₹600 / loaf</option>
+                  <option>Dark Chocolate Almond Bars — ₹400 / pack of 4</option>
+                </optgroup>
+                <optgroup label="Banana Cookie Melt (Delhi NCR)">
+                  <option>Banana Cookie Melt 350g — ₹350</option>
+                  <option>Banana Cookie Melt 500g — ₹500</option>
+                </optgroup>
+                <option value="custom">Custom / Multiple Products</option>
+                <option value="gifting">Corporate / Bulk Gifting</option>
+              </select>
+            </div>
+            <div class="fg fg-b">
+              <label>Quantity &amp; Details</label>
+              <textarea rows="3" name="quantityDetails" placeholder="Please specify quantities, any flavour preferences, mix requirements, or personalisation requests"></textarea>
+            </div>
+            <div class="fg fg-b">
+              <label>Is this a gift? Any message to include?</label>
+              <textarea rows="2" name="giftMessage" placeholder="Optional personalised message for the recipient"></textarea>
+            </div>
+          </fieldset>
+
+          <p class="enq-form-error" data-form-error hidden style="color:#c0392b;font-size:.85rem;margin:0 0 12px;"></p>
+          <button type="submit" class="btn btn-w" data-submit style="width:100%;justify-content:center;margin-top:8px;">Send Order Enquiry →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="faq-inner inner">
+      <div class="faq-lede r-l">
+        <span class="eye eye-b mb16">FAQs</span>
+        <h2>Frequently<br>Asked Questions</h2>
+        <p>Everything you need to know before placing your order. Don't see your question here? Reach out via our enquiry form or on Instagram.</p>
+      </div>
+      <div class="r-r">
+        <div class="faq-item">
+          <button class="faq-q">How far in advance do I need to order?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>Delhi NCR delivery orders require a minimum of 48 hours advance notice. Pan-India orders require 72 hours. For large orders, custom creations, or corporate gifting, we recommend placing orders at least 5–7 days ahead. For bulk orders we may require longer lead times — please enquire.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Which products ship pan-India?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>Our Cookie Collection and Saanjh (Brown Butter Financier) are both designed for pan-India shipping — they are shelf-stable and packaged for transit. All other products are available only in Delhi NCR as they are fresh and delicate. Free shipping is included on all pan-India orders.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Can I mix flavours in my cookie box?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>Yes. Our Cookie Box of 6 allows you to choose any combination of the three available flavours — Aurelia (Citrus Spice), Jade Caramel (Matcha Butterscotch), and Cloud Crumb (Choco Chip Marshmallow). Simply specify your preferred mix in the order enquiry form.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Do you do custom orders and corporate gifting?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>Yes. We accept custom orders for special occasions, personalised gifting, and corporate accounts. Bulk orders of 10 or more boxes qualify for volume pricing. For corporate gifting, we can also provide branded packaging. Please reach out via the enquiry form with your requirements and we will respond with a proposal within 48 hours.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">What payment methods do you accept?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>We accept UPI, NEFT/RTGS bank transfer, and all major digital payment platforms. Payment is required in advance to confirm your order. We will share payment details when confirming your order via the enquiry process.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Do your products contain allergens?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>Our products contain various allergens including gluten, dairy, nuts (including tree nuts), and soy. The Banana Cookie Melt is eggless. Please specify any allergies or dietary requirements in your order enquiry and we will advise on suitability. We cannot guarantee allergen-free preparation as our kitchen handles multiple allergens.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">How should I store my Oryn products?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>Fresh products (muffins, éclairs, financiers, loaf) should be consumed within 2–3 days and stored in a cool, dry place or refrigerated. The Cookie Collection has a longer shelf life of 10–14 days at room temperature. Saanjh financiers keep well for 5–7 days. We recommend consuming all products at room temperature for the best flavour experience.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">What is The Oryn Table and how do I attend?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>The Oryn Table is our signature experiential dining event — an intimate evening of curated dessert tasting, live music, and cultural storytelling. Table 03 will take place in Kolkata on 25th July 2026. Seats are strictly limited and registration is required. Visit the <a href="the-oryn-table.html">Oryn Table page</a> to register your interest.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GIFTING -->
+  <section id="gifting" data-dark>
+    <div class="gift-inner">
+      <div class="tc r">
+        <span class="eye eye-w mb16">Gifting</span>
+        <h2 class="h1 w-white">Oryn as a Gift</h2>
+        <p class="body-md r d1" style="color:rgba(255,255,255,.5);max-width:500px;margin:0 auto 0;">There is a particular elegance to a gift that says: I know you, I thought of you, I chose something specific for you. Oryn is that gift.</p>
+      </div>
+      <div class="gift-grid">
+        <div class="gift-card r">
+          <div class="gift-icon">◻</div>
+          <h3 class="gift-head">Personal Gifts</h3>
+          <p class="gift-body">A box of cookies sent pan-India. A loaf for a friend across the city. A financier box that says you're thinking of someone. Each product arrives in packaging that communicates care before the box is opened.</p>
+        </div>
+        <div class="gift-card r d1">
+          <div class="gift-icon">◈</div>
+          <h3 class="gift-head">Corporate &amp; Event Gifting</h3>
+          <p class="gift-body">Bulk orders available for Diwali, year-end gifting, client appreciation, team celebrations, and event favours. Custom branding, co-branded ribbon, and personalised message cards available for corporate accounts.</p>
+        </div>
+        <div class="gift-card r d2">
+          <div class="gift-icon">◎</div>
+          <h3 class="gift-head">Occasions &amp; Celebrations</h3>
+          <p class="gift-body">Wedding favours. Birthday deliveries. Thank-you gestures. Housewarming gifts. Baby showers. No occasion is too small or too grand. We design gifting packages for every occasion — reach out with your requirements.</p>
+        </div>
+      </div>
+      <div class="tc mt56 r d3">
+        <a href="#enquiry" class="btn btn-w">Start a Gifting Enquiry</a>
+      </div>
+    </div>
+  </section>
+
+  <footer data-dark>
+    <div class="ft-inner">
+      <div class="ft-top">
+        <div>
+          <img class="ft-logo" src="logo-oryn.png" alt="Oryn">
+          <p class="ft-about">An experiential patisserie that blends craftsmanship, aesthetics, and storytelling to create memorable dessert experiences.</p>
+          <span class="ft-acc">Not Just Baked.<br> Thought Through.</span>
+        </div>
+        <div>
+          <p class="ft-col-h">Collections</p>
+          <ul class="ft-links">
+            <li><a href="best-sellers.html">Best Sellers</a></li>
+            <li><a href="muffins.html">A Delhi Love Story</a></li>
+            <li><a href="cookies.html">Cookie Collection</a></li>
+            <li><a href="woh-din-yaad-hai.html">WOH DIN - Yaad Hai?</a></li>
+            <li><a href="flavours-of-india.html">Flavours of India</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Explore</p>
+          <ul class="ft-links">
+            <li><a href="about.html">About Oryn</a></li>
+            <li><a href="index.html#collections">Collection</a></li>
+            <li><a href="the-oryn-table.html">The Oryn Table</a></li>
+            <li><a href="order.html">Ordering &amp; Gifting</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Get In Touch</p>
+          <ul class="ft-links">
+            <li><a href="contact.html">Query</a></li>
+            <li><a href="mailto:oryn.patisserie@gmail.com">Email Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Socials</p>
+          <ul class="ft-links">
+            <li><a href="https://instagram.com/oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg>Instagram</a></li>
+            <li><a href="https://www.threads.com/@oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c-4.5 0-7 2.8-7 7.2v3.6c0 4.4 2.5 7.2 7 7.2s7-2.8 7-7.2c0-2.7-1.6-4.4-4-4.4-2.1 0-3.6 1.2-3.6 3 0 1.4 1 2.2 2.4 2.2 1.1 0 2.1-.5 2.6-1.4"/></svg>Threads</a></li>
+            <li><a href="https://www.facebook.com/share/1AU4rWwGFM/" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 3h-2a5 5 0 0 0-5 5v3H6v4h2v6h4v-6h3l1-4h-4V8a1 1 0 0 1 1-1h3z"/></svg>Facebook</a></li>
+            <li><a href="https://youtube.com/@oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="6.5" width="19" height="11" rx="3.5"/><path d="M10.5 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none"/></svg>YouTube</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Sign Up For Updates</p>
+          <form class="ft-signup-form" onsubmit="return false;">
+            <input type="email" placeholder="Enter your email..." required>
+            <button type="submit">Sign Up</button>
+          </form>
+        </div>
+      </div>
+      <div class="ft-bot">
+        <p class="ft-copy">&copy; 2026 Oryn. All rights reserved.</p>
+        <p class="ft-legal"><a href="terms-and-policy.html">Terms &amp; Conditions</a> &middot; <a href="terms-and-policy.html#privacy">Privacy Policy</a></p>
+        <p class="ft-tagline">A Study in Taste &amp; Texture</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="js/main.js"></script>
+  <script>
+    (() => {
+      const spySections = ['cart', 'zones', 'menu', 'enquiry']
+        .map(id => document.getElementById(id))
+        .filter(Boolean);
+      const anchors = document.querySelectorAll('.oh-anchor');
+      if (!spySections.length || !anchors.length) return;
+
+      function setActive(id) {
+        anchors.forEach(a => {
+          const active = a.dataset.anchor === id;
+          a.classList.toggle('btn-w', active);
+          a.classList.toggle('btn-ow', !active);
+        });
+      }
+      setActive('cart');
+
+      const spyObs = new IntersectionObserver(entries => {
+        entries.forEach(entry => { if (entry.isIntersecting) setActive(entry.target.id); });
+      }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+      spySections.forEach(sec => spyObs.observe(sec));
+    })();
+  </script>
+  <script>
+    (() => {
+      const emailInput = document.getElementById('orderEmail');
+      const hintEl = document.getElementById('orderEmailHint');
+      if (!emailInput || !hintEl) return;
+
+      const INVALID_MSG = 'This email address looks incorrect or undeliverable — please double-check it before continuing.';
+      let lastChecked = '';
+      let flaggedValue = null;
+
+      emailInput.addEventListener('blur', async () => {
+        const value = emailInput.value.trim();
+        if (!value || value === lastChecked) return;
+        lastChecked = value;
+
+        try {
+          const res = await fetch('/api/email/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: value }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (data.checked && !data.valid) {
+            flaggedValue = value;
+            hintEl.textContent = INVALID_MSG;
+            hintEl.className = 'field-hint is-error';
+            emailInput.setCustomValidity(INVALID_MSG);
+          } else {
+            flaggedValue = null;
+            hintEl.textContent = '';
+            hintEl.className = 'field-hint';
+            emailInput.setCustomValidity('');
+          }
+        } catch (err) {
+          // Fail silently — never block the customer over a check we couldn't run.
+        }
+      });
+
+      emailInput.addEventListener('input', () => {
+        if (flaggedValue !== null && emailInput.value.trim() !== flaggedValue) {
+          flaggedValue = null;
+          hintEl.textContent = '';
+          hintEl.className = 'field-hint';
+          emailInput.setCustomValidity('');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

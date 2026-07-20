@@ -1,0 +1,1117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Oryn — A Study in Taste & Texture. India's most distinctive experiential patisserie. Handcrafted desserts from Delhi NCR, delivering stories across India.">
+  <title>Oryn — A Study in Taste &amp; Texture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Amita:wght@400;700&family=Comforter+Brush&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Headings use Cormorant Garamond. To switch to TAN Vivre Libre (paid
+       font), drop the files in /fonts and re-add the @font-face + prepend
+       "TAN Vivre Libre" to --f-display below. */
+    :root {
+      --f-display: "Cormorant Garamond", Georgia, serif;
+    }
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh; min-height: 100svh; background: var(--blue);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: var(--nav-h) var(--px) 80px; position: relative; z-index: 0; overflow: hidden; text-align: center;
+    }
+    .hero-video-wrap { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+    .hero-video-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-dots { position: absolute; inset: -10% 0; pointer-events: none; background-image: radial-gradient(circle, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 44px 44px; transform: translateY(var(--py, 0px)); will-change: transform; }
+    .hero-eye  { font-family: var(--f-body); font-size: .7rem; letter-spacing: .42em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 24px; opacity:0; transform:translateY(16px); animation: hUp .8s var(--ease) 1.2s forwards; }
+    .hero-name { display: block; height: clamp(6rem, 15vw, 14rem); width: auto; margin: 0 auto 24px; opacity:0; transform:translateY(28px); animation: hUp 1s var(--ease) 1.4s forwards; }
+    .hero-name img { width: auto; height: 100%; object-fit: contain; }
+    .hero-tag  { font-family: var(--f-accent); font-size: clamp(1.4rem,2.8vw,2.2rem); color: rgba(255,255,255,.7); margin-bottom: 56px; opacity:0; transform:translateY(16px); animation: hUp .8s var(--ease) 1.8s forwards; }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; opacity:0; transform:translateY(16px); animation: hUp .8s var(--ease) 2.1s forwards; }
+    .hero-btns > .btn { flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; text-align: center; min-width: 200px; white-space: nowrap; }
+    .hero-scroll { position: absolute; bottom: 40px; left: 50%; right: 0; transform: translateX(-50%); width: max-content; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity:0; animation: hUp .6s ease 2.5s forwards; text-align: center; }
+    .hero-scroll span { font-family: var(--f-body); font-size: .67rem; letter-spacing: .32em; text-transform: uppercase; color: rgba(255,255,255,.35); text-align: center; }
+    .scroll-bar { width: 1px; height: 44px; background: rgba(255,255,255,.18); position: relative; overflow: hidden; }
+    .scroll-bar::after { content:''; position:absolute; top:-100%; left:0; width:100%; height:100%; background:rgba(255,255,255,.65); animation: sBounce 2s ease 2.8s infinite; }
+    @keyframes hUp    { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+    @keyframes sBounce{ 0%{top:-100%} 100%{top:100%} }
+
+    /* ── WELCOME ── */
+    #welcome { padding: var(--py) var(--px) 0; background: var(--white); }
+    .welcome-inner { max-width: var(--max); margin: 0 auto; }
+    .welcome-head { max-width: 900px; margin: 0 auto 72px; text-align: center; }
+    .welcome-head .eye { text-align: center; width: 100%; }
+    .welcome-title {
+      font-family: var(--f-display); font-weight: 300; line-height: 1.05;
+      font-size: clamp(2.4rem, 5.2vw, 4.6rem); color: var(--blue); margin: 18px 0 28px;
+    }
+    .welcome-lead {
+      font-family: var(--f-accent); font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+      color: rgba(12,54,123,.68); line-height: 1.4;
+    }
+    .welcome-memories {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: rgba(12,54,123,.1); margin-bottom: 72px;
+    }
+    .memory-card {
+      background: var(--white); padding: 44px 32px; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-end; min-height: 220px;
+    }
+    .memory-num {
+      font-family: var(--f-display); font-weight: 300; font-size: clamp(3.5rem, 6vw, 5.5rem);
+      color: rgba(12,54,123,.07); line-height: 1; position: absolute; top: 16px; left: 20px;
+    }
+    .memory-card p {
+      position: relative; font-family: var(--f-display); font-style: italic; font-weight: 400;
+      font-size: clamp(1.05rem, 1.4vw, 1.22rem); line-height: 1.45; color: var(--blue);
+    }
+    .welcome-copy { max-width: 720px; margin: 0 auto; text-align: center; }
+    .welcome-copy p { margin-bottom: 22px; }
+    .welcome-copy p:last-child { margin-bottom: 0; }
+    .welcome-end {
+      font-family: var(--f-accent); font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+      color: var(--blue); text-align: center; margin-top: 56px;
+    }
+    @media (max-width: 1100px) {
+      .welcome-memories { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .welcome-memories { grid-template-columns: 1fr; }
+      .memory-card { padding: 36px 28px; min-height: 160px; }
+    }
+
+    /* ── COOKIE COLLECTION (all-products grid component) ── */
+    #ap-main { padding: 64px 60px var(--py); }
+    .ap-inner { max-width: none; margin: 0 auto; }
+    .ap-group { margin-bottom: 72px; }
+    .ap-group:last-child { margin-bottom: 0; }
+    .ap-group-head {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 36px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(12,54,123,.1);
+    }
+    .ap-group-name {
+      font-family: var(--f-display);
+      font-weight: 300;
+      font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+      color: var(--blue);
+    }
+    .ap-group-count {
+      font-family: var(--f-body);
+      font-size: .78rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(12,54,123,.4);
+    }
+    .ap-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px 32px;
+    }
+    @media (max-width: 1100px) {
+      .ap-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .ap-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── PHILOSOPHY ── */
+    #philosophy { padding: var(--py) var(--px); }
+    .phi-wrap { max-width: var(--max); margin: 0 auto; }
+
+    /* ── COLLECTIONS GRID ── */
+    #collections { background: var(--blue); padding: var(--py) var(--px); }
+    .col-head { text-align: center; margin-bottom: 72px; }
+    .col-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px 32px; max-width: none; margin: 0 auto;
+    }
+    #collections .prod-region, #collections .prod-name, #collections .prod-desc { color: var(--white); }
+    #collections .prod-region { opacity: .55; }
+    #collections .prod-desc {
+      opacity: .68; font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #collections .prod-card .btn { margin-top: 14px; align-self: flex-start; }
+    @media (max-width: 1100px) {
+      .col-head { margin-bottom: 56px; }
+      .col-grid { gap: 40px 24px; }
+    }
+    @media (max-width: 640px) {
+      .col-head { margin-bottom: 40px; }
+      .col-grid { gap: 32px; }
+      #collections .prod-desc { white-space: normal; overflow: visible; text-overflow: clip; }
+    }
+
+    /* ── ORYN TABLE INTRO (compact replica of the-oryn-table.html hero) ── */
+    #table-intro {
+      position: relative; overflow: hidden; background: var(--blue);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 140px var(--px);
+    }
+    .ot-grid-bg { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(5,1fr); grid-template-rows: repeat(4,1fr); pointer-events: none; }
+    .ot-grid-bg span { border: .5px solid rgba(255,255,255,.04); }
+    .ot-edition { font-family: var(--f-body); font-size: .68rem; letter-spacing: .42em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 12px; position: relative; z-index: 1; }
+    .ot-num-big {
+      font-family: var(--f-display); font-weight: 300; font-size: clamp(5rem, 14vw, 14rem);
+      color: rgba(255,255,255,.05); line-height: .8; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%); z-index: 0; user-select: none; pointer-events: none;
+    }
+    .ot-city { font-family: "Amita", cursive; font-weight: 400; font-size: clamp(3rem, 9vw, 8rem); color: var(--white); line-height: 1.05; position: relative; z-index: 1; margin: clamp(20px,4vw,36px) 0 16px; padding: 0 .12em; }
+    .ot-date { font-family: var(--f-display); font-size: clamp(1.4rem, 2.8vw, 2.4rem); color: rgba(255,255,255,.6); position: relative; z-index: 1; margin-bottom: 30px; }
+    .ot-tags { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; margin-bottom: 36px; max-width: 680px; }
+    .ot-tags .badge { font-size: .78rem; letter-spacing: .16em; padding: 11px 22px; }
+    .ot-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+    #table-intro .btn-w:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(0,0,0,.22); }
+    @media (max-width: 640px) {
+      #table-intro { padding: 64px var(--px); }
+      .ot-tags { gap: 8px; margin-bottom: 28px; }
+      .ot-btns { flex-direction: column; align-items: stretch; max-width: 320px; margin: 0 auto; }
+    }
+
+    /* ── STORY SPOTLIGHT ── */
+    #story-spot { padding: var(--py) var(--px); }
+    .spot-inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .spot-imgs  { position: relative; }
+    .spot-main  { aspect-ratio: 4/5; overflow: hidden; }
+    .spot-main img { transition: transform 1.2s var(--ease); }
+    .spot-main:hover img { transform: scale(1.04); }
+    .spot-main video { width: 100%; height: 100%; object-fit: cover; display: block; transform: translateY(var(--py, 0px)) scale(1.14); will-change: transform; }
+    .spot-accent{ position: absolute; bottom: -28px; right: -28px; width: 46%; aspect-ratio: 1; border: 7px solid var(--white); overflow: hidden; box-shadow: 0 20px 56px rgba(12,54,123,.18); }
+    .spot-accent img { transform: translateY(var(--py, 0px)) scale(1.18); will-change: transform; }
+    .spot-num   { font-family: var(--f-display); font-size: clamp(5rem,9vw,9rem); font-weight: 300; color: rgba(12,54,123,.07); line-height: 1; margin-bottom: -12px; }
+    .spot-hindi { font-family: var(--f-hindi); font-size: 1.2rem; color: rgba(12,54,123,.45); margin-bottom: 8px; }
+
+    /* ── TESTIMONIALS ── */
+    #testimonials { background: #f9f8f6; padding: var(--py) 60px; }
+    .ts-inner { max-width: none; margin: 0 auto; }
+    .ts-head { text-align: center; max-width: 640px; margin: 0 auto 64px; }
+    .ts-title { font-family: var(--f-display); font-weight: 300; font-size: clamp(2.2rem, 4.5vw, 3.6rem); color: var(--blue); line-height: 1.08; margin: 16px 0 18px; }
+    .ts-lead { font-family: var(--f-accent); font-size: clamp(1.25rem, 2.2vw, 1.6rem); color: rgba(12,54,123,.62); }
+    .ts-carousel { display: flex; align-items: center; gap: 20px; }
+    .ts-viewport { flex: 1; overflow: hidden; }
+    .ts-track { display: flex; transition: transform .6s var(--ease); }
+    .ts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; width: 100%; flex-shrink: 0; }
+    .ts-arrow {
+      width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+      border: 1px solid rgba(12,54,123,.2); background: var(--white); color: var(--blue);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: background .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease), transform .3s var(--ease);
+    }
+    .ts-arrow svg { width: 20px; height: 20px; }
+    .ts-arrow:hover { background: var(--blue); color: var(--white); border-color: var(--blue); transform: scale(1.06); }
+    @media (max-width: 640px) {
+      .ts-carousel { gap: 10px; }
+      .ts-arrow { width: 40px; height: 40px; }
+      .ts-arrow svg { width: 16px; height: 16px; }
+    }
+    .ts-card {
+      background: var(--white); border: 1px solid rgba(12,54,123,.08);
+      padding: 40px 34px 32px; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+    }
+    .ts-card:hover { transform: translateY(-6px); box-shadow: 0 24px 48px rgba(12,54,123,.1); }
+    .ts-quote-mark {
+      font-family: var(--f-display); font-size: 6rem; line-height: 1; font-weight: 300;
+      color: rgba(12,54,123,.06); position: absolute; top: 4px; left: 20px; user-select: none;
+    }
+    .ts-stars { display: flex; gap: 4px; position: relative; z-index: 1; margin-bottom: 22px; }
+    .ts-stars svg { width: 15px; height: 15px; color: var(--blue); }
+    .ts-text {
+      position: relative; z-index: 1; font-family: var(--f-display); font-style: normal; font-weight: 400;
+      font-size: 1.12rem; line-height: 1.62; color: var(--blue); opacity: .82; margin-bottom: 14px; flex: 1;
+      display: -webkit-box; -webkit-line-clamp: 4; line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .ts-readmore {
+      font-family: var(--f-body); font-size: .78rem; font-weight: 600; letter-spacing: .02em;
+      color: var(--blue); background: none; border: none; padding: 0; margin: 0 0 22px;
+      cursor: pointer; text-decoration: underline; text-underline-offset: 3px; align-self: flex-start;
+      position: relative; z-index: 1; opacity: .75; transition: opacity .2s;
+    }
+    .ts-readmore:hover { opacity: 1; }
+    .ts-modal-overlay {
+      position: fixed; inset: 0; background: rgba(9,38,88,.55); z-index: 400;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+      opacity: 0; visibility: hidden; transition: opacity .3s var(--ease), visibility .3s var(--ease);
+    }
+    .ts-modal-overlay.open { opacity: 1; visibility: visible; }
+    .ts-modal {
+      background: var(--white); max-width: 560px; width: 100%; padding: 48px 40px 40px;
+      position: relative; max-height: 84vh; overflow-y: auto;
+      transform: translateY(16px); transition: transform .3s var(--ease);
+    }
+    .ts-modal-overlay.open .ts-modal { transform: translateY(0); }
+    .ts-modal-close {
+      position: absolute; top: 16px; right: 20px; font-size: 1.6rem; line-height: 1; color: rgba(12,54,123,.4);
+      background: none; border: none; cursor: pointer; transition: color .2s;
+    }
+    .ts-modal-close:hover { color: var(--blue); }
+    .ts-modal .ts-quote-mark { position: static; display: block; margin-bottom: -8px; }
+    .ts-modal .ts-stars { margin-bottom: 22px; }
+    .ts-modal-text {
+      position: relative; z-index: 1; margin-bottom: 28px;
+    }
+    .ts-modal-text p {
+      font-family: var(--f-display); font-weight: 400;
+      font-size: 1.2rem; line-height: 1.65; color: var(--blue); opacity: .85; margin-bottom: 18px;
+    }
+    .ts-modal-text p:last-child { margin-bottom: 0; }
+    .ts-modal-text .ts-full-title {
+      font-style: italic; font-weight: 500; opacity: .95; font-size: 1.28rem; margin-bottom: 22px;
+    }
+    .ts-person { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+    .ts-avatar {
+      width: 42px; height: 42px; border-radius: 50%; background: var(--blue); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--f-display); font-size: 1.05rem; flex-shrink: 0;
+    }
+    .ts-name { font-family: var(--f-body); font-weight: 600; font-size: .9rem; color: var(--blue); }
+    .ts-detail { font-family: var(--f-body); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: rgba(12,54,123,.42); }
+    @media (max-width: 1100px) {
+      .ts-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .ts-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── ORYN TABLE TEASER ── */
+    #table-teaser { background: var(--blue); padding: var(--py) var(--px); }
+    .tt-inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .tt-badge { font-family: var(--f-body); font-size: .68rem; letter-spacing: .38em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 16px; }
+    .tt-num   { font-family: var(--f-display); font-size: clamp(5rem,9vw,9rem); font-weight: 300; color: rgba(255,255,255,.1); line-height: 1; }
+    .tt-city  { font-family: var(--f-display); font-size: clamp(3rem,6vw,5.5rem); font-weight: 300; color: var(--white); line-height: 1; }
+    .tt-date  { font-family: var(--f-accent); font-size: 1.6rem; color: rgba(255,255,255,.65); margin: 12px 0 28px; }
+    .tt-image { aspect-ratio: 4/5; overflow: hidden; }
+    .tt-image img { transition: transform 1.2s var(--ease); transform: translateY(var(--py, 0px)) scale(1.14); will-change: transform; }
+    .tt-image:hover img { transform: translateY(var(--py, 0px)) scale(1.2); }
+
+    /* ── CTA ── */
+    #cta { padding: var(--py) var(--px); }
+    .cta-grid { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(12,54,123,.08); }
+    .cta-panel { padding: 56px 48px; display: flex; flex-direction: column; }
+    .cta-panel.light { background: var(--white); }
+    .cta-panel.dark { background: var(--blue); }
+    .cta-ph {
+      margin: -56px -48px 32px;
+      aspect-ratio: 1/1;
+      overflow: hidden;
+    }
+    .cta-ph img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .7s var(--ease-out);
+    }
+    .cta-panel:hover .cta-ph img { transform: scale(1.045); }
+    .cta-panel.light .cta-ph img { object-position: center 88%; }
+    .cta-panel.dark .cta-ph img { object-position: center 80%; }
+    .cta-panel .btn {
+      align-self: flex-start; margin-top: auto;
+      display: inline-flex; align-items: center; justify-content: center;
+      text-align: center; min-width: 230px;
+    }
+    .cta-panel .h3 { font-size: clamp(2rem, 3.2vw, 2.8rem); font-weight: 400; line-height: 1.18; }
+    .cta-panel.light .body-md { color: rgba(12,54,123,.82); }
+    .cta-panel.dark .body-md  { color: rgba(255,255,255,.86); }
+    #cta .btn {
+      padding: 18px 46px;
+      font-size: .8rem;
+      font-weight: 500;
+      letter-spacing: .22em;
+      transition: background .4s var(--ease), color .4s var(--ease), transform .4s var(--ease), box-shadow .4s var(--ease);
+    }
+    #cta .btn:hover   { transform: translateY(-2px); }
+    #cta .btn-b:hover { box-shadow: 0 16px 34px rgba(12,54,123,.24); }
+    #cta .btn-w:hover { box-shadow: 0 16px 34px rgba(0,0,0,.22); }
+    @media (max-width: 1100px) {
+      .cta-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .cta-panel { padding: 44px 26px; }
+      .cta-ph { margin: -44px -26px 26px; }
+      #cta .btn { padding: 16px 36px; }
+    }
+
+    /* ── SAANJH EDITORIAL ── */
+    #saanjh-ed { overflow: hidden; }
+    .saanjh-full { display: grid; grid-template-columns: 1fr 1fr; min-height: 75vh; }
+    .saanjh-img  { overflow: hidden; }
+    .saanjh-img img { transform: translateY(var(--py, 0px)) scale(1.16); will-change: transform; }
+    .saanjh-txt  { background: var(--blue); display: flex; flex-direction: column; justify-content: center; padding: 80px var(--px); }
+    .saanjh-hindi { font-family: var(--f-hindi); font-size: 2.5rem; color: rgba(255,255,255,.25); margin-bottom: 4px; }
+
+    /* ── MORE THAN DESSERT (from About page) ── */
+    #more { background: var(--blue); padding: var(--py) var(--px); }
+    .more-inner { max-width: var(--max); margin: 0 auto; }
+    .more-h { font-family: var(--f-display); font-weight: 300; font-size: clamp(2.2rem,5vw,4.2rem); color: var(--white); line-height: 1.06; margin: 18px 0 28px; }
+    .more-body { font-family: var(--f-body); font-size: clamp(1rem,1.3vw,1.1rem); line-height: 1.95; color: rgba(255,255,255,.62); max-width: 720px; margin: 0 auto; }
+    .more-end { font-family: var(--f-display); font-style: italic; font-size: clamp(1.4rem,2.6vw,2.1rem); color: var(--white); margin-top: 24px; }
+    .moments { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; margin-top: 64px; }
+    .mural-card { position: relative; max-width: 960px; margin: 0 auto; text-align: center; padding: clamp(58px,8vw,110px) clamp(30px,6vw,90px); background: var(--blue); }
+    .mural-open { background: transparent; }
+    .mural-card::before { content: ""; position: absolute; inset: 14px; border: 1px solid rgba(255,255,255,.16); pointer-events: none; }
+    .mural-inner { position: relative; z-index: 1; }
+    .mural-corner { position: absolute; width: clamp(62px,10vw,118px); height: clamp(62px,10vw,118px); color: rgba(255,255,255,.7); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .mc-tl { top: -1px; left: -1px; }
+    .mc-tr { top: -1px; right: -1px; transform: scaleX(-1); }
+    .mc-bl { bottom: -1px; left: -1px; transform: scaleY(-1); }
+    .mc-br { bottom: -1px; right: -1px; transform: scale(-1,-1); }
+
+    /* ── INSTAGRAM GRID ── */
+    #instagram { padding: var(--py) var(--px) calc(var(--py) - 24px); }
+    .ig-inner { max-width: var(--max); margin: 0 auto; }
+    .ig-head { text-align: center; margin-bottom: 56px; }
+    .ig-head-handle { display: inline-flex; align-items: center; gap: 12px; }
+    .ig-head-icon { width: clamp(1.8rem,3.4vw,2.8rem); height: clamp(1.8rem,3.4vw,2.8rem); color: var(--blue); flex-shrink: 0; }
+    .ig-lead { max-width: 520px; margin: 16px auto 0; }
+    .ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .ig-item { position: relative; display: block; aspect-ratio: 4/5; overflow: hidden; background: rgba(12,54,123,.04); }
+    .ig-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s var(--ease); }
+    .ig-item:hover img { transform: scale(1.08); }
+    .ig-item-layer {
+      position: absolute; inset: 0; background: rgba(12,54,123,0);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.4s var(--ease);
+    }
+    .ig-item:hover .ig-item-layer { background: rgba(12,54,123,.58); }
+    .ig-item-icon {
+      width: 30px; height: 30px; color: var(--white);
+      opacity: 0; transform: scale(.6);
+      transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+    }
+    .ig-item:hover .ig-item-icon { opacity: 1; transform: scale(1); }
+    .ig-foot { text-align: center; margin-top: 48px; }
+    @media (max-width: 640px) {
+      .ig-grid { gap: 8px; }
+      .ig-item-icon { width: 22px; height: 22px; }
+    }
+
+    @media (max-width: 1100px) {
+      .col-grid { grid-template-columns: 1fr 1fr; }
+      .moments { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 900px) {
+      .spot-inner, .tt-inner, .saanjh-full { grid-template-columns: 1fr; }
+      .saanjh-txt { padding: 64px var(--px); }
+      .spot-accent { display: none; }
+    }
+    @media (max-width: 640px) {
+      .moments { grid-template-columns: 1fr 1fr; }
+      .hero-btns { flex-direction: column; align-items: center; }
+      .col-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cursor-dot" id="cDot"></div>
+  <div class="cursor-ring" id="cRing"></div>
+
+  <div id="loader">
+    <img class="ldr-logo" src="Logo Design/Logo Design - V2.png" alt="Oryn">
+    <div class="ldr-bar"></div>
+  </div>
+
+  <div id="mob-nav">
+    <a href="index.html" onclick="closeMob()">Home</a>
+    <div class="mob-dd">
+      <button type="button" class="mob-dd-btn">Collections
+        <svg class="dd-chev" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="mob-dd-panel">
+        <a href="best-sellers.html" onclick="closeMob()">Best Sellers</a>
+        <a href="muffins.html" onclick="closeMob()">A Delhi Love Story</a>
+        <a href="cookies.html" onclick="closeMob()">Cookie Collection</a>
+        <a href="woh-din-yaad-hai.html" onclick="closeMob()">WOH DIN - Yaad Hai?</a>
+        <a href="flavours-of-india.html" onclick="closeMob()">Flavours of India</a>
+        <a href="saanjh.html" onclick="closeMob()">Saanjh</a>
+        <a href="banana-cookie-melt.html" onclick="closeMob()">Banana Cookie Melt</a>
+      </div>
+    </div>
+    <a href="all-products.html" onclick="closeMob()">All Products</a>
+    <a href="the-oryn-table.html" onclick="closeMob()">The Oryn Table</a>
+    <a href="about.html" onclick="closeMob()">About</a>
+    <a href="contact.html" onclick="closeMob()">Contact</a>
+    <a href="order.html" onclick="closeMob()">Order</a>
+  </div>
+
+  <nav id="nav">
+    <a href="index.html" class="nav-logo-wrap">
+      <img class="nav-logo" src="logo-oryn.png" alt="Oryn">
+    </a>
+    <div class="nav-center">
+      <a href="index.html" class="nav-link">Home</a>
+      <div class="nav-dd">
+        <button class="nav-link nav-dd-btn">Collections
+          <svg class="dd-chev" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="nav-dd-panel">
+          <div class="dd-item-flyout">
+            <a href="best-sellers.html" class="dd-item"><strong>Best Sellers</strong><span>Our Most-Loved Picks</span></a>
+            <div class="dd-flyout-panel">
+              <a href="saanjh.html" class="dd-flyout-item">Saanjh</a>
+              <a href="banana-cookie-melt.html" class="dd-flyout-item">Banana Cookie Melt</a>
+            </div>
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item-flyout">
+            <a href="muffins.html" class="dd-item"><strong>A Delhi Love Story</strong><span>Signature Muffin Collection</span></a>
+            <div class="dd-flyout-panel">
+              <a href="muffin-citrus-spice-bloom.html" class="dd-flyout-item">Citrus Spice Bloom</a>
+              <a href="muffin-mace-latte.html" class="dd-flyout-item">Mace Latte</a>
+              <a href="muffin-matcha-butterscotch.html" class="dd-flyout-item">Matcha Butterscotch</a>
+              <a href="muffin-spiced-cocoa-ember.html" class="dd-flyout-item">Spiced Cocoa Ember</a>
+              <a href="muffin-salted-caramel.html" class="dd-flyout-item">Salted Caramel Power Crunch</a>
+            </div>
+          </div>
+          <div class="dd-item-flyout">
+            <a href="cookies.html" class="dd-item"><strong>Cookie Collection</strong><span>Pan India Delivery</span></a>
+            <div class="dd-flyout-panel">
+              <a href="cookie-aurelia.html" class="dd-flyout-item">Aurelia</a>
+              <a href="cookie-jade-caramel.html" class="dd-flyout-item">Jade Caramel</a>
+              <a href="cookie-cloud-crumb.html" class="dd-flyout-item">Cloud Crumb</a>
+            </div>
+          </div>
+          <div class="dd-item-flyout">
+            <a href="woh-din-yaad-hai.html" class="dd-item"><strong>WOH DIN - Yaad Hai?</strong><span>Nostalgia Collection</span></a>
+            <div class="dd-flyout-panel">
+              <a href="almond-cinnamon-cookies.html" class="dd-flyout-item">Almond Cinnamon Cookies</a>
+              <a href="almond-chocolate-biscotti.html" class="dd-flyout-item">Almond Chocolate Biscotti</a>
+              <a href="almond-nuts-tea-cake.html" class="dd-flyout-item">Almond &amp; Nuts Tea Cake</a>
+              <a href="dark-chocolate-almond-bars.html" class="dd-flyout-item">Dark Chocolate Almond Bars</a>
+            </div>
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item-flyout">
+            <a href="flavours-of-india.html" class="dd-item"><strong>Flavours of India</strong><span>Regional Heritage</span></a>
+            <div class="dd-flyout-panel">
+              <a href="eclair-malabar-gold.html" class="dd-flyout-item">Malabar Gold Éclair</a>
+              <a href="cupcake-nolen-halo.html" class="dd-flyout-item">Nolen Halo Cupcake</a>
+              <a href="bento-apricus.html" class="dd-flyout-item">Apricus Bento Cake</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a href="all-products.html" class="nav-link">All Products</a>
+      <a href="the-oryn-table.html" class="nav-link">The Oryn Table</a>
+      <a href="about.html"          class="nav-link">About</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+    </div>
+    <a href="order.html" class="nav-cta-btn desktop-only">Order</a>
+    <button class="hamburger" id="ham" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero" data-dark data-hero-dark>
+    <div class="hero-video-wrap">
+      <img src="Hero Banner - Revised Version.png" autoplay loop muted playsinline preload="auto" aria-hidden="true">
+    </div>
+    <div class="hero-dots" data-parallax="0.12"></div>
+    <p class="hero-eye">Experiential Patisserie</p>
+    <h1 class="hero-name"><img src="logo-oryn.png" alt="Oryn"></h1>
+    <p class="hero-eye">A Study in Taste &amp; Texture</p>
+    <div class="hero-btns">
+      <a href="all-products.html"        class="btn btn-w">Explore Products</a>
+      <a href="the-oryn-table.html" class="btn btn-ow">The Oryn Table</a>
+    </div>
+    <div class="hero-scroll"><span>Scroll</span><div class="scroll-bar"></div></div>
+  </section>
+
+  <!-- WELCOME -->
+  <section id="welcome">
+    <div class="welcome-inner">
+      <div class="welcome-head">
+        <div class="phi-rule r m0a"></div>
+        <span class="eye eye-b mb16 r d1">Welcome to Oryn</span>
+        <h2 class="welcome-title r d2">More Than a Bakery.<br>A Box Full of Memories.</h2>
+        <p class="body-lg opacity-b r d1">At Oryn, we don't simply bake desserts — we recreate moments you'll never forget.</p>
+      </div>
+
+      <div class="welcome-memories">
+        <div class="memory-card r d1">
+          <span class="memory-num">01</span>
+          <p>The joy of opening a school tiffin during recess.</p>
+        </div>
+        <div class="memory-card r d2">
+          <span class="memory-num">02</span>
+          <p>The excitement of hiding your favourite chocolate for later.</p>
+        </div>
+        <div class="memory-card r d3">
+          <span class="memory-num">03</span>
+          <p>The warmth of evening chai with homemade cake.</p>
+        </div>
+        <div class="memory-card r d4">
+          <span class="memory-num">04</span>
+          <p>The comfort of sharing treats with the people you love.</p>
+        </div>
+      </div>
+
+      <div class="welcome-copy">
+        <p class="body-lg opacity-b r d1">We transform these cherished memories into handcrafted, preservative-free desserts made with thoughtfully sourced ingredients, balanced sweetness, and timeless flavours. Every collection is designed to tell a story, turning everyday indulgence into an experience that feels deeply personal.</p>
+        <p class="body-lg opacity-b r d2">Whether you're celebrating, gifting, or simply treating yourself, Oryn is here to remind you that the sweetest moments in life are often the ones we've lived before.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="ap-main">
+    <div class="ap-inner">
+      <div class="ap-group r">
+        <div class="ap-group-head">
+          <h2 class="ap-group-name">Cookie Collection</h2>
+          <span class="ap-group-count">3 Products</span>
+        </div>
+        <div class="ap-grid">
+          <article class="prod-card">
+            <div class="img-cover img-4-5">
+              <img src="All Product Images/All Cookies/Aurelia Cookies/2.png" alt="Aurelia" loading="lazy">
+            </div>
+            <p class="prod-region">Cookie Collection</p>
+            <h3 class="prod-name">Aurelia</h3>
+            <p class="prod-desc"> Golden orange zest and warm spices come together in a buttery, chewy cookie with a comforting finish</p>
+            <p class="prod-price">₹800 <span class="prod-unit">/ Box of 6</span></p>
+            <div class="ap-cta-row">
+              <a href="order.html" class="btn btn-b btn-sm btn-cart" data-add-to-cart="true" data-cart-sku="AURELIA-BOX" data-cart-name="Aurelia" data-cart-price="800" data-cart-details="Cookie Collection · Box of 6"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+              <a href="cookie-aurelia.html" class="btn btn-ob btn-sm ap-cta">View Details →</a>
+            </div>
+          </article>
+          <article class="prod-card">
+            <div class="img-cover img-4-5">
+              <img src="Jade_Caramel_Card.png" alt="Jade Caramel" loading="lazy">
+            </div>
+            <p class="prod-region">Cookie Collection</p>
+            <h3 class="prod-name">Jade Caramel</h3>
+            <p class="prod-desc"> A soft-baked cookie loaded with melty chocolate chips and toasted mini marshmallow pockets</p>
+            <p class="prod-price">₹800 <span class="prod-unit">/ Box of 6</span></p>
+            <div class="ap-cta-row">
+              <a href="order.html" class="btn btn-b btn-sm btn-cart" data-add-to-cart="true" data-cart-sku="JADECARAMEL-BOX" data-cart-name="Jade Caramel" data-cart-price="800" data-cart-details="Cookie Collection · Box of 6"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+              <a href="cookie-jade-caramel.html" class="btn btn-ob btn-sm ap-cta">View Details →</a>
+            </div>
+          </article>
+          <article class="prod-card">
+            <div class="img-cover img-4-5">
+              <img src="Cloude_Crum_Cookie.png" alt="Cloud Crumb" loading="lazy">
+            </div>
+            <p class="prod-region">Cookie Collection</p>
+            <h3 class="prod-name">Cloud Crumb</h3>
+            <p class="prod-desc">Earthy matcha meets buttery butterscotch crunch in a flat, artisanal cookie with crisp edges and a soft, gooey centre</p>
+            <p class="prod-price">₹800 <span class="prod-unit">/ Box of 6</span></p>
+            <div class="ap-cta-row">
+              <a href="order.html" class="btn btn-b btn-sm btn-cart" data-add-to-cart="true" data-cart-sku="CLOUDCRUMB-BOX" data-cart-name="Cloud Crumb" data-cart-price="800" data-cart-details="Cookie Collection · Box of 6"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+              <a href="cookie-cloud-crumb.html" class="btn btn-ob btn-sm ap-cta">View Details →</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    <!-- COLLECTIONS OVERVIEW -->
+  <section id="collections" data-dark>
+    <div class="col-head r">
+      <span class="eye eye-w mb16">The Oryn Portfolio</span>
+      <h2 class="h1 w-white">Curated Collections. Distinct Stories.</h2>
+    </div>
+    <div class="col-grid">
+      <article class="prod-card r">
+        <div class="img-cover img-4-5">
+          <img src="Saanjh.png" alt="Best Sellers" loading="lazy">
+        </div>
+        <p class="prod-region">Customer Favourites</p>
+        <h3 class="prod-name">Best Sellers</h3>
+        <p class="prod-desc">Because the best recommendations come from those who order them again</p>
+        <a href="best-sellers.html" class="btn btn-ow btn-sm">View Details →</a>
+      </article>
+      <article class="prod-card r d1">
+        <div class="img-cover img-4-5">
+          <img src="Flavours_Of_India.png" alt="Flavours of India" loading="lazy">
+        </div>
+        <p class="prod-region">Regional Heritage</p>
+        <h3 class="prod-name">Flavours of India</h3>
+        <p class="prod-desc">Three states, three distinct traditions, one unforgettable taste journey</p>
+        <a href="flavours-of-india.html" class="btn btn-ow btn-sm">View Details →</a>
+      </article>
+      <article class="prod-card r d2">
+        <div class="img-cover img-4-5">
+          <img src="Woh Din Yadd Hai/woh_din_yaad_hai_product_card_2.png" alt="WOH DIN - Yaad Hai?" loading="lazy">
+        </div>
+        <p class="prod-region">Nostalgia Collection</p>
+        <h3 class="prod-name">WOH DIN - Yaad Hai?</h3>
+        <p class="prod-desc">Because some childhood memories are best remembered through flavour</p>
+        <a href="woh-din-yaad-hai.html" class="btn btn-ow btn-sm">View Details →</a>
+      </article>
+    </div>
+  </section>
+  <!-- PHILOSOPHY -->
+  <section id="philosophy">
+    <div class="phi-wrap tc">
+      <div class="phi-rule r m0a mb40"></div>
+      <p class="pull-quote r mb32">"Not Just Baked. Thought Through."</p>
+      <p class="body-lg opacity-b r d1" style="max-width:620px; margin:0 auto 40px;">
+        At Oryn, we believe the most memorable desserts are not defined by sweetness alone. They are remembered for how they made us feel. Every creation begins with an idea, a feeling, or a story — before it ever becomes a dessert.
+      </p>
+      <a href="about.html" class="btn btn-ob r d2">Our Philosophy</a>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee">
+    <div class="marquee-track">
+      <span class="marquee-item">Crafted With Intention</span>
+      <span class="marquee-item">Thoughtfully Composed</span>
+      <span class="marquee-item">Designed To Be Remembered</span>
+      <span class="marquee-item">Curated Experiences</span>
+      <span class="marquee-item">Artisanal Craftsmanship</span>
+      <span class="marquee-item">Stories Translated Into Taste</span>
+      <span class="marquee-item">Crafted With Intention</span>
+      <span class="marquee-item">Thoughtfully Composed</span>
+      <span class="marquee-item">Designed To Be Remembered</span>
+      <span class="marquee-item">Curated Experiences</span>
+      <span class="marquee-item">Artisanal Craftsmanship</span>
+      <span class="marquee-item">Stories Translated Into Taste</span>
+      <span class="marquee-item">Crafted With Intention</span>
+      <span class="marquee-item">Thoughtfully Composed</span>
+      <span class="marquee-item">Designed To Be Remembered</span>
+      <span class="marquee-item">Curated Experiences</span>
+      <span class="marquee-item">Artisanal Craftsmanship</span>
+      <span class="marquee-item">Stories Translated Into Taste</span>
+      <span class="marquee-item">Crafted With Intention</span>
+      <span class="marquee-item">Thoughtfully Composed</span>
+      <span class="marquee-item">Designed To Be Remembered</span>
+      <span class="marquee-item">Curated Experiences</span>
+      <span class="marquee-item">Artisanal Craftsmanship</span>
+      <span class="marquee-item">Stories Translated Into Taste</span>
+    </div>
+  </div>
+
+  <!-- ORYN TABLE INTRO -->
+  <section id="table-intro" data-dark>
+    <div class="ot-grid-bg" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="ot-num-big">03</div>
+    <p class="ot-edition r">The Oryn Table · Edition 03</p>
+    <h2 class="ot-city r d1" lang="hi">नोएडा</h2>
+    <p class="ot-date r d2">26th July, 2026</p>
+    <div class="ot-tags r d3">
+      <span class="badge badge-w">Curated Dessert Menu</span>
+      <span class="badge badge-w">Live Music</span>
+      <span class="badge badge-w">Cultural Storytelling</span>
+      <span class="badge badge-w">Limited Seats</span>
+      <span class="badge badge-w">Community Dining</span>
+    </div>
+    <div class="ot-btns r d4">
+      <a href="the-oryn-table.html#intro" class="btn btn-ow">What is the Table?</a>
+      <a href="Noida-registration.html" class="btn btn-w">Reserve Your Seat</a>
+    </div>
+  </section>
+
+  <!-- STORY SPOTLIGHT -->
+  <section id="story-spot">
+    <div class="spot-inner inner">
+      <div class="spot-imgs r-l">
+        <div class="spot-main">
+          <video src="Delhi Love Story .mp4" autoplay loop muted playsinline preload="auto" aria-label="A Delhi Love Story — reel" data-parallax="0.1"></video>
+        </div>
+      </div>
+      <div class="r-r">
+        <div class="spot-num">01</div>
+        <span class="eye eye-b mb16">Signature Muffin Collection</span>
+        <p class="spot-hindi mb8">हर कहानी खत्म नहीं होती...</p>
+        <h2 class="h1 mb24">A Delhi<br>Love Story</h2>
+        <p class="body-lg opacity-b mb20">Not every love story is meant to last. Some exist for a season. Some for a chapter. Some become memories that quietly stay with us forever.</p>
+        <p class="body-md opacity-b mb32">Through five thoughtfully crafted flavours, we translate emotions into taste, texture, and experience. Each muffin is a chapter. Each bite tells a story.</p>
+        <div class="tags mb32">
+          <span class="tag">Citrus Spice Bloom</span>
+          <span class="tag">Mace Latte</span>
+          <span class="tag">Matcha Butterscotch</span>
+          <span class="tag">Spiced Cocoa Ember</span>
+          <span class="tag">Salted Caramel Crunch</span>
+        </div>
+        <a href="muffins.html" class="btn btn-b">Explore the Collection</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials">
+    <div class="ts-inner">
+      <div class="ts-head r">
+        <span class="eye eye-b mb16">Loved &amp; Ordered Again</span>
+        <h2 class="ts-title">Baked Into Every Review</h2>
+        <span class="eye eye-b mb16">The moments people keep coming back for.</span>
+      </div>
+      <div class="ts-carousel">
+        <button class="ts-arrow ts-arrow-prev" id="tsPrev" aria-label="Previous testimonials">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="ts-viewport">
+          <div class="ts-track" id="tsTrack">
+            <div class="ts-grid">
+              <div class="ts-card r d1">
+                <span class="ts-quote-mark">&ldquo;</span>
+                <div class="ts-stars">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                </div>
+                <p class="ts-text">Thank you for the delivery. I'm truly impressed! The flavours were spot on, and everything tasted incredibly fresh.</p>
+                <button type="button" class="ts-readmore">Read More →</button>
+                <div class="ts-full" hidden>
+                  <p class="ts-full-title">&ldquo;Perfectly balanced sweetness.&rdquo;</p>
+                  <p>Thank you for the delivery. I'm truly impressed! The flavours were spot on, and everything tasted incredibly fresh.</p>
+                  <p>What I appreciated most was the perfectly balanced sweetness. It wasn't overly sugary — it was just right for my palate, which is rare to find. You executed it beautifully.</p>
+                  <p>Wishing you all the success with your startup. Looking forward to seeing Oryn grow!</p>
+                </div>
+                <div class="ts-person">
+                  <div class="ts-avatar">A</div>
+                  <div>
+                    <p class="ts-name">Kirti Singh</p>
+                  </div>
+                </div>
+              </div>
+              <div class="ts-card r d2">
+                <span class="ts-quote-mark">&ldquo;</span>
+                <div class="ts-stars">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                </div>
+                <p class="ts-text">I ordered a Mother's Day hamper for my mom. Since I live miles away from her, I wanted to send her something warm and comforting and Oryn was the perfect choice.</p>
+                <button type="button" class="ts-readmore">Read More →</button>
+                <div class="ts-full" hidden>
+                  <p class="ts-full-title">&ldquo;A Mother's Day gift that became a beautiful memory.&rdquo;</p>
+                  <p>I ordered a Mother's Day hamper for my mom. Since I live miles away from her, I wanted to send her something warm and comforting — and Oryn was the perfect choice.</p>
+                  <p>She absolutely loved it! The cookies were soft, fresh, and incredibly flavourful. The sweetness was perfectly balanced, making them ideal for someone who doesn't enjoy overly sweet desserts. She especially loved the Matcha flavour.</p>
+                  <p>Thank you for helping me create such a beautiful memory for my mother.</p>
+                </div>
+                <div class="ts-person">
+                  <div class="ts-avatar">R</div>
+                  <div>
+                    <p class="ts-name">Akanksha Varshney</p>
+                  </div>
+                </div>
+              </div>
+              <div class="ts-card r d3">
+                <span class="ts-quote-mark">&ldquo;</span>
+                <div class="ts-stars">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                </div>
+                <p class="ts-text">Nothing felt overly sweet or heavy. The Matcha muffin was surprisingly delicious, while the chocolate one was rich without being overwhelming.</p>
+                <button type="button" class="ts-readmore">Read More →</button>
+                <div class="ts-full" hidden>
+                  <p class="ts-full-title">&ldquo;Every flavour had its own personality.&rdquo;</p>
+                  <p>I absolutely loved the muffins! They were incredibly soft, fresh, and each one had its own unique flavour.</p>
+                  <p>Nothing felt overly sweet or heavy. The Matcha muffin was surprisingly delicious, while the chocolate one was rich without being overwhelming.</p>
+                  <p>It truly felt like a premium bakery experience. I'd happily order again!</p>
+                </div>
+                <div class="ts-person">
+                  <div class="ts-avatar">M</div>
+                  <div>
+                    <p class="ts-name">Karan Singh</p>
+                  </div>
+                </div>
+              </div>
+              <div class="ts-card r d4">
+                <span class="ts-quote-mark">&ldquo;</span>
+                <div class="ts-stars">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                </div>
+                <p class="ts-text">It was juicy, soft, buttery, and absolutely delicious. The loaf even kept me company during my 14-hour flight! The sweetness level was just perfect.</p>
+                <button type="button" class="ts-readmore">Read More →</button>
+                <div class="ts-full" hidden>
+                  <p class="ts-full-title">&ldquo;The best banana cake I've ever had.&rdquo;</p>
+                  <p>I ordered the Banana Cake from Oryn, and it was honestly the best banana cake I've ever had.</p>
+                  <p>It was juicy, soft, buttery, and absolutely delicious. The loaf even kept me company during my 14-hour flight! The sweetness level was just perfect.</p>
+                  <p>Wishing the team lots of success — I can't wait to order again.</p>
+                </div>
+                <div class="ts-person">
+                  <div class="ts-avatar">D</div>
+                  <div>
+                    <p class="ts-name">Devika T.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ts-grid">
+              <div class="ts-card">
+                <span class="ts-quote-mark">&ldquo;</span>
+                <div class="ts-stars">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                </div>
+                <p class="ts-text">The loaf had a comforting homemade taste, unlike many commercial bakeries that rely on excessive sugar and preservatives.</p>
+                <button type="button" class="ts-readmore">Read More →</button>
+                <div class="ts-full" hidden>
+                  <p class="ts-full-title">&ldquo;A homemade taste that's hard to find.&rdquo;</p>
+                  <p>I recently ordered the Eggless Banana Cookie Melt Loaf, and it was an absolute delight.</p>
+                  <p>The loaf had a comforting homemade taste, unlike many commercial bakeries that rely on excessive sugar and preservatives.</p>
+                  <p>Thank you for crafting desserts that truly stand apart in both flavour and care. Best wishes to the entire team!</p>
+                </div>
+                <div class="ts-person">
+                  <div class="ts-avatar">P</div>
+                  <div>
+                    <p class="ts-name">Prakhar Srivastava</p>
+                  </div>
+                </div>
+              </div>
+              <div class="ts-card">
+                <span class="ts-quote-mark">&ldquo;</span>
+                <div class="ts-stars">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                </div>
+                <p class="ts-text">The financier was wonderful, but the cookies deserve a special mention. Every bite was fresh, flavourful, and beautifully balanced.</p>
+                <button type="button" class="ts-readmore">Read More →</button>
+                <div class="ts-full" hidden>
+                  <p class="ts-full-title">&ldquo;The cookies deserve a special mention.&rdquo;</p>
+                  <p>I received my package yesterday, and the cookies were absolutely amazing.</p>
+                  <p>The financier was wonderful, but the cookies deserve a special mention. Every bite was fresh, flavourful, and beautifully balanced.</p>
+                  <p>Moments like these are exactly why I'll keep coming back.</p>
+                </div>
+                <div class="ts-person">
+                  <div class="ts-avatar">K</div>
+                  <div>
+                    <p class="ts-name">Shanaya Punjabi</p>
+                  </div>
+                </div>
+              </div>
+              <div class="ts-card">
+                <span class="ts-quote-mark">&ldquo;</span>
+                <div class="ts-stars">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                </div>
+                <p class="ts-text">The financier was soft, moist, and packed with flavour, while the cookies had the perfect texture and sweetness. Nothing was overly sweet everything was beautifully balanced.</p>
+                <button type="button" class="ts-readmore">Read More →</button>
+                <div class="ts-full" hidden>
+                  <p class="ts-full-title">&ldquo;A Father's Day gift everyone loved.&rdquo;</p>
+                  <p>I ordered the Father's Day Hamper for my daughter's uncle, and it turned out to be such a thoughtful gift.</p>
+                  <p>The financier was soft, moist, and packed with flavour, while the cookies had the perfect texture and sweetness. Nothing was overly sweet — everything was beautifully balanced.</p>
+                  <p>It felt like a premium, handcrafted gift that brought a huge smile to his face. I'll definitely be ordering again.</p>
+                </div>
+                <div class="ts-person">
+                  <div class="ts-avatar">S</div>
+                  <div>
+                    <p class="ts-name">Aanchal</p>
+                  </div>
+                </div>
+              </div>
+              <div class="ts-card">
+                <span class="ts-quote-mark">&ldquo;</span>
+                <div class="ts-stars">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.98l-4.94 2.73.94-5.5-4-3.9 5.53-.8L10 1.5z"/></svg>
+                </div>
+                <p class="ts-text">The cookies and Sanjh created an explosion of flavours. The packaging was exceptional and kept everything fresh and moist.</p>
+                <button type="button" class="ts-readmore">Read More →</button>
+                <div class="ts-full" hidden>
+                  <p class="ts-full-title">&ldquo;A wonderful delight for every dessert lover.&rdquo;</p>
+                  <p>The cookies and Sanjh created an explosion of flavours. The packaging was exceptional and kept everything fresh and moist.</p>
+                  <p>The gooeyness of the Cloud Crumb paired with the marshmallows created the most comforting bite.</p>
+                  <p>Whether you're treating yourself or you're a true dessert enthusiast, Oryn's creations are simply a wonderful delight.</p>
+                </div>
+                <div class="ts-person">
+                  <div class="ts-avatar">S</div>
+                  <div>
+                    <p class="ts-name">Aparna</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="ts-arrow ts-arrow-next" id="tsNext" aria-label="Next testimonials">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL READ MORE MODAL -->
+  <div class="ts-modal-overlay" id="tsModalOverlay">
+    <div class="ts-modal" role="dialog" aria-modal="true" aria-label="Customer testimonial">
+      <button type="button" class="ts-modal-close" id="tsModalClose" aria-label="Close">&times;</button>
+      <span class="ts-quote-mark">&ldquo;</span>
+      <div class="ts-stars" id="tsModalStars"></div>
+      <div class="ts-modal-text" id="tsModalText"></div>
+      <div class="ts-person">
+        <div class="ts-avatar" id="tsModalAvatar"></div>
+        <div><p class="ts-name" id="tsModalName"></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTAGRAM -->
+  <section id="instagram">
+    <div class="ig-inner">
+      <div class="ig-head r">
+        <span class="eye eye-b mb16">Follow Along</span>
+        <h2 class="h1 ig-head-handle">
+          <svg class="ig-head-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg>
+          @oryn.patisserie
+        </h2>
+        <p class="body-md opacity-b ig-lead">Behind-the-scenes bakes, plated moments, and the stories in between. <br> Join us on Instagram.</p>
+      </div>
+      <div class="ig-grid">
+        <a href="https://www.instagram.com/p/DX6QUKbk4cG/?igsh=dzlsNWRibzR0bnJn" target="_blank" rel="noopener" class="ig-item r">
+          <img src="Instagram_Hero_One.png" alt="Oryn on Instagram" loading="lazy">
+          <div class="ig-item-layer"><svg class="ig-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg></div>
+        </a>
+        <a href="https://www.instagram.com/p/DYGuHaLE9N-/?igsh=bDBqc2U0N3l4anp5" target="_blank" rel="noopener" class="ig-item r d1">
+          <img src="Instagram_2.jpeg" alt="Oryn on Instagram" loading="lazy">
+          <div class="ig-item-layer"><svg class="ig-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg></div>
+        </a>
+        <a href="https://www.instagram.com/p/DX_GdK-k4Kn/?igsh=MndxN3lsbHozMjl3" target="_blank" rel="noopener" class="ig-item r d2">
+          <img src="Instagram_3.jpeg" alt="Oryn on Instagram" loading="lazy">
+          <div class="ig-item-layer"><svg class="ig-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg></div>
+        </a>
+        <a href="https://www.instagram.com/p/DaXgpXjE2QG/?igsh=b3dueG85MWZ6bmV2" target="_blank" rel="noopener" class="ig-item r d3">
+          <img src="Instagram_4.jpeg" alt="Oryn on Instagram" loading="lazy">
+          <div class="ig-item-layer"><svg class="ig-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg></div>
+        </a>
+        <a href="https://www.instagram.com/p/DacTvObk5N-/?igsh=MWh0N3I4dms4dzI5Yg==" target="_blank" rel="noopener" class="ig-item r d4">
+          <img src="Instagram_5.jpeg" alt="Oryn on Instagram" loading="lazy">
+          <div class="ig-item-layer"><svg class="ig-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg></div>
+        </a>
+        <a href="https://www.instagram.com/p/DafeJo3k75G/?igsh=YzkxZzdwZmx5dzUx" target="_blank" rel="noopener" class="ig-item r d5">
+          <img src="Instagram_6.jpeg" alt="Oryn on Instagram" loading="lazy">
+          <div class="ig-item-layer"><svg class="ig-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg></div>
+        </a>
+      </div>
+      <div class="ig-foot r">
+        <a href="https://instagram.com/oryn.patisserie" target="_blank" rel="noopener" class="btn btn-ob">Follow @oryn.patisserie</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta">
+    <div class="cta-grid r">
+      <div class="cta-panel light">
+        <div class="cta-ph">
+          <img
+            src="2 (1).png"
+            alt="Oryn — Discover Our Collections"
+            loading="lazy"
+          />
+        </div>
+        <span class="eye eye-b mb16">Explore</span>
+        <h3 class="h3 mb16">Discover Our <br>Collections</h3>
+        <p class="body-md opacity-b mb28">
+          From A Delhi Love Story to the nostalgia of Flavours of India every
+          collection is a story crafted to be experienced, not merely
+          consumed.
+        </p>
+        <a href="muffins.html" class="btn btn-b">See Collections</a>
+      </div>
+      <div class="cta-panel dark" data-dark>
+        <div class="cta-ph">
+          <img
+            src="table_Image.jfif"
+            alt="Join the Oryn Table"
+            loading="lazy"
+          />
+        </div>
+        <span class="eye eye-w mb16">Experience</span>
+        <h3 class="h3 w-white mb16">Join the <br> Oryn Table</h3>
+        <p class="body-md mb28">
+          Our signature experiential gathering. an evening of dessert, culture,
+          and conversation, designed to be remembered.
+        </p>
+        <a href="the-oryn-table.html" class="btn btn-w">Discover the Table</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer data-dark>
+    <div class="ft-inner">
+      <div class="ft-top">
+        <div>
+          <img class="ft-logo" src="logo-oryn.png" alt="Oryn">
+          <p class="ft-about">An experiential patisserie that blends craftsmanship, aesthetics, and storytelling to create memorable dessert experiences.</p>
+          <span class="ft-acc">Not Just Baked.<br> Thought Through.</span>
+        </div>
+        <div>
+          <p class="ft-col-h">Collections</p>
+          <ul class="ft-links">
+            <li><a href="best-sellers.html">Best Sellers</a></li>
+            <li><a href="muffins.html">A Delhi Love Story</a></li>
+            <li><a href="cookies.html">Cookie Collection</a></li>
+            <li><a href="woh-din-yaad-hai.html">WOH DIN - Yaad Hai?</a></li>
+            <li><a href="flavours-of-india.html">Flavours of India</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Explore</p>
+          <ul class="ft-links">
+            <li><a href="about.html">About Oryn</a></li>
+            <li><a href="index.html#collections">Collection</a></li>
+            <li><a href="the-oryn-table.html">The Oryn Table</a></li>
+            <li><a href="order.html">Ordering &amp; Gifting</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Get In Touch</p>
+          <ul class="ft-links">
+            <li><a href="contact.html">Query</a></li>
+            <li><a href="mailto:oryn.patisserie@gmail.com">Email Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Socials</p>
+          <ul class="ft-links">
+            <li><a href="https://instagram.com/oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg>Instagram</a></li>
+            <li><a href="https://www.threads.com/@oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c-4.5 0-7 2.8-7 7.2v3.6c0 4.4 2.5 7.2 7 7.2s7-2.8 7-7.2c0-2.7-1.6-4.4-4-4.4-2.1 0-3.6 1.2-3.6 3 0 1.4 1 2.2 2.4 2.2 1.1 0 2.1-.5 2.6-1.4"/></svg>Threads</a></li>
+            <li><a href="https://www.facebook.com/share/1AU4rWwGFM/" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 3h-2a5 5 0 0 0-5 5v3H6v4h2v6h4v-6h3l1-4h-4V8a1 1 0 0 1 1-1h3z"/></svg>Facebook</a></li>
+            <li><a href="https://youtube.com/@oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="6.5" width="19" height="11" rx="3.5"/><path d="M10.5 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none"/></svg>YouTube</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Sign Up For Updates</p>
+          <form class="ft-signup-form" onsubmit="return false;">
+            <input type="email" placeholder="Enter your email..." required>
+            <button type="submit">Sign Up</button>
+          </form>
+        </div>
+      </div>
+      <div class="ft-bot">
+        <p class="ft-copy">&copy; 2026 Oryn. All rights reserved.</p>
+        <p class="ft-legal"><a href="terms-and-policy.html">Terms &amp; Conditions</a> &middot; <a href="terms-and-policy.html#privacy">Privacy Policy</a></p>
+        <p class="ft-tagline">A Study in Taste &amp; Texture</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

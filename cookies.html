@@ -1,0 +1,565 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Oryn Cookie Collection — Aurelia, Jade Caramel & Cloud Crumb. Artisan cookies with pan-India free shipping.">
+  <title>Cookie Collection — Oryn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Amita:wght@400;700&family=Comforter+Brush&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    :root { --f-display: "TAN Vivre Libre", "Cormorant Garamond", Georgia, serif; }
+
+    /* ── HERO ── */
+    #hero { min-height: 78vh; background: var(--blue); display: flex; flex-direction:column; justify-content:center; padding: calc(var(--nav-h) + 60px) var(--px) 80px calc(var(--px) + 40px); position: relative; overflow: hidden; }
+    .hc-badge { font-family: var(--f-body); font-size: .7rem; letter-spacing: .42em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 20px; }
+    .hc-badge strong { font-family: var(--f-body); font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; color: rgba(255,255,255,.45); font-weight: 400; }
+    .hc-title { font-family: var(--f-display); font-weight: 300; font-size: clamp(3.2rem,8vw,7rem); color: var(--white); line-height: .9; margin-bottom: 20px; }
+    .hc-sub { font-family: var(--f-body); font-size: 1.02rem; line-height: 1.8; color: rgba(255,255,255,.62); max-width: 560px; margin-bottom: 40px; }
+    .hc-flags { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 44px; }
+    .hc-flag { display: flex; flex-direction: column; gap: 2px; }
+    .hc-flag-v { font-family: var(--f-display); font-size: 1.5rem; color: var(--white); }
+    .hc-flag-l { font-family: var(--f-body); font-size: .65rem; letter-spacing: .28em; text-transform: uppercase; color: rgba(255,255,255,.38); }
+
+    /* ── EDITORIAL LEAD ── */
+    /* Change --el-pt / --el-pb below to adjust top and bottom padding independently. */
+    #editorial-lead { --el-pt: 100px; --el-pb: 0px; padding: var(--el-pt) var(--px) var(--el-pb); }
+    #editorial-lead .pull-quote { font-style: normal; color: var(--blue); }
+    #editorial-lead .body-lg { max-width: 620px; margin: 0 auto; }
+
+    /* ── COOKIES GRID ── */
+    #cookies-grid { padding: 100px var(--px) var(--py); }
+    .cg-inner { max-width: var(--max); margin: 0 auto; }
+    .cookie-card { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; padding: 80px 0; border-bottom: 1px solid rgba(12,54,123,.07); }
+    .cookie-card:last-child { border-bottom: none; }
+    .cookie-card.reverse .cookie-img { order: 2; }
+    .cookie-card.reverse .cookie-body { order: 1; }
+    .cookie-img  { overflow: hidden; aspect-ratio: 3/4; }
+    .cookie-img img { transition: transform 1.4s var(--ease); }
+    .cookie-img:hover img { transform: scale(1.05); }
+    .ck-num { font-family: var(--f-display); font-size: clamp(6rem,12vw,13rem); font-weight: 300; color: rgba(12,54,123,.05); line-height: 1; margin-bottom: -20px; }
+    .ck-eye { font-family: var(--f-body); font-size: .68rem; letter-spacing: .36em; text-transform: uppercase; color: rgba(12,54,123,.38); margin-bottom: 12px; }
+    .ck-name { font-family: var(--f-display); font-size: clamp(2rem,4vw,3.5rem); font-weight: 400; color: var(--blue); line-height: 1.05; margin-bottom: 6px; }
+    .ck-subtitle { font-family: var(--f-accent); font-size: 1.4rem; color: rgba(12,54,123,.45); margin-bottom: 24px; }
+    .ck-story { font-family: var(--f-body); font-size: 1rem; line-height: 1.85; color: rgba(12,54,123,.6); margin-bottom: 20px; }
+    .ck-notes-lbl { font-family: var(--f-body); font-size: .65rem; letter-spacing: .28em; text-transform: uppercase; color: rgba(12,54,123,.28); margin-bottom: 10px; }
+    .ck-texture { font-family: var(--f-body); font-size: .78rem; font-style: italic; color: rgba(12,54,123,.38); margin-top: 12px; margin-bottom: 28px; }
+
+    /* ── SHIPPING BANNER ── */
+    #ship { background: var(--blue); padding: 56px var(--px); }
+    .ship-inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; }
+    .ship-item { background: rgba(255,255,255,.05); padding: 32px 24px; text-align: center; }
+    .ship-icon { font-size: 1.6rem; margin-bottom: 12px; }
+    .ship-val { font-family: var(--f-display); font-size: 1.4rem; color: var(--white); margin-bottom: 4px; }
+    .ship-lbl { font-family: var(--f-body); font-size: .72rem; letter-spacing: .24em; text-transform: uppercase; color: rgba(255,255,255,.38); }
+
+    /* ── BOX OPTIONS ── */
+    #box-options { padding: var(--py) var(--px); background: #f9f8f6; }
+    .bo-inner { max-width: var(--max); margin: 0 auto; }
+    .bo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(12,54,123,.06); margin-top: 56px; }
+    .bo-card { background: var(--white); padding: 56px 44px; }
+    .bo-featured { background: var(--blue); }
+    .bo-qty { font-family: var(--f-body); font-size: .68rem; letter-spacing: .32em; text-transform: uppercase; color: rgba(12,54,123,.35); margin-bottom: 12px; }
+    .bo-qty.w { color: rgba(255,255,255,.4); }
+    .bo-name { font-family: var(--f-display); font-size: 1.8rem; color: var(--blue); margin-bottom: 4px; }
+    .bo-name.w { color: var(--white); }
+    .bo-price { font-family: var(--f-display); font-size: 3rem; font-weight: 300; color: var(--blue); }
+    .bo-price.w { color: var(--white); }
+    .bo-ship { font-family: var(--f-body); font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: rgba(12,54,123,.35); margin-top: 4px; }
+    .bo-ship.w { color: rgba(255,255,255,.4); }
+    .bo-perks { list-style: none; margin: 24px 0 32px; }
+    .bo-perks li { font-family: var(--f-body); font-size: .9rem; line-height: 1.6; color: rgba(12,54,123,.55); padding: 6px 0; border-bottom: 1px solid rgba(12,54,123,.05); display: flex; align-items: flex-start; gap: 10px; }
+    .bo-perks li::before { content: '—'; color: rgba(12,54,123,.3); flex-shrink: 0; }
+    .bo-perks.w li { color: rgba(255,255,255,.6); border-bottom-color: rgba(255,255,255,.08); }
+    .bo-perks.w li::before { color: rgba(255,255,255,.3); }
+
+    /* ── GIFTING NOTE ── */
+    #gift-note { padding: var(--py) var(--px); }
+    .gn-inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 3fr 2fr; gap: 80px; align-items: center; }
+
+    @media (max-width: 1100px) {
+      .cookie-card, .gn-inner { grid-template-columns: 1fr; }
+      .cookie-card.reverse .cookie-img { order: 0; }
+      .cookie-card.reverse .cookie-body { order: 0; }
+      .ship-inner { grid-template-columns: 1fr 1fr; }
+      .bo-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .ship-inner { grid-template-columns: 1fr; }
+    }
+
+    /* ── CLASSIC BOX FLAVOUR PICKER MODAL ── */
+    .ckbox-modal-overlay {
+      position: fixed; inset: 0; z-index: 4000;
+      background: rgba(12,54,123,.35);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; visibility: hidden;
+      transition: opacity .3s var(--ease), visibility .3s;
+    }
+    .ckbox-modal-overlay.open { opacity: 1; visibility: visible; }
+    .ckbox-modal {
+      position: relative;
+      background: var(--white);
+      width: min(460px, 100%);
+      padding: 44px 36px 36px;
+      text-align: center;
+      transform: translateY(16px);
+      transition: transform .3s var(--ease);
+    }
+    .ckbox-modal-overlay.open .ckbox-modal { transform: translateY(0); }
+    .ckbox-modal-close {
+      position: absolute; top: 14px; right: 14px;
+      font-family: var(--f-body); font-size: 1.6rem; line-height: 1;
+      color: rgba(12,54,123,.5); background: none; border: none; cursor: pointer;
+      transition: color .2s;
+    }
+    .ckbox-modal-close:hover { color: var(--blue); }
+    .ckbox-modal-title { font-family: var(--f-display); font-size: 1.6rem; font-weight: 400; color: var(--blue); margin-bottom: 28px; }
+    .ckbox-modal-confirm { width: 100%; }
+    .ckbox-modal-confirm:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── ASSORTED BOX BUILDER MODAL ── */
+    .assorted-rows { margin-bottom: 12px; }
+    .assorted-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 16px 0; border-bottom: 1px solid rgba(12,54,123,.08); text-align: left;
+    }
+    .assorted-row:last-child { border-bottom: none; }
+    .assorted-row-name { font-family: var(--f-display); font-size: 1.05rem; color: var(--blue); }
+    .assorted-row-qty { display: flex; align-items: center; gap: 14px; }
+    .assorted-row-qty button {
+      width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(12,54,123,.25);
+      background: none; color: var(--blue); font-size: 1rem; line-height: 1; cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .assorted-row-qty button:hover:not(:disabled) { border-color: var(--blue); background: rgba(12,54,123,.05); }
+    .assorted-row-qty button:disabled { opacity: .3; cursor: not-allowed; }
+    .assorted-row-qty span { font-family: var(--f-display); font-size: 1.05rem; color: var(--blue); min-width: 18px; text-align: center; }
+    .assorted-total {
+      font-family: var(--f-body); font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(12,54,123,.5); margin: 20px 0 24px;
+    }
+    .assorted-total.is-full { color: var(--blue); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="cursor-dot" id="cDot"></div>
+  <div class="cursor-ring" id="cRing"></div>
+  <div id="loader">
+    <img class="ldr-logo" src="Logo Design/Logo Design - V2.png" alt="Oryn">
+    <div class="ldr-bar"></div>
+  </div>
+
+  <div id="mob-nav">
+    <a href="index.html" onclick="closeMob()">Home</a>
+    <div class="mob-dd">
+      <button type="button" class="mob-dd-btn">Collections
+        <svg class="dd-chev" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="mob-dd-panel">
+        <a href="best-sellers.html" onclick="closeMob()">Best Sellers</a>
+        <a href="muffins.html" onclick="closeMob()">A Delhi Love Story</a>
+        <a href="cookies.html" onclick="closeMob()">Cookie Collection</a>
+        <a href="woh-din-yaad-hai.html" onclick="closeMob()">WOH DIN - Yaad Hai?</a>
+        <a href="flavours-of-india.html" onclick="closeMob()">Flavours of India</a>
+        <a href="saanjh.html" onclick="closeMob()">Saanjh</a>
+        <a href="banana-cookie-melt.html" onclick="closeMob()">Banana Cookie Melt</a>
+      </div>
+    </div>
+    <a href="all-products.html" onclick="closeMob()">All Products</a>
+    <a href="the-oryn-table.html" onclick="closeMob()">The Oryn Table</a>
+    <a href="about.html" onclick="closeMob()">About</a>
+    <a href="contact.html" onclick="closeMob()">Contact</a>
+    <a href="order.html" onclick="closeMob()">Order</a>
+  </div>
+
+  <nav id="nav">
+    <a href="index.html" class="nav-logo-wrap">
+      <img class="nav-logo" src="logo-oryn.png" alt="Oryn">
+    </a>
+    <div class="nav-center">
+      <a href="index.html" class="nav-link">Home</a>
+      <div class="nav-dd">
+        <button class="nav-link nav-dd-btn">Collections
+          <svg class="dd-chev" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="nav-dd-panel">
+          <div class="dd-item-flyout">
+            <a href="best-sellers.html" class="dd-item"><strong>Best Sellers</strong><span>Our Most-Loved Picks</span></a>
+            <div class="dd-flyout-panel">
+              <a href="saanjh.html" class="dd-flyout-item">Saanjh</a>
+              <a href="banana-cookie-melt.html" class="dd-flyout-item">Banana Cookie Melt</a>
+            </div>
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item-flyout">
+            <a href="muffins.html" class="dd-item"><strong>A Delhi Love Story</strong><span>Signature Muffin Collection</span></a>
+            <div class="dd-flyout-panel">
+              <a href="muffin-citrus-spice-bloom.html" class="dd-flyout-item">Citrus Spice Bloom</a>
+              <a href="muffin-mace-latte.html" class="dd-flyout-item">Mace Latte</a>
+              <a href="muffin-matcha-butterscotch.html" class="dd-flyout-item">Matcha Butterscotch</a>
+              <a href="muffin-spiced-cocoa-ember.html" class="dd-flyout-item">Spiced Cocoa Ember</a>
+              <a href="muffin-salted-caramel.html" class="dd-flyout-item">Salted Caramel Power Crunch</a>
+            </div>
+          </div>
+          <div class="dd-item-flyout">
+            <a href="cookies.html" class="dd-item"><strong>Cookie Collection</strong><span>Pan India Delivery</span></a>
+            <div class="dd-flyout-panel">
+              <a href="cookie-aurelia.html" class="dd-flyout-item">Aurelia</a>
+              <a href="cookie-jade-caramel.html" class="dd-flyout-item">Jade Caramel</a>
+              <a href="cookie-cloud-crumb.html" class="dd-flyout-item">Cloud Crumb</a>
+            </div>
+          </div>
+          <div class="dd-item-flyout">
+            <a href="woh-din-yaad-hai.html" class="dd-item"><strong>WOH DIN - Yaad Hai?</strong><span>Nostalgia Collection</span></a>
+            <div class="dd-flyout-panel">
+              <a href="almond-cinnamon-cookies.html" class="dd-flyout-item">Almond Cinnamon Cookies</a>
+              <a href="almond-chocolate-biscotti.html" class="dd-flyout-item">Almond Chocolate Biscotti</a>
+              <a href="almond-nuts-tea-cake.html" class="dd-flyout-item">Almond &amp; Nuts Tea Cake</a>
+              <a href="dark-chocolate-almond-bars.html" class="dd-flyout-item">Dark Chocolate Almond Bars</a>
+            </div>
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item-flyout">
+            <a href="flavours-of-india.html" class="dd-item"><strong>Flavours of India</strong><span>Regional Heritage</span></a>
+            <div class="dd-flyout-panel">
+              <a href="eclair-malabar-gold.html" class="dd-flyout-item">Malabar Gold Éclair</a>
+              <a href="cupcake-nolen-halo.html" class="dd-flyout-item">Nolen Halo Cupcake</a>
+              <a href="bento-apricus.html" class="dd-flyout-item">Apricus Bento Cake</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a href="all-products.html" class="nav-link">All Products</a>
+      <a href="the-oryn-table.html" class="nav-link">The Oryn Table</a>
+      <a href="about.html"          class="nav-link">About</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+    </div>
+    <a href="order.html" class="nav-cta-btn desktop-only">Order</a>
+    <button class="hamburger" id="ham" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero" data-dark data-hero-dark>
+    <div class="hero-dots"></div>
+    <h1 class="hc-title r d1">The Cookie <br>Collection</h1>
+    <p class="hc-sub r d2">Three artisan cookies, each with a character entirely their own. Designed not just to be eaten, but to be savoured — with intention, with company, or in solitary delight.</p>
+    </div>
+  </section>
+
+  <!-- EDITORIAL LEAD -->
+  <section id="editorial-lead">
+    <div class="inner" style="max-width:840px; margin:0 auto; text-align:center;">
+      <div class="r">
+        <p class="pull-quote r mb24">"The best cookie is one that makes you stop<br> what you're doing."</p>
+        <p class="body-lg opacity-b r d1">We set out to make cookies that earn that pause. Each of our three flavours was developed through months of testing — balancing texture, flavour depth, and the kind of quality that only handcraft can achieve.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COOKIES -->
+  <section id="cookies-grid">
+    <div class="cg-inner">
+
+      <!-- AURELIA -->
+      <div class="cookie-card">
+        <div class="cookie-img r-l">
+          <img src="All Product Images/All Cookies/Aurelia Cookies/2.png" alt="Aurelia Cookie" loading="lazy">
+        </div>
+        <div class="cookie-body r-r">
+          <div class="ck-num">01</div>
+          <h2 class="ck-name">Aurelia</h2>
+          <p class="ck-story">Named after the Latin word for golden, Aurelia is the cookie for those who appreciate depth.</p>
+          <p class="ck-story">Named after the Latin word for "golden," Aurelia is a cookie that celebrates warmth and quiet elegance. It opens with the vibrant brightness of fresh orange zest before unfolding into comforting layers of cinnamon, ginger, and nutmeg—rich, aromatic, and beautifully balanced.</p>
+          <p class="ck-story">Each bite lingers with buttery depth and gentle spice, making Aurelia a cookie that's both familiar and refined, crafted for those who appreciate subtle complexity.</p>
+          <p class="ck-notes-lbl">Flavour Notes</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <span class="tag">ORANGE ZEST</span>
+            <span class="tag">CINNAMON</span>
+            <span class="tag">GINGER</span>
+            <span class="tag">NUTMEG</span>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="order.html" class="btn btn-b btn-cart"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+            <a href="cookie-aurelia.html" class="btn btn-ob">View Details →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- JADE CARAMEL -->
+      <div class="cookie-card reverse">
+        <div class="cookie-img r-l">
+          <img src="Jade_Caramel_Card.png" alt="Jade Caramel Cookie" loading="lazy">
+        </div>
+        <div class="cookie-body r-r">
+          <div class="ck-num">02</div>
+          <h2 class="ck-name">Jade Caramel</h2>
+          <p class="ck-story">Green and gold. Earthy and sweet. The Jade Caramel is the most intellectually interesting cookie we make.</p>
+          <p class="ck-story">Green and gold. Earthy and sweet. The Jade Caramel is the most intellectually interesting cookie we make. Matcha and butterscotch shouldn't work together — and yet, in the right proportions and with the right technique, they create something that is better than either alone.</p>
+          <p class="ck-story">Dense, chewy, with pockets of butterscotch caramel that melt in the warmth of your mouth — the Jade Caramel is the cookie that surprises you every time, even when you already know to expect it.</p>
+          <p class="ck-notes-lbl">Flavour Notes</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <span class="tag">MATCHA</span>
+            <span class="tag">BUTTERSCOTCH</span>
+            <span class="tag">CARAMELIZED NUTS</span>
+            <span class="tag">BROWN SUGAR</span>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="order.html" class="btn btn-b btn-cart"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+            <a href="cookie-jade-caramel.html" class="btn btn-ob">View Details →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLOUD CRUMB -->
+      <div class="cookie-card">
+        <div class="cookie-img r-l">
+          <img src="Cloude_Crum_Cookie.png" alt="Cloud Crumb Cookie" loading="lazy">
+        </div>
+        <div class="cookie-body r-r">
+          <div class="ck-num">03</div>
+          <h2 class="ck-name">Cloud Crumb</h2>
+          <p class="ck-story">There is a reason certain things become classics.</p>
+          <p class="ck-story">There is a reason some cookies become classics. Cloud Crumb earns its name with a soft, delicate crumb that melts on the first bite. Rich dark chocolate creates molten pockets, while toasted mini marshmallows add a nostalgic sweetness that lingers long after.</p>
+          <p class="ck-story">Simple in appearance, thoughtful in every detail. Made with real butter, premium dark chocolate, and toasted marshmallows folded into a buttery vanilla dough, every bite is soft, comforting, and impossible to resist.</p>
+          <p class="ck-notes-lbl">Flavour Notes</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <span class="tag">DARK CHOCOLATE</span>
+            <span class="tag">TOASTED MARSHMALLOW</span>
+            <span class="tag">VANILLA</span>
+            <span class="tag">BUTTERY COOKIE</span>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="order.html" class="btn btn-b btn-cart"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+            <a href="cookie-cloud-crumb.html" class="btn btn-ob">View Details →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- BOX OPTIONS -->
+  <section id="box-options">
+    <div class="bo-inner">
+      <div class="tc r">
+        <span class="eye eye-b mb16">Ordering</span>
+        <h2 class="h1 mb8">Choose Your Box</h2>
+        <p class="body-md opacity-b r d1" style="max-width:440px; margin:0 auto;">Every box ships free across India, beautifully packaged for gifting or personal indulgence.</p>
+      </div>
+      <div class="bo-grid">
+        <div class="bo-card r">
+          <p class="bo-qty">Box of 6</p>
+          <h3 class="bo-name">The Classic Box</h3>
+          <p class="bo-price">₹800</p>
+          <p class="bo-ship">Free Shipping · Pan India</p>
+          <ul class="bo-perks">
+            <li>2 Cookies each of all 3 flavours</li>
+            <li>Signature Oryn kraft gift box</li>
+            <li>A sticker with tasting notes</li>
+            <li>Handwritten personalised message on request</li>
+          </ul>
+          <a href="order.html" class="btn btn-b btn-cart" data-add-to-cart="true" data-cart-sku="COOKIE-MIX" data-cart-name="Classic Box of 6" data-cart-price="800" data-cart-details="Cookie Collection · 2 each of Aurelia, Jade Caramel &amp; Cloud Crumb · Pan India"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+        </div>
+        <div class="bo-card bo-featured r d1" data-dark>
+          <p class="bo-qty w">Build Your Own · Box of 6</p>
+          <h3 class="bo-name w">Make Your Own Box</h3>
+          <p class="bo-price w">₹800</p>
+          <p class="bo-ship w">Free Shipping · Pan India</p>
+          <ul class="bo-perks w">
+            <li>Mix any combination of all 3 flavours</li>
+            <li>Signature Oryn kraft gift box</li>
+            <li>A sticker with tasting notes</li>
+            <li>Handwritten personalised message on request</li>
+          </ul>
+          <button type="button" class="btn btn-w" id="assortedBoxOpenBtn">Build Your Box →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer data-dark>
+    <div class="ft-inner">
+      <div class="ft-top">
+        <div>
+          <img class="ft-logo" src="logo-oryn.png" alt="Oryn">
+          <p class="ft-about">An experiential patisserie that blends craftsmanship, aesthetics, and storytelling to create memorable dessert experiences.</p>
+          <span class="ft-acc">Not Just Baked.<br> Thought Through.</span>
+        </div>
+        <div>
+          <p class="ft-col-h">Collections</p>
+          <ul class="ft-links">
+            <li><a href="best-sellers.html">Best Sellers</a></li>
+            <li><a href="muffins.html">A Delhi Love Story</a></li>
+            <li><a href="cookies.html">Cookie Collection</a></li>
+            <li><a href="woh-din-yaad-hai.html">WOH DIN - Yaad Hai?</a></li>
+            <li><a href="flavours-of-india.html">Flavours of India</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Explore</p>
+          <ul class="ft-links">
+            <li><a href="about.html">About Oryn</a></li>
+            <li><a href="index.html#collections">Collection</a></li>
+            <li><a href="the-oryn-table.html">The Oryn Table</a></li>
+            <li><a href="order.html">Ordering &amp; Gifting</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Get In Touch</p>
+          <ul class="ft-links">
+            <li><a href="contact.html">Query</a></li>
+            <li><a href="mailto:oryn.patisserie@gmail.com">Email Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Socials</p>
+          <ul class="ft-links">
+            <li><a href="https://instagram.com/oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg>Instagram</a></li>
+            <li><a href="https://www.threads.com/@oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c-4.5 0-7 2.8-7 7.2v3.6c0 4.4 2.5 7.2 7 7.2s7-2.8 7-7.2c0-2.7-1.6-4.4-4-4.4-2.1 0-3.6 1.2-3.6 3 0 1.4 1 2.2 2.4 2.2 1.1 0 2.1-.5 2.6-1.4"/></svg>Threads</a></li>
+            <li><a href="https://www.facebook.com/share/1AU4rWwGFM/" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 3h-2a5 5 0 0 0-5 5v3H6v4h2v6h4v-6h3l1-4h-4V8a1 1 0 0 1 1-1h3z"/></svg>Facebook</a></li>
+            <li><a href="https://youtube.com/@oryn.patisserie" target="_blank" rel="noopener"><svg class="ft-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="6.5" width="19" height="11" rx="3.5"/><path d="M10.5 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none"/></svg>YouTube</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="ft-col-h">Sign Up For Updates</p>
+          <form class="ft-signup-form" onsubmit="return false;">
+            <input type="email" placeholder="Enter your email..." required>
+            <button type="submit">Sign Up</button>
+          </form>
+        </div>
+      </div>
+      <div class="ft-bot">
+        <p class="ft-copy">&copy; 2026 Oryn. All rights reserved.</p>
+        <p class="ft-legal"><a href="terms-and-policy.html">Terms &amp; Conditions</a> &middot; <a href="terms-and-policy.html#privacy">Privacy Policy</a></p>
+        <p class="ft-tagline">A Study in Taste &amp; Texture</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MAKE YOUR OWN BOX BUILDER MODAL -->
+  <div class="ckbox-modal-overlay" id="assortedBoxModal">
+    <div class="ckbox-modal" role="dialog" aria-modal="true" aria-label="Build your own box">
+      <button type="button" class="ckbox-modal-close" data-assorted-modal-close aria-label="Close">&times;</button>
+      <span class="eye eye-b mb8">Make Your Own Box</span>
+      <h3 class="ckbox-modal-title">Build Your Box of 6</h3>
+      <div class="assorted-rows">
+        <div class="assorted-row" data-flavour="Aurelia">
+          <span class="assorted-row-name">Aurelia</span>
+          <div class="assorted-row-qty">
+            <button type="button" data-action="decrement" aria-label="Decrease Aurelia quantity">−</button>
+            <span data-qty>0</span>
+            <button type="button" data-action="increment" aria-label="Increase Aurelia quantity">+</button>
+          </div>
+        </div>
+        <div class="assorted-row" data-flavour="Jade Caramel">
+          <span class="assorted-row-name">Jade Caramel</span>
+          <div class="assorted-row-qty">
+            <button type="button" data-action="decrement" aria-label="Decrease Jade Caramel quantity">−</button>
+            <span data-qty>0</span>
+            <button type="button" data-action="increment" aria-label="Increase Jade Caramel quantity">+</button>
+          </div>
+        </div>
+        <div class="assorted-row" data-flavour="Cloud Crumb">
+          <span class="assorted-row-name">Cloud Crumb</span>
+          <div class="assorted-row-qty">
+            <button type="button" data-action="decrement" aria-label="Decrease Cloud Crumb quantity">−</button>
+            <span data-qty>0</span>
+            <button type="button" data-action="increment" aria-label="Increase Cloud Crumb quantity">+</button>
+          </div>
+        </div>
+      </div>
+      <p class="assorted-total" id="assortedTotal">0 / 6 selected</p>
+      <button type="button" class="btn btn-b ckbox-modal-confirm" id="assortedBoxConfirm" disabled>Confirm Box</button>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    (() => {
+      const openBtn = document.getElementById('assortedBoxOpenBtn');
+      const modal = document.getElementById('assortedBoxModal');
+      if (!openBtn || !modal) return;
+      const closeBtn = modal.querySelector('[data-assorted-modal-close]');
+      const rows = modal.querySelectorAll('.assorted-row');
+      const totalEl = document.getElementById('assortedTotal');
+      const confirmBtn = document.getElementById('assortedBoxConfirm');
+      const MAX_TOTAL = 6;
+      const MAX_PER_FLAVOUR = 5;
+
+      const counts = {};
+      rows.forEach(row => { counts[row.dataset.flavour] = 0; });
+
+      function total() {
+        return Object.values(counts).reduce((sum, n) => sum + n, 0);
+      }
+
+      function render() {
+        const t = total();
+        rows.forEach(row => {
+          const flavour = row.dataset.flavour;
+          const qty = counts[flavour];
+          row.querySelector('[data-qty]').textContent = qty;
+          row.querySelector('[data-action="increment"]').disabled = qty >= MAX_PER_FLAVOUR || t >= MAX_TOTAL;
+          row.querySelector('[data-action="decrement"]').disabled = qty <= 0;
+        });
+        totalEl.textContent = `${t} / ${MAX_TOTAL} selected`;
+        totalEl.classList.toggle('is-full', t === MAX_TOTAL);
+        confirmBtn.disabled = t !== MAX_TOTAL;
+      }
+
+      rows.forEach(row => {
+        const flavour = row.dataset.flavour;
+        row.querySelector('[data-action="increment"]').addEventListener('click', () => {
+          if (counts[flavour] < MAX_PER_FLAVOUR && total() < MAX_TOTAL) {
+            counts[flavour]++;
+            render();
+          }
+        });
+        row.querySelector('[data-action="decrement"]').addEventListener('click', () => {
+          if (counts[flavour] > 0) {
+            counts[flavour]--;
+            render();
+          }
+        });
+      });
+
+      function openModal() {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      openBtn.addEventListener('click', () => { openModal(); render(); });
+      closeBtn.addEventListener('click', closeModal);
+      modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+
+      confirmBtn.addEventListener('click', () => {
+        if (total() !== MAX_TOTAL) return;
+        const breakdown = Object.entries(counts)
+          .filter(([, qty]) => qty > 0)
+          .map(([flavour, qty]) => `${flavour} x${qty}`)
+          .join(', ');
+        addItemToCart({
+          sku: `COOKIE-CUSTOM-${Date.now()}`,
+          name: 'Make Your Own Box of 6',
+          price: 800,
+          details: `Cookie Collection · ${breakdown} · Pan India`,
+          quantity: 1,
+        });
+        Object.keys(counts).forEach(flavour => { counts[flavour] = 0; });
+        render();
+        closeModal();
+        openCartDrawer();
+      });
+    })();
+  </script>
+</body>
+</html>

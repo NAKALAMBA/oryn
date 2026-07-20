@@ -1,0 +1,14 @@
+server/.env
+server/node_modules/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.jfif
+*.webp
+*.heic
+*.mp4
+*.pdf
+*.docx
+*.doc
+*.svg

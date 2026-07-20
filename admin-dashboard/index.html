@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oryn — Live Admin Dashboard</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Arial, sans-serif; margin: 0; padding: 32px; background: #f5f4f1; color: #0c367b; }
+  h1 { margin: 0 0 4px; font-size: 1.8rem; }
+  .sub { color: rgba(12,54,123,.5); margin-bottom: 24px; font-size: .9rem; }
+  h2 { font-size: 1.1rem; margin: 40px 0 12px; border-bottom: 1px solid rgba(12,54,123,.15); padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: .84rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(12,54,123,.08); vertical-align: top; }
+  th { background: rgba(12,54,123,.05); font-weight: 600; text-transform: uppercase; font-size: .68rem; letter-spacing: .05em; }
+  tr:hover td { background: rgba(12,54,123,.03); }
+  .empty { padding: 16px; color: rgba(12,54,123,.4); font-style: italic; background: #fff; }
+  .items { font-size: .78rem; color: rgba(12,54,123,.7); }
+  .count { display: inline-block; background: #0c367b; color: #fff; border-radius: 10px; padding: 1px 8px; font-size: .72rem; margin-left: 8px; }
+
+  /* ── Top bar: connection config + live status ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 10; background: #f5f4f1;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 14px 16px; margin: -32px -32px 24px; border-bottom: 1px solid rgba(12,54,123,.1);
+    box-shadow: 0 4px 16px rgba(12,54,123,.05);
+  }
+  .topbar label { font-size: .72rem; letter-spacing: .04em; color: rgba(12,54,123,.5); }
+  .topbar input[type="url"] {
+    flex: 1 1 260px; min-width: 200px; padding: 8px 10px; border: 1px solid rgba(12,54,123,.2);
+    border-radius: 4px; font-size: .82rem; font-family: inherit; color: #0c367b;
+  }
+  .topbar button {
+    background: #0c367b; color: #fff; border: none; padding: 9px 16px; border-radius: 4px;
+    cursor: pointer; font-size: .8rem; white-space: nowrap;
+  }
+  .topbar button.secondary { background: transparent; color: #0c367b; border: 1px solid rgba(12,54,123,.25); }
+  .status { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: rgba(12,54,123,.55); white-space: nowrap; }
+  .status-dot { width: 9px; height: 9px; border-radius: 50%; background: #c9c4b8; flex-shrink: 0; transition: background .2s; }
+  .status-dot.live { background: #2fb872; box-shadow: 0 0 0 3px rgba(47,184,114,.18); }
+  .status-dot.error { background: #d0453c; box-shadow: 0 0 0 3px rgba(208,69,60,.18); }
+  .error-banner {
+    display: none; background: #fdecea; color: #a4302a; border: 1px solid #f3c6c2;
+    padding: 12px 16px; border-radius: 4px; font-size: .84rem; margin-bottom: 24px;
+  }
+  .error-banner.visible { display: block; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <label for="apiBase">API URL</label>
+    <input type="url" id="apiBase" placeholder="https://your-oryn-server.example.com" autocomplete="off">
+    <button type="button" id="saveApiBase">Save</button>
+    <button type="button" class="secondary" id="refreshNow">Refresh Now</button>
+    <button type="button" class="secondary" id="toggleAuto">Pause Live Updates</button>
+    <span class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Not connected yet</span></span>
+  </div>
+
+  <h1>Oryn — Live Admin Dashboard</h1>
+  <p class="sub">Live view of everything customers submit on the Oryn website — orders, enquiries, newsletter signups, and event registrations — read straight from the site's database. This page can be deployed on its own; it just needs the API URL above pointed at wherever the Oryn server is running.</p>
+
+  <div class="error-banner" id="errorBanner"></div>
+
+  <h2>Orders <span class="count" id="orders-count">0</span></h2>
+  <div id="orders"></div>
+
+  <h2>Contact Messages <span class="count" id="contacts-count">0</span></h2>
+  <div id="contacts"></div>
+
+  <h2>Newsletter Subscribers <span class="count" id="newsletter-count">0</span></h2>
+  <div id="newsletter"></div>
+
+  <h2>Event Registrations <span class="count" id="registrations-count">0</span></h2>
+  <div id="registrations"></div>
+
+  <script>
+    const STORAGE_KEY = 'oryn-admin-api-base';
+    const POLL_MS = 5000;
+
+    const apiBaseInput = document.getElementById('apiBase');
+    const saveBtn = document.getElementById('saveApiBase');
+    const refreshBtn = document.getElementById('refreshNow');
+    const toggleAutoBtn = document.getElementById('toggleAuto');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const errorBanner = document.getElementById('errorBanner');
+
+    function getApiBase() {
+      return (localStorage.getItem(STORAGE_KEY) || apiBaseInput.value || 'http://localhost:3001').replace(/\/+$/, '');
+    }
+
+    apiBaseInput.value = localStorage.getItem(STORAGE_KEY) || 'http://localhost:3001';
+
+    saveBtn.addEventListener('click', () => {
+      const value = apiBaseInput.value.trim().replace(/\/+$/, '') || 'http://localhost:3001';
+      apiBaseInput.value = value;
+      localStorage.setItem(STORAGE_KEY, value);
+      loadAll();
+    });
+    apiBaseInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn.click(); });
+
+    function esc(v) { return (v === null || v === undefined) ? '' : String(v).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+    function renderTable(rows, columns, container) {
+      if (!rows.length) { container.innerHTML = '<div class="empty">Nothing yet.</div>'; return; }
+      const head = columns.map(c => `<th>${c.label}</th>`).join('');
+      const body = rows.map(row => `<tr>${columns.map(c => `<td>${c.render ? c.render(row) : esc(row[c.key])}</td>`).join('')}</tr>`).join('');
+      container.innerHTML = `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+    }
+
+    function setStatus(state, message) {
+      statusDot.className = 'status-dot' + (state ? ` ${state}` : '');
+      statusText.textContent = message;
+    }
+
+    function showError(message) {
+      errorBanner.textContent = message;
+      errorBanner.classList.add('visible');
+    }
+    function clearError() {
+      errorBanner.classList.remove('visible');
+      errorBanner.textContent = '';
+    }
+
+    async function fetchJson(path) {
+      const res = await fetch(getApiBase() + path);
+      if (!res.ok) throw new Error(`${path} responded ${res.status}`);
+      return res.json();
+    }
+
+    async function loadAll() {
+      try {
+        const [orders, contacts, newsletter, registrations] = await Promise.all([
+          fetchJson('/api/admin/orders'),
+          fetchJson('/api/admin/contacts'),
+          fetchJson('/api/admin/newsletter'),
+          fetchJson('/api/admin/registrations'),
+        ]);
+
+        clearError();
+        setStatus('live', `Live — updated ${new Date().toLocaleTimeString()}`);
+
+        document.getElementById('orders-count').textContent = orders.length;
+        document.getElementById('contacts-count').textContent = contacts.length;
+        document.getElementById('newsletter-count').textContent = newsletter.length;
+        document.getElementById('registrations-count').textContent = registrations.length;
+
+        renderTable(orders, [
+          { key: 'id', label: 'ID' },
+          { key: 'created_at', label: 'Placed' },
+          { key: 'full_name', label: 'Name' },
+          { key: 'email', label: 'Email' },
+          { key: 'phone', label: 'Phone' },
+          { key: 'address', label: 'Address' },
+          { key: 'state', label: 'State' },
+          { key: 'city', label: 'City' },
+          { key: 'pin_code', label: 'Pin Code' },
+          { key: 'delivery_date', label: 'Delivery Date' },
+          { key: 'subtotal', label: 'Total Value', render: r => `₹${r.subtotal}` },
+          { key: 'items', label: 'Items', render: r => `<div class="items">${r.items.map(i => `${i.quantity} × ${esc(i.name)} (₹${i.price})`).join('<br>') || '—'}</div>` },
+          { key: 'gift_message', label: 'Order Notes' },
+          { key: 'status', label: 'Status' },
+        ], document.getElementById('orders'));
+
+        renderTable(contacts, [
+          { key: 'id', label: 'ID' },
+          { key: 'created_at', label: 'Sent' },
+          { key: 'full_name', label: 'Name' },
+          { key: 'email', label: 'Email' },
+          { key: 'phone', label: 'Phone' },
+          { key: 'subject', label: 'Subject' },
+          { key: 'message', label: 'Message' },
+        ], document.getElementById('contacts'));
+
+        renderTable(newsletter, [
+          { key: 'id', label: 'ID' },
+          { key: 'created_at', label: 'Subscribed' },
+          { key: 'email', label: 'Email' },
+          { key: 'source_page', label: 'Source Page' },
+        ], document.getElementById('newsletter'));
+
+        renderTable(registrations, [
+          { key: 'id', label: 'ID' },
+          { key: 'created_at', label: 'Registered' },
+          { key: 'group_id', label: 'Group' },
+          { key: 'full_name', label: 'Name' },
+          { key: 'email', label: 'Email' },
+          { key: 'phone', label: 'Phone' },
+          { key: 'city', label: 'City' },
+          { key: 'guest_count', label: 'Guests' },
+        ], document.getElementById('registrations'));
+      } catch (err) {
+        setStatus('error', 'Connection failed');
+        showError(`Couldn't reach the Oryn server at "${getApiBase()}" — ${err.message}. Check the API URL above (it must point to where the Oryn server is running) and that its CORS settings allow this page's origin.`);
+      }
+    }
+
+    let pollTimer = null;
+    let autoRefresh = true;
+
+    function startPolling() {
+      stopPolling();
+      pollTimer = setInterval(loadAll, POLL_MS);
+    }
+    function stopPolling() {
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = null;
+    }
+
+    refreshBtn.addEventListener('click', loadAll);
+    toggleAutoBtn.addEventListener('click', () => {
+      autoRefresh = !autoRefresh;
+      toggleAutoBtn.textContent = autoRefresh ? 'Pause Live Updates' : 'Resume Live Updates';
+      if (autoRefresh) startPolling(); else stopPolling();
+    });
+
+    loadAll();
+    startPolling();
+  </script>
+</body>
+</html>

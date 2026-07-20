@@ -1,0 +1,16 @@
+{
+  "name": "oryn-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend API + SQLite database for the Oryn website (orders, contact, newsletter, event registrations)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2"
+  }
+}
