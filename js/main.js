@@ -253,14 +253,28 @@ document.querySelectorAll('form[data-enquiry]').forEach(form => {
     if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
 
     try {
-      const res = await fetch(API_BASE + endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.error || 'Request failed');
+      if (type === 'contact' && window.orynSupabase) {
+        // Contact Us form writes straight to Supabase (see js/supabase-config.js).
+        const { error } = await window.orynSupabase
+          .from('contact_messages')
+          .insert({
+            full_name: payload.fullName,
+            email: payload.email,
+            phone: payload.phone,
+            subject: payload.subject || null,
+            message: payload.message,
+          });
+        if (error) throw new Error(error.message || 'Request failed');
+      } else {
+        const res = await fetch(API_BASE + endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.error || 'Request failed');
+        }
       }
 
       const successText = form.dataset.successText || 'Enquiry Sent  ✓';

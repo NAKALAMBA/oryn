@@ -465,6 +465,8 @@
   </footer>
 
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
   <script>
     (function () {
@@ -688,12 +690,26 @@
         submitBtn.style.opacity = '.6';
 
         try {
-          const res = await fetch('/api/registrations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ guestCount: totalGuests, attendees: allAttendees }),
+          if (!window.orynSupabase) throw new Error('Supabase not configured');
+          const groupId = (window.crypto && crypto.randomUUID)
+            ? crypto.randomUUID()
+            : 'grp-' + Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const rows = allAttendees.map(function (a) {
+            return {
+              group_id: groupId,
+              guest_count: Number(totalGuests) || allAttendees.length,
+              full_name: a.fullName,
+              email: a.email,
+              phone: a.phone,
+              city: a.city || null,
+              allergies: a.allergies || null,
+              notes: a.notes || null,
+            };
           });
-          if (!res.ok) throw new Error('Request failed');
+          const { error } = await window.orynSupabase
+            .from('event_registrations')
+            .insert(rows);
+          if (error) throw new Error(error.message || 'Request failed');
 
           submitBtn.textContent = successText;
           successEl.textContent = successText;
