@@ -98,8 +98,14 @@ async function createShiprocketOrder(order, items) {
   const [firstName, ...rest] = String(order.full_name || '').trim().split(/\s+/);
   const lastName = rest.join(' ');
 
+  // Includes a timestamp, not just the local row id — on hosts without a
+  // persistent disk (e.g. Render's free tier), the SQLite database resets
+  // on every restart and local ids restart from 1, which would otherwise
+  // collide with a previous order's Shiprocket order_id and cause
+  // Shiprocket to silently return the OLD shipment instead of creating a
+  // new one for a genuinely different customer.
   const body = {
-    order_id: `ORYN-${order.id}`,
+    order_id: `ORYN-${order.id}-${Date.now()}`,
     order_date: formatOrderDate(new Date()),
     pickup_location: SHIPROCKET_PICKUP_LOCATION,
     billing_customer_name: firstName || order.full_name || 'Customer',

@@ -85,7 +85,7 @@ test('shiprocket: createShiprocketOrder() logs in then creates the order, return
     if (String(url).includes('/orders/create/adhoc')) {
       const body = JSON.parse(opts.body);
       assert.equal(body.pickup_location, 'Main Warehouse');
-      assert.equal(body.order_id, 'ORYN-42');
+      assert.match(body.order_id, /^ORYN-42-\d+$/);
       assert.equal(body.billing_customer_name, 'Priya');
       assert.equal(body.billing_last_name, 'Sharma');
       assert.equal(body.shipping_is_billing, true);
@@ -102,6 +102,37 @@ test('shiprocket: createShiprocketOrder() logs in then creates the order, return
     const result = await shiprocket.createShiprocketOrder(SAMPLE_ORDER, SAMPLE_ITEMS);
     assert.deepEqual(result, { shiprocketOrderId: '999', shipmentId: '555', status: 'NEW' });
     assert.equal(calls.filter(c => String(c.url).includes('/auth/login')).length, 1);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('shiprocket: two orders sharing the same local row id (e.g. after a database reset on ephemeral storage) get DIFFERENT Shiprocket order_ids', async () => {
+  const shiprocket = freshShiprocketModule({
+    SHIPROCKET_EMAIL: 'api@example.com',
+    SHIPROCKET_PASSWORD: 'secret',
+    SHIPROCKET_PICKUP_LOCATION: 'Main Warehouse',
+  });
+
+  const sentOrderIds = [];
+  const originalFetch = global.fetch;
+  global.fetch = async (url, opts) => {
+    if (String(url).includes('/auth/login')) {
+      return { ok: true, status: 200, json: async () => ({ token: 'tok_123' }) };
+    }
+    sentOrderIds.push(JSON.parse(opts.body).order_id);
+    return { ok: true, status: 200, json: async () => ({ order_id: sentOrderIds.length, shipment_id: sentOrderIds.length + 100, status: 'NEW' }) };
+  };
+
+  try {
+    // Same order.id (1) on both calls — simulates two different customers'
+    // orders landing on row id 1 across separate ephemeral-database resets.
+    await shiprocket.createShiprocketOrder({ ...SAMPLE_ORDER, id: 1 }, SAMPLE_ITEMS);
+    await new Promise(r => setTimeout(r, 2));
+    await shiprocket.createShiprocketOrder({ ...SAMPLE_ORDER, id: 1 }, SAMPLE_ITEMS);
+
+    assert.equal(sentOrderIds.length, 2);
+    assert.notEqual(sentOrderIds[0], sentOrderIds[1], 'Shiprocket order_id must differ even when the local row id repeats');
   } finally {
     global.fetch = originalFetch;
   }
