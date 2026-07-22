@@ -275,6 +275,17 @@ document.querySelectorAll('form[data-enquiry]').forEach(form => {
           const errBody = await res.json().catch(() => ({}));
           throw new Error(errBody.error || 'Request failed');
         }
+        if (type === 'order') {
+          const successBody = await res.json().catch(() => ({}));
+          // Stashed for order-confirmation.html to read — cart is about to
+          // be cleared below, so this is the only copy of what was ordered.
+          sessionStorage.setItem('oryn-last-order', JSON.stringify({
+            orderId: successBody.id,
+            phone: payload.phone,
+            items: payload.cartItems,
+            subtotal: successBody.subtotal,
+          }));
+        }
       }
 
       const successText = form.dataset.successText || 'Enquiry Sent  ✓';

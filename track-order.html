@@ -3,108 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Terms & Conditions and Privacy Policy for Oryn — custom orders, The Oryn Table events, shipping, cancellations, and how we handle your information.">
-  <title>Terms & Policy - Oryn</title>
+  <meta name="description" content="Track your Oryn order — enter your Order ID and phone number to check its status.">
+  <title>Track Your Order — Oryn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Amita:wght@400;700&family=Comforter+Brush&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Amita:wght@400;700&family=Comforter+Brush&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    :root {
-      --f-display: "TAN Vivre Libre", "Cormorant Garamond", Georgia, serif;
-    }
-    #legal-hero {
-      min-height: 42vh;
-      background: linear-gradient(145deg, rgba(12,54,123,.98), rgba(12,54,123,.84));
-      color: var(--white);
-      display: flex;
-      align-items: flex-end;
-      padding: calc(var(--nav-h) + 56px) var(--px) 56px;
-    }
-    .legal-hero-inner,
-    .legal-main-inner { max-width: 900px; margin: 0 auto; width: 100%; }
-    .legal-kicker {
-      font-family: var(--f-body);
-      font-size: .68rem;
-      letter-spacing: .42em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.45);
-      margin-bottom: 16px;
-    }
-    .legal-title {
-      font-family: var(--f-display);
-      font-weight: 300;
-      font-size: clamp(3.2rem, 8vw, 7rem);
-      line-height: .9;
-      margin-bottom: 20px;
-    }
-    .legal-copy {
-      max-width: 640px;
-      font-size: 1.02rem;
-      line-height: 1.8;
-      color: rgba(255,255,255,.72);
-    }
-    #legal-main {
-      padding: var(--py) var(--px);
-    }
-    .legal-updated {
-      font-family: var(--f-body);
-      font-size: .85rem;
-      letter-spacing: .05em;
-      color: rgba(12,54,123,.45);
-      margin-bottom: 56px;
-    }
-    .legal-section {
-      padding-top: 44px;
-      margin-top: 44px;
-      border-top: 1px solid rgba(12,54,123,.1);
-    }
-    .legal-section:first-of-type {
-      padding-top: 0;
-      margin-top: 0;
-      border-top: none;
-    }
-    .legal-section h2 {
-      font-family: var(--f-display);
-      font-weight: 300;
-      font-size: clamp(1.7rem, 3vw, 2.4rem);
-      margin-bottom: 20px;
-      color: var(--blue);
-    }
-    .legal-section h3 {
-      font-family: var(--f-body);
-      font-weight: 600;
-      font-size: 1rem;
-      margin: 22px 0 8px;
-      color: var(--blue);
-    }
-    .legal-section p {
-      font-size: .98rem;
-      line-height: 1.85;
-      color: rgba(12,54,123,.65);
-      margin-bottom: 14px;
-    }
-    .legal-section ul {
-      margin: 0 0 14px 0;
-      padding-left: 22px;
-      display: grid;
-      gap: 8px;
-    }
-    .legal-section li {
-      font-size: .98rem;
-      line-height: 1.75;
-      color: rgba(12,54,123,.65);
-    }
-    @media (max-width: 640px) {
-      #legal-hero { padding: calc(var(--nav-h) + 42px) var(--px) 44px; }
-      #legal-main { padding: 64px var(--px); }
-    }
+    #track-hero { min-height: 40vh; background: var(--blue); display: flex; flex-direction: column; justify-content: flex-end; padding: calc(var(--nav-h) + 60px) var(--px) 60px; }
+    .tr-hero-inner { max-width: var(--max); margin: 0 auto; width: 100%; }
+    .tr-title { font-family: var(--f-display); font-weight: 300; font-size: clamp(2.6rem, 6vw, 5rem); color: var(--white); line-height: .95; margin-bottom: 12px; }
+    .tr-sub { font-family: var(--f-body); font-size: .95rem; color: rgba(255,255,255,.55); max-width: 520px; }
+
+    #track-form-section { padding: 64px var(--px); background: #fbfaf7; }
+    .tr-form-inner { max-width: 520px; margin: 0 auto; }
+    .tr-form-inner .fg { margin-bottom: 18px; }
+    .tr-form-inner label { font-family: var(--f-body); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(12,54,123,.5); display: block; margin-bottom: 8px; }
+    .tr-form-inner input { width: 100%; }
+    .tr-error { color: #c0392b; font-family: var(--f-body); font-size: .85rem; margin: 0 0 14px; }
+    .tr-error:empty { display: none; }
+
+    .tr-result { max-width: 520px; margin: 40px auto 0; background: var(--white); border: 1px solid rgba(12,54,123,.08); padding: 32px; }
+    .tr-result[hidden] { display: none; }
+    .tr-result-title { font-family: var(--f-display); font-size: 1.6rem; color: var(--blue); margin-bottom: 4px; }
+    .tr-result-meta { font-family: var(--f-body); font-size: .82rem; color: rgba(12,54,123,.5); margin-bottom: 20px; }
+    .tr-status { display: inline-block; font-family: var(--f-body); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; padding: 8px 16px; background: rgba(12,54,123,.06); color: var(--blue); margin-bottom: 24px; }
+    .tr-status.is-delivered { background: rgba(47,184,114,.12); color: #1f7a4d; }
+    .tr-items { list-style: none; margin-bottom: 20px; }
+    .tr-items li { display: flex; justify-content: space-between; gap: 12px; font-family: var(--f-body); font-size: .92rem; color: rgba(12,54,123,.72); padding: 10px 0; border-top: 1px solid rgba(12,54,123,.08); }
+    .tr-items li:first-child { border-top: none; }
+    .tr-total { display: flex; justify-content: space-between; font-family: var(--f-body); font-size: .96rem; color: var(--blue); padding-top: 14px; border-top: 1px solid rgba(12,54,123,.1); }
+    .tr-activities { list-style: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(12,54,123,.08); }
+    .tr-activities li { font-family: var(--f-body); font-size: .84rem; color: rgba(12,54,123,.58); padding: 6px 0; }
   </style>
 </head>
 <body>
   <div class="cursor-dot" id="cDot"></div>
   <div class="cursor-ring" id="cRing"></div>
-
   <div id="loader">
     <img class="ldr-logo" src="Logo Design/Logo Design - V2.png" alt="Oryn">
     <div class="ldr-bar"></div>
@@ -193,61 +128,44 @@
       <a href="all-products.html" class="nav-link">All Products</a>
       <a href="the-oryn-table.html" class="nav-link">The Oryn Table</a>
       <a href="about.html"          class="nav-link">About</a>
-      <a href="contact.html"        class="nav-link">Contact</a>
+      <a href="contact.html" class="nav-link">Contact</a>
     </div>
-    <a href="order.html" class="nav-cta-btn desktop-only">Order</a>
+    <a href="order.html" class="nav-cta-btn desktop-only">Your Cart</a>
     <button class="hamburger" id="ham" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
 
-  <section id="legal-hero" data-dark data-hero-dark>
-    <div class="legal-hero-inner">
-      <p class="legal-kicker r">Legal</p>
-      <h1 class="legal-title r d1">Terms &amp; Policies</h1>
-      <p class="legal-copy r d2">The terms, conditions, and policies that govern orders, gifting, <br>The Oryn Table events, and your use of this website.</p>
+  <!-- HERO -->
+  <section id="track-hero" data-dark data-hero-dark>
+    <div class="tr-hero-inner">
+      <h1 class="tr-title r">Track Your Order</h1>
+      <p class="tr-sub r d1">Enter your Order ID and the phone number you used at checkout to check its status.</p>
     </div>
   </section>
 
-  <section id="legal-main">
-    <div class="legal-main-inner">
-      <p class="legal-updated">Last updated: 4th July 2026</p>
+  <!-- FORM -->
+  <section id="track-form-section">
+    <div class="tr-form-inner">
+      <p class="tr-error" id="trackError"></p>
+      <form id="trackForm">
+        <div class="fg">
+          <label for="trackOrderId">Order ID</label>
+          <input type="text" inputmode="numeric" id="trackOrderId" name="orderId" placeholder="e.g. 42" required>
+        </div>
+        <div class="fg">
+          <label for="trackPhone">Phone Number</label>
+          <input type="tel" id="trackPhone" name="phone" placeholder="+91 ···" required>
+        </div>
+        <button type="submit" class="btn btn-b" id="trackSubmitBtn" style="width:100%;justify-content:center;">Track Order →</button>
+      </form>
 
-      <article class="legal-section" id="terms">
-        <h2>Terms &amp; Conditions</h2>
-        <p>By browsing this website, placing an order, or registering for The Oryn Table, you agree to the terms set out below. Oryn reserves the right to update these terms at any time; continued use of the site after changes are posted constitutes acceptance of the revised terms.</p>
-        <h3>Orders</h3>
-        <p>All custom and pre-orders are confirmed only once a member of the Oryn team has acknowledged your enquiry and, where applicable, an advance payment has been received. Quantities, flavours, and delivery dates are subject to availability and seasonal ingredient sourcing.</p>
-        <h3>Retail Orders</h3>
-        <p>Prices listed on the website are exclusive of shipping charges. Shipping charges may vary based on the total order weight and the delivery location. Once your order is placed, a member of the Oryn team will reach out to you with the expected dispatch date and applicable shipping charges separately. Your order will be confirmed after these details are shared.</p>
-        <h3>Custom or Bulk Orders</h3>
-        <p>Prices listed on the website are indicative and may vary based on customization, portion size, quantity, and delivery location. To receive an accurate quotation, please submit a bulk enquiry through the website. A final quote will be shared and confirmed with you before any payment is requested.</p>
-        <h3>The Oryn Table</h3>
-        <p>Seats for The Oryn Table are limited and allocated on a first-registered, first-confirmed basis. Submitting the registration form does not guarantee a seat until you receive a confirmation message from our team along with payment instructions.</p>
-      </article>
-
-      <article class="legal-section" id="privacy">
-        <h2>Privacy Policy</h2>
-        <p>We collect only the information necessary to fulfil your order or registration — including your name, contact number, email address, delivery address, and any dietary notes you choose to share with us.</p>
-        <h3>How We Use Your Information</h3>
-        <ul>
-          <li>To confirm and fulfil orders, registrations, and enquiries.</li>
-          <li>To contact you regarding delivery timelines or event details.</li>
-          <li>To send occasional updates if you've opted in via our newsletter sign-up.</li>
-        </ul>
-        <p>We do not sell or rent your personal information to third parties. Information shared with delivery partners is limited to what is required to complete your order.</p>
-      </article>
-
-      <article class="legal-section" id="shipping">
-        <h2>Shipping &amp; Delivery Policy</h2>
-        <p>We currently deliver across Delhi NCR, with pan-India shipping available for select products. Delivery windows are shared at the time of order confirmation and may shift slightly due to weather, courier delays, or high-demand periods such as festive weeks.</p>
-        <p>Because our desserts are handcrafted in small batches, orders placed with less than 48 hours' notice may not always be accommodated — please reach out directly for urgent requests.</p>
-      </article>
-
-      <article class="legal-section" id="cancellations">
-        <h2>Cancellation &amp; Refund Policy</h2>
-        <p>Custom orders cancelled more than 72 hours before the scheduled delivery date are eligible for a full refund of any advance paid. Cancellations made within 72 hours may only be eligible for a partial refund, as ingredients are sourced and preparation begins ahead of delivery.</p>
-        <p>For The Oryn Table, seats cancelled more than 7 days before the event date are eligible for a full refund; cancellations closer to the event are non-refundable but may be transferred to another guest with prior notice to our team.</p>
-        <p>In the rare case of an item arriving damaged or incorrect, please contact us within 24 hours with photos via email so we can make it right.</p>
-      </article>
+      <div class="tr-result" id="trackResult" hidden>
+        <p class="tr-result-title">Order #<span id="resOrderId"></span></p>
+        <p class="tr-result-meta" id="resMeta"></p>
+        <span class="tr-status" id="resStatus"></span>
+        <ul class="tr-items" id="resItems"></ul>
+        <div class="tr-total"><span>Total</span><strong id="resTotal"></strong></div>
+        <ul class="tr-activities" id="resActivities"></ul>
+      </div>
     </div>
   </section>
 
@@ -312,5 +230,67 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+    (() => {
+      const form = document.getElementById('trackForm');
+      const errorEl = document.getElementById('trackError');
+      const orderIdInput = document.getElementById('trackOrderId');
+      const phoneInput = document.getElementById('trackPhone');
+      const submitBtn = document.getElementById('trackSubmitBtn');
+      const resultEl = document.getElementById('trackResult');
+
+      const params = new URLSearchParams(location.search);
+      if (params.get('orderId')) orderIdInput.value = params.get('orderId');
+
+      const currency = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        errorEl.textContent = '';
+        resultEl.hidden = true;
+
+        const orderId = orderIdInput.value.trim();
+        const phone = phoneInput.value.trim();
+        if (!orderId || !phone) {
+          errorEl.textContent = 'Please enter both your Order ID and phone number.';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        const origLabel = submitBtn.textContent;
+        submitBtn.textContent = 'Looking Up…';
+
+        try {
+          const res = await fetch('/api/orders/track', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId, phone }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'Order not found.');
+
+          document.getElementById('resOrderId').textContent = data.id;
+          document.getElementById('resMeta').textContent = `Placed ${new Date(data.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} · ${data.city || ''}`;
+          const statusEl = document.getElementById('resStatus');
+          statusEl.textContent = data.tracking.status;
+          statusEl.className = 'tr-status' + (/delivered/i.test(data.tracking.status) ? ' is-delivered' : '');
+          document.getElementById('resItems').innerHTML = data.items.map(item =>
+            `<li><span>${item.quantity} × ${item.name}</span><span>${currency.format(item.price * item.quantity)}</span></li>`
+          ).join('');
+          document.getElementById('resTotal').textContent = currency.format(data.subtotal);
+          document.getElementById('resActivities').innerHTML = (data.tracking.activities || []).map(a =>
+            `<li>${[a.date, a.status, a.location].filter(Boolean).join(' — ')}</li>`
+          ).join('');
+
+          resultEl.hidden = false;
+        } catch (err) {
+          errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origLabel;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

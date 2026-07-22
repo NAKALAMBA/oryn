@@ -6,6 +6,8 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./db');
 const email = require('./email');
+const shiprocket = require('./shiprocket');
+const catalog = require('./catalog');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,6 +21,16 @@ app.use(express.static(SITE_ROOT));
 
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+// Loose digit-only comparison so "9876543210", "+91 98765 43210" and
+// "09876543210" are all treated as the same phone number for the purposes
+// of proving order ownership on the tracking lookup below.
+function normalizePhone(phone) {
+  let digits = String(phone || '').replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2);
+  else if (digits.length === 11 && digits.startsWith('0')) digits = digits.slice(1);
+  return digits;
 }
 
 /* ── Email validation (MSG91), used to catch a mistyped/undeliverable
@@ -40,6 +52,27 @@ app.post('/api/email/validate', async (req, res) => {
     }
     return res.json({ checked: false, valid: true });
   }
+});
+
+/* ── Catalog (Products / Collections / Products-by-Collection) — built for
+   Shiprocket Checkout's "SRC Custom Integration" requirements. Read-only,
+   no auth (product data is public). See server/catalog.js for the caveat
+   on this response shape being a best-effort design pending Shiprocket's
+   actual required contract. ── */
+app.get('/api/catalog/products', (req, res) => {
+  res.json({ products: catalog.getAllProducts() });
+});
+
+app.get('/api/catalog/collections', (req, res) => {
+  res.json({ collections: catalog.getAllCollections() });
+});
+
+app.get('/api/catalog/collections/:id/products', (req, res) => {
+  const products = catalog.getProductsByCollection(req.params.id);
+  if (products === null) {
+    return res.status(404).json({ error: `Unknown collection id "${req.params.id}".` });
+  }
+  res.json({ products });
 });
 
 /* ── Orders (order.html enquiry form + cart) ── */
@@ -84,11 +117,75 @@ app.post('/api/orders', async (req, res) => {
     INSERT INTO order_items (order_id, sku, name, price, quantity, details)
     VALUES (?, ?, ?, ?, ?, ?)
   `);
-  for (const item of items) {
-    insertItem.run(orderId, item.sku, item.name, item.price, item.quantity, item.details);
+  const insertedItems = items.map(item => {
+    const itemResult = insertItem.run(orderId, item.sku, item.name, item.price, item.quantity, item.details);
+    return { ...item, id: Number(itemResult.lastInsertRowid) };
+  });
+
+  /* ── Shiprocket: stage the shipment immediately. Fails open — a shipping
+     partner hiccup never loses or blocks a real customer order; failures
+     are recorded on the order row so the admin dashboard can surface and
+     retry them. ── */
+  try {
+    const shiprocketOrder = await shiprocket.createShiprocketOrder(
+      { id: orderId, full_name: fullName, email: emailAddress, phone, address, city, pin_code: pinCode, state, subtotal },
+      insertedItems
+    );
+    db.prepare(`
+      UPDATE orders SET shiprocket_order_id = ?, shiprocket_shipment_id = ?, shiprocket_status = ?, shiprocket_synced_at = datetime('now')
+      WHERE id = ?
+    `).run(shiprocketOrder.shiprocketOrderId, shiprocketOrder.shipmentId, shiprocketOrder.status, orderId);
+  } catch (err) {
+    if (!(err instanceof shiprocket.ShiprocketUnavailableError)) {
+      console.error('[orders] unexpected Shiprocket error:', err.message);
+    } else {
+      console.warn(`[orders] Shiprocket sync failed for order ${orderId}: ${err.message}`);
+    }
+    db.prepare(`
+      UPDATE orders SET shiprocket_status = 'failed', shiprocket_error = ?, shiprocket_synced_at = datetime('now')
+      WHERE id = ?
+    `).run(err.message, orderId);
   }
 
   res.status(201).json({ id: orderId, subtotal });
+});
+
+/* ── Order tracking (track-order.html) — order ID + phone number proves
+   ownership since there's no customer login. On any mismatch we return the
+   same generic "not found" error regardless of which part was wrong, so a
+   guess-the-order-id attempt can't be used to enumerate real orders. ── */
+app.post('/api/orders/track', async (req, res) => {
+  const orderId = Number(req.body && req.body.orderId);
+  const phone = normalizePhone(req.body && req.body.phone);
+  if (!Number.isInteger(orderId) || orderId <= 0 || !phone) {
+    return res.status(400).json({ error: 'Please enter both your Order ID and phone number.' });
+  }
+
+  const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
+  if (!order || normalizePhone(order.phone) !== phone) {
+    return res.status(404).json({ error: "We couldn't find an order with that ID and phone number. Please double-check both." });
+  }
+
+  const items = db.prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id').all(orderId);
+
+  let tracking = { status: order.shiprocket_shipment_id ? 'Not yet dispatched' : 'Not yet dispatched', activities: [] };
+  if (order.shiprocket_shipment_id) {
+    try {
+      tracking = await shiprocket.trackShipment(order.shiprocket_shipment_id);
+    } catch (err) {
+      console.warn(`[orders/track] tracking lookup failed for order ${orderId}: ${err.message}`);
+      tracking = { status: 'Shipment status temporarily unavailable — please check again shortly.', activities: [] };
+    }
+  }
+
+  res.json({
+    id: order.id,
+    createdAt: order.created_at,
+    city: order.city,
+    subtotal: order.subtotal,
+    items: items.map(item => ({ name: item.name, quantity: item.quantity, price: item.price })),
+    tracking,
+  });
 });
 
 /* ── Contact form (contact.html) ── */

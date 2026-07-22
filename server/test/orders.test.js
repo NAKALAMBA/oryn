@@ -53,6 +53,8 @@ describe('Orders API', () => {
     assert.ok(created, 'order should appear in the admin listing');
     assert.equal(created.full_name, 'Priya Sharma');
     assert.equal(created.items.length, 2);
+    assert.equal(created.shiprocket_status, 'failed', 'Shiprocket is unconfigured in tests, so sync should fail without blocking the order');
+    assert.match(created.shiprocket_error, /not configured/i);
   });
 
   it('stores the full billing address (address, state, city, pin code) and every customer detail from checkout', async () => {

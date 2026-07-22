@@ -160,6 +160,11 @@
           { key: 'items', label: 'Items', render: r => `<div class="items">${r.items.map(i => `${i.quantity} × ${esc(i.name)} (₹${i.price})`).join('<br>') || '—'}</div>` },
           { key: 'gift_message', label: 'Order Notes' },
           { key: 'status', label: 'Status' },
+          { key: 'shiprocket_status', label: 'Shiprocket', render: r => {
+            if (r.shiprocket_status === 'failed') return `<span title="${esc(r.shiprocket_error || '')}" style="color:#a4302a;">Failed ⚠</span>`;
+            if (r.shiprocket_shipment_id) return `✓ Shipment #${esc(r.shiprocket_shipment_id)}`;
+            return '—';
+          } },
         ], document.getElementById('orders'));
 
         renderTable(contacts, [

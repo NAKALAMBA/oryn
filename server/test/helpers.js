@@ -9,9 +9,12 @@ process.env.ORYN_DB_PATH = ':memory:';
 // keys happen to be sitting in the developer's local .env — dotenv only
 // fills in env vars that are still undefined, so pre-setting this to an
 // empty string here locks every test file to demo/fail-open mode regardless
-// of what's configured for local dev. email.test.js opts back in per-test
-// via its own explicit MSG91_AUTH_KEY value.
+// of what's configured for local dev. email.test.js/shiprocket.test.js opt
+// back in per-test via their own explicit env values.
 process.env.MSG91_AUTH_KEY = '';
+process.env.SHIPROCKET_EMAIL = '';
+process.env.SHIPROCKET_PASSWORD = '';
+process.env.SHIPROCKET_PICKUP_LOCATION = '';
 
 function startServer() {
   const app = require('../server');

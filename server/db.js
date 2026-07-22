@@ -27,7 +27,12 @@ db.exec(`
     gift_message TEXT,
     cart_summary TEXT,
     subtotal INTEGER NOT NULL DEFAULT 0,
-    status TEXT NOT NULL DEFAULT 'new'
+    status TEXT NOT NULL DEFAULT 'new',
+    shiprocket_order_id TEXT,
+    shiprocket_shipment_id TEXT,
+    shiprocket_status TEXT,
+    shiprocket_error TEXT,
+    shiprocket_synced_at TEXT
   );
 
   CREATE TABLE IF NOT EXISTS order_items (
@@ -85,6 +90,11 @@ addMissingColumns('orders', [
   ['address', 'TEXT'],
   ['state', 'TEXT'],
   ['pin_code', 'TEXT'],
+  ['shiprocket_order_id', 'TEXT'],
+  ['shiprocket_shipment_id', 'TEXT'],
+  ['shiprocket_status', 'TEXT'],
+  ['shiprocket_error', 'TEXT'],
+  ['shiprocket_synced_at', 'TEXT'],
 ]);
 
 module.exports = db;
