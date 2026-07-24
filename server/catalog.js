@@ -6,15 +6,18 @@
 // js/main.js (the site's existing single list of every orderable product,
 // already used there for the cart drawer's "You May Also Like").
 //
-// IMPORTANT: this response shape is a best-effort, standard e-commerce API
-// design (id/sku/name/price/images/collection) — it was NOT built against
-// Shiprocket's actual published contract, because that page (a Postman
-// "SRC Custom Integration" doc) is JS-rendered and couldn't be read by any
-// available tool. If Shiprocket's real spec uses different field names,
-// only PRODUCTS below and the two mapping functions need to change —
-// nothing else in server.js depends on this shape.
+// Response shape confirmed directly against the real "SRC Custom
+// Integration" example response (Shopify's own Product API shape —
+// {data:{total,products:[{id,title,body_html,vendor,product_type,
+// handle,tags,status,variants:[{id,title,price,sku,quantity,...}]}]}}).
+// Every orderable product here has exactly one variant, since none of
+// Oryn's products have real Shopify-style options (color/size, etc.).
 
 const SITE_DOMAIN = process.env.PUBLIC_SITE_URL || 'https://orynpatisserie.in';
+const VENDOR = 'Oryn';
+// Static products, no per-item created/updated tracking — one fixed
+// timestamp for the whole catalog is more honest than a fake per-call one.
+const CATALOG_TIMESTAMP = '2026-01-01T00:00:00+05:30';
 
 // [sku, name, price, collectionName, unitLabel, href, image]
 const PRODUCTS = [
@@ -46,20 +49,38 @@ function absoluteUrl(pathOrUrl) {
   return `${SITE_DOMAIN}/${encodeURI(pathOrUrl)}`;
 }
 
-function toProduct([sku, name, price, collectionName, unitLabel, href, image]) {
+// Stable numeric ids derived from list position (1-indexed) — the example
+// response uses large numeric ids (Shopify's real ones), but nothing in
+// the shown shape depends on any particular magnitude, only that id is a
+// number. Variant ids are offset so they never collide with product ids.
+function toProduct([sku, name, price, collectionName, unitLabel, href, image], index) {
+  const productId = index + 1;
   return {
-    id: sku,
-    sku,
-    name,
-    description: `${name} — ${unitLabel}`,
-    price,
-    currency: 'INR',
-    unit: unitLabel,
-    image: absoluteUrl(image),
-    url: absoluteUrl(href),
-    collection_id: slugify(collectionName),
-    collection_name: collectionName,
-    in_stock: true,
+    id: productId,
+    title: name,
+    body_html: `<p>${name} — ${unitLabel}</p>`,
+    vendor: VENDOR,
+    product_type: collectionName,
+    created_at: CATALOG_TIMESTAMP,
+    handle: href.replace(/\.html$/, ''),
+    updated_at: CATALOG_TIMESTAMP,
+    tags: unitLabel,
+    status: 'active',
+    images: [{ src: absoluteUrl(image) }],
+    variants: [
+      {
+        id: 100000 + productId,
+        title: 'Default Title',
+        price: price.toFixed(2),
+        compare_at_price: null,
+        sku,
+        quantity: 999,
+        created_at: CATALOG_TIMESTAMP,
+        updated_at: CATALOG_TIMESTAMP,
+        taxable: true,
+        option_values: { Title: 'Default Title' },
+      },
+    ],
   };
 }
 
@@ -68,21 +89,31 @@ function getAllProducts() {
 }
 
 function getAllCollections() {
-  const byId = new Map();
-  for (const row of PRODUCTS) {
+  const byName = new Map();
+  PRODUCTS.forEach((row, index) => {
     const collectionName = row[3];
-    const id = slugify(collectionName);
-    if (!byId.has(id)) byId.set(id, { id, name: collectionName, product_count: 0 });
-    byId.get(id).product_count += 1;
-  }
-  return Array.from(byId.values());
+    if (!byName.has(collectionName)) {
+      byName.set(collectionName, {
+        id: byName.size + 1,
+        title: collectionName,
+        handle: slugify(collectionName),
+        body_html: '',
+        updated_at: CATALOG_TIMESTAMP,
+        products_count: 0,
+      });
+    }
+    byName.get(collectionName).products_count += 1;
+  });
+  return Array.from(byName.values());
 }
 
-// Returns null if the collection id doesn't exist (distinct from an empty array).
-function getProductsByCollection(collectionId) {
-  const exists = getAllCollections().some(c => c.id === collectionId);
-  if (!exists) return null;
-  return getAllProducts().filter(p => p.collection_id === collectionId);
+// Returns null if the collection handle doesn't exist (distinct from an
+// empty array, so callers can tell "unknown collection" apart from "no
+// products in this real collection").
+function getProductsByCollection(collectionHandle) {
+  const collection = getAllCollections().find(c => c.handle === collectionHandle);
+  if (!collection) return null;
+  return getAllProducts().filter(p => p.product_type === collection.title);
 }
 
 module.exports = { getAllProducts, getAllCollections, getProductsByCollection };

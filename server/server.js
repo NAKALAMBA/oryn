@@ -56,15 +56,17 @@ app.post('/api/email/validate', async (req, res) => {
 
 /* ── Catalog (Products / Collections / Products-by-Collection) — built for
    Shiprocket Checkout's "SRC Custom Integration" requirements. Read-only,
-   no auth (product data is public). See server/catalog.js for the caveat
-   on this response shape being a best-effort design pending Shiprocket's
-   actual required contract. ── */
+   no auth (product data is public). Response shape confirmed directly
+   against Shiprocket's own example response (Shopify's Product API shape)
+   — see server/catalog.js. ── */
 app.get('/api/catalog/products', (req, res) => {
-  res.json({ products: catalog.getAllProducts() });
+  const products = catalog.getAllProducts();
+  res.json({ data: { total: products.length, products } });
 });
 
 app.get('/api/catalog/collections', (req, res) => {
-  res.json({ collections: catalog.getAllCollections() });
+  const collections = catalog.getAllCollections();
+  res.json({ data: { total: collections.length, collections } });
 });
 
 app.get('/api/catalog/collections/:id/products', (req, res) => {
@@ -72,7 +74,7 @@ app.get('/api/catalog/collections/:id/products', (req, res) => {
   if (products === null) {
     return res.status(404).json({ error: `Unknown collection id "${req.params.id}".` });
   }
-  res.json({ products });
+  res.json({ data: { total: products.length, products } });
 });
 
 /* ── Orders (order.html enquiry form + cart) ── */
