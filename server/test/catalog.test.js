@@ -66,4 +66,42 @@ describe('Catalog API (Products / Collections)', () => {
     const res = await fetch(`${baseUrl}/api/catalog/collections/not-a-real-collection/products`);
     assert.equal(res.status, 404);
   });
+
+  it('GET /api/catalog/products?collection_id=<handle> filters by collection', async () => {
+    const res = await fetch(`${baseUrl}/api/catalog/products?collection_id=best-sellers`);
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.data.total, 2);
+    assert.ok(body.data.products.every(p => p.product_type === 'Best Sellers'));
+  });
+
+  it('GET /api/catalog/products?collection_id=<numeric id> filters by collection', async () => {
+    const collections = await (await fetch(`${baseUrl}/api/catalog/collections`)).json();
+    const cookieCollection = collections.data.collections.find(c => c.handle === 'cookie-collection');
+
+    const res = await fetch(`${baseUrl}/api/catalog/products?collection_id=${cookieCollection.id}`);
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.data.total, 3);
+    assert.ok(body.data.products.every(p => p.product_type === 'Cookie Collection'));
+  });
+
+  it('GET /api/catalog/products?collection_id=<unknown> returns 404', async () => {
+    const res = await fetch(`${baseUrl}/api/catalog/products?collection_id=not-a-real-collection`);
+    assert.equal(res.status, 404);
+  });
+
+  it('GET /api/catalog/collections?collection_id=<id> returns just that one collection', async () => {
+    const res = await fetch(`${baseUrl}/api/catalog/collections?collection_id=best-sellers`);
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.data.total, 1);
+    assert.equal(body.data.collections[0].handle, 'best-sellers');
+    assert.equal(body.data.collections[0].products_count, 2);
+  });
+
+  it('GET /api/catalog/collections?collection_id=<unknown> returns 404', async () => {
+    const res = await fetch(`${baseUrl}/api/catalog/collections?collection_id=not-a-real-collection`);
+    assert.equal(res.status, 404);
+  });
 });

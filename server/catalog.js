@@ -107,13 +107,26 @@ function getAllCollections() {
   return Array.from(byName.values());
 }
 
-// Returns null if the collection handle doesn't exist (distinct from an
-// empty array, so callers can tell "unknown collection" apart from "no
-// products in this real collection").
-function getProductsByCollection(collectionHandle) {
-  const collection = getAllCollections().find(c => c.handle === collectionHandle);
+// Matches by numeric collection id (Shiprocket's own "collection_id",
+// Shopify's real identifier for a collection) OR by the url-slug handle,
+// since callers have used both during integration testing. Returns null
+// when nothing matches — distinct from "0 results" for a real collection.
+function findCollection(identifier) {
+  const value = String(identifier);
+  return getAllCollections().find(c => String(c.id) === value || c.handle === value) || null;
+}
+
+function getCollection(identifier) {
+  return findCollection(identifier);
+}
+
+// Returns null if the collection doesn't exist (distinct from an empty
+// array, so callers can tell "unknown collection" apart from "no products
+// in this real collection").
+function getProductsByCollection(identifier) {
+  const collection = findCollection(identifier);
   if (!collection) return null;
   return getAllProducts().filter(p => p.product_type === collection.title);
 }
 
-module.exports = { getAllProducts, getAllCollections, getProductsByCollection };
+module.exports = { getAllProducts, getAllCollections, getCollection, getProductsByCollection };
