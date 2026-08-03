@@ -116,10 +116,6 @@ function findCollection(identifier) {
   return getAllCollections().find(c => String(c.id) === value || c.handle === value) || null;
 }
 
-function getCollection(identifier) {
-  return findCollection(identifier);
-}
-
 // Returns null if the collection doesn't exist (distinct from an empty
 // array, so callers can tell "unknown collection" apart from "no products
 // in this real collection").
@@ -129,4 +125,4 @@ function getProductsByCollection(identifier) {
   return getAllProducts().filter(p => p.product_type === collection.title);
 }
 
-module.exports = { getAllProducts, getAllCollections, getCollection, getProductsByCollection };
+module.exports = { getAllProducts, getAllCollections, getProductsByCollection };

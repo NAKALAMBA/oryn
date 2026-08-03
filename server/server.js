@@ -59,11 +59,13 @@ app.post('/api/email/validate', async (req, res) => {
    no auth (product data is public). Response shape confirmed directly
    against Shiprocket's own example response (Shopify's Product API shape)
    — see server/catalog.js.
-   `collection_id` is accepted as a QUERY parameter (matching Shopify's own
-   real convention of `products.json?collection_id=X`, and Shiprocket's
-   integration team's explicit correction), on both /products and
-   /collections. The older /collections/:id/products path is kept working
-   too, so anything already pointed at it doesn't break. ── */
+   `collection_id` is accepted as a QUERY parameter on /products (matching
+   Shopify's own real convention of `products.json?collection_id=X`, and
+   Shiprocket's integration team's explicit correction) to power
+   Products-by-Collection. /collections always returns the FULL list,
+   unconditionally — it's a separate endpoint from Products-by-Collection,
+   not a lookup-one-by-id. The older /collections/:id/products path is
+   kept working too, so anything already pointed at it doesn't break. ── */
 app.get('/api/catalog/products', (req, res) => {
   const collectionId = req.query.collection_id;
   if (collectionId) {
@@ -78,14 +80,6 @@ app.get('/api/catalog/products', (req, res) => {
 });
 
 app.get('/api/catalog/collections', (req, res) => {
-  const collectionId = req.query.collection_id;
-  if (collectionId) {
-    const collection = catalog.getCollection(collectionId);
-    if (!collection) {
-      return res.status(404).json({ error: `Unknown collection_id "${collectionId}".` });
-    }
-    return res.json({ data: { total: 1, collections: [collection] } });
-  }
   const collections = catalog.getAllCollections();
   res.json({ data: { total: collections.length, collections } });
 });

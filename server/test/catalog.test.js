@@ -91,17 +91,10 @@ describe('Catalog API (Products / Collections)', () => {
     assert.equal(res.status, 404);
   });
 
-  it('GET /api/catalog/collections?collection_id=<id> returns just that one collection', async () => {
+  it('GET /api/catalog/collections ignores collection_id and always returns the full list (it is a separate endpoint from Products-by-Collection)', async () => {
     const res = await fetch(`${baseUrl}/api/catalog/collections?collection_id=best-sellers`);
     assert.equal(res.status, 200);
     const body = await res.json();
-    assert.equal(body.data.total, 1);
-    assert.equal(body.data.collections[0].handle, 'best-sellers');
-    assert.equal(body.data.collections[0].products_count, 2);
-  });
-
-  it('GET /api/catalog/collections?collection_id=<unknown> returns 404', async () => {
-    const res = await fetch(`${baseUrl}/api/catalog/collections?collection_id=not-a-real-collection`);
-    assert.equal(res.status, 404);
+    assert.equal(body.data.total, 5, 'Collections API should always list every collection, regardless of any collection_id passed');
   });
 });
