@@ -15,6 +15,8 @@ process.env.MSG91_AUTH_KEY = '';
 process.env.SHIPROCKET_EMAIL = '';
 process.env.SHIPROCKET_PASSWORD = '';
 process.env.SHIPROCKET_PICKUP_LOCATION = '';
+process.env.SUPABASE_URL = '';
+process.env.SUPABASE_ANON_KEY = '';
 
 function startServer() {
   const app = require('../server');

@@ -8,6 +8,7 @@ const db = require('./db');
 const email = require('./email');
 const shiprocket = require('./shiprocket');
 const catalog = require('./catalog');
+const supabase = require('./supabase');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -162,6 +163,24 @@ app.post('/api/orders', async (req, res) => {
       UPDATE orders SET shiprocket_status = 'failed', shiprocket_error = ?, shiprocket_synced_at = datetime('now')
       WHERE id = ?
     `).run(err.message, orderId);
+  }
+
+  /* ── Supabase: durable backup copy. The local SQLite file is NOT
+     persistent on hosts without a disk add-on (e.g. Render's free tier
+     resets it on every restart) — this gives every order a second,
+     always-on home. Fails open, same as Shiprocket above: a Supabase
+     hiccup never blocks or loses a real customer order. ── */
+  try {
+    await supabase.saveOrderToSupabase(
+      { full_name: fullName, email: emailAddress, phone, address, state, city, pin_code: pinCode, delivery_date: deliveryDate, product_interest: product, quantity_details: quantityDetails, gift_message: giftMessage, cart_summary: cartSummary, subtotal },
+      insertedItems
+    );
+  } catch (err) {
+    if (!(err instanceof supabase.SupabaseUnavailableError)) {
+      console.error('[orders] unexpected Supabase error:', err.message);
+    } else {
+      console.warn(`[orders] Supabase backup failed for order ${orderId}: ${err.message}`);
+    }
   }
 
   res.status(201).json({ id: orderId, subtotal });
