@@ -12,6 +12,11 @@
 // handle,tags,status,variants:[{id,title,price,sku,quantity,...}]}]}}).
 // Every orderable product here has exactly one variant, since none of
 // Oryn's products have real Shopify-style options (color/size, etc.).
+//
+// `image` is a single object ({src}), not a plural `images` array — and
+// it belongs on *both* the product AND each variant. Checkout looks up
+// the image per variant, not per product; omitting it on the variant is
+// what produced "No product image found for variant".
 
 const SITE_DOMAIN = process.env.PUBLIC_SITE_URL || 'https://orynpatisserie.in';
 const VENDOR = 'Oryn';
@@ -55,6 +60,7 @@ function absoluteUrl(pathOrUrl) {
 // number. Variant ids are offset so they never collide with product ids.
 function toProduct([sku, name, price, collectionName, unitLabel, href, image], index) {
   const productId = index + 1;
+  const imageObj = { src: absoluteUrl(image) };
   return {
     id: productId,
     title: name,
@@ -66,7 +72,8 @@ function toProduct([sku, name, price, collectionName, unitLabel, href, image], i
     updated_at: CATALOG_TIMESTAMP,
     tags: unitLabel,
     status: 'active',
-    images: [{ src: absoluteUrl(image) }],
+    image: imageObj,
+    options: [{ name: 'Title', values: ['Default Title'] }],
     variants: [
       {
         id: 100000 + productId,
@@ -79,6 +86,7 @@ function toProduct([sku, name, price, collectionName, unitLabel, href, image], i
         updated_at: CATALOG_TIMESTAMP,
         taxable: true,
         option_values: { Title: 'Default Title' },
+        image: imageObj,
       },
     ],
   };
@@ -90,15 +98,17 @@ function getAllProducts() {
 
 function getAllCollections() {
   const byName = new Map();
-  PRODUCTS.forEach((row, index) => {
-    const collectionName = row[3];
+  PRODUCTS.forEach((row) => {
+    const [, , , collectionName, , , image] = row;
     if (!byName.has(collectionName)) {
       byName.set(collectionName, {
         id: byName.size + 1,
         title: collectionName,
         handle: slugify(collectionName),
         body_html: '',
+        created_at: CATALOG_TIMESTAMP,
         updated_at: CATALOG_TIMESTAMP,
+        image: { src: absoluteUrl(image) },
         products_count: 0,
       });
     }

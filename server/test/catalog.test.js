@@ -28,7 +28,7 @@ describe('Catalog API (Products / Collections)', () => {
     assert.equal(sample.product_type, 'Cookie Collection');
     assert.equal(sample.status, 'active');
     assert.ok(sample.handle, 'should have a handle (url slug)');
-    assert.ok(Array.isArray(sample.images) && sample.images[0].src.startsWith('http'));
+    assert.ok(sample.image && sample.image.src.startsWith('http'), 'product should have a single `image` object, not an `images` array');
 
     assert.equal(sample.variants.length, 1);
     const variant = sample.variants[0];
@@ -37,6 +37,8 @@ describe('Catalog API (Products / Collections)', () => {
     assert.equal(variant.sku, 'AURELIA-BOX');
     assert.equal(typeof variant.quantity, 'number');
     assert.equal(variant.taxable, true);
+    assert.ok(variant.image && variant.image.src.startsWith('http'), 'each variant must carry its own `image`, or Checkout reports "No product image found for variant"');
+    assert.equal(variant.image.src, sample.image.src);
   });
 
   it('GET /api/catalog/collections returns each collection with an accurate product count', async () => {
@@ -49,6 +51,7 @@ describe('Catalog API (Products / Collections)', () => {
     assert.ok(cookieCollection);
     assert.equal(cookieCollection.title, 'Cookie Collection');
     assert.equal(cookieCollection.products_count, 3);
+    assert.ok(cookieCollection.image && cookieCollection.image.src.startsWith('http'), 'collection should have a single `image` object');
 
     const total = body.data.collections.reduce((sum, c) => sum + c.products_count, 0);
     assert.equal(total, 17, 'every product should belong to exactly one collection');
