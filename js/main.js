@@ -213,8 +213,15 @@ document.querySelectorAll('.faq-item').forEach(item => {
   });
 });
 
-/* ─── FORM SUBMIT (posts to the local Oryn API, see /server) ─── */
-const API_BASE = '';
+/* ─── FORM SUBMIT (posts to the Oryn API, see /server) ───
+   The frontend (Netlify / Cloudflare Pages) and the backend (Render) are
+   separate origins in production, so a relative "/api/..." fetch resolves
+   against whichever static host served this page — not the backend — and
+   404s/405s there instead. Only same-origin locally, where server.js
+   itself serves these static files alongside the API. */
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? ''
+  : 'https://oryn-1t1j.onrender.com';
 
 document.querySelectorAll('form[data-enquiry]').forEach(form => {
   form.addEventListener('submit', async e => {
