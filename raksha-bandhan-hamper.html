@@ -3,74 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Rakhi Gifting from Oryn — handcrafted cookie boxes for Raksha Bandhan, beautifully packaged with free shipping across India.">
+  <meta name="description" content="Rakhi Gifting from Oryn — The Classic Cookie Box, handcrafted and beautifully packaged for Raksha Bandhan. Free shipping across India.">
   <title>Rakhi Gifting — Oryn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Amita:wght@400;700&family=Comforter+Brush&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    :root {
-      --f-display: "TAN Vivre Libre", "Cormorant Garamond", Georgia, serif;
-    }
+    :root { --f-display: "TAN Vivre Libre", "Cormorant Garamond", Georgia, serif; }
+
     /* ── HERO ── */
     #hero {
-      min-height: 66vh; background: var(--blue);
-      display: flex; flex-direction: column; justify-content: center;
-      padding: calc(var(--nav-h) + 60px) var(--px) 80px;
+      min-height: 100vh; background: var(--blue);
       position: relative; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
     }
-    .hero-kicker { font-family: var(--f-body); font-size: .7rem; letter-spacing: .42em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 20px; }
-    .hero-title { font-family: var(--f-display); font-weight: 300; font-size: clamp(3rem, 7.5vw, 6.5rem); color: var(--white); line-height: .95; margin-bottom: 20px; }
-    .hero-desc { font-family: var(--f-body); font-size: 1.02rem; line-height: 1.8; color: rgba(255,255,255,.62); max-width: 560px; margin-bottom: 40px; }
-
-    /* ── STORY INTRO ── */
-    #intro { padding: 80px var(--px) 0; }
-    .intro-inner { max-width: var(--max); margin: 0 auto; text-align: center; }
-    .intro-inner blockquote { font-family: var(--f-display); font-size: clamp(1.5rem,2.8vw,2.2rem); font-style: normal; line-height: 1.35; color: var(--blue); margin-bottom: 24px; font-weight: 400; }
-    .intro-inner p { font-family: var(--f-body); font-size: 1.02rem; line-height: 1.85; color: rgba(12,54,123,.62); max-width: 900px; margin: 0 auto; }
-
-    /* ── FEATURED HAMPER (chapter layout, matches every other collection page) ── */
-    .chapter { padding: var(--py) var(--px); position: relative; background: var(--white); }
-    .ch-inner { max-width: var(--max); margin: 0 auto; }
-    .ch-layout { display: grid; gap: 80px; align-items: center; grid-template-columns: 1fr 1fr; }
-    .ch-eyel { font-family: var(--f-body); font-size: .68rem; letter-spacing: .38em; text-transform: uppercase; color: rgba(12,54,123,.38); margin-bottom: 12px; }
-    .ch-name { font-family: var(--f-display); font-weight: 400; font-size: clamp(2.2rem,4vw,3.8rem); color: var(--blue); line-height: 1.05; margin-bottom: 16px; }
-    .ch-price-tag { font-family: var(--f-body); font-size: 1.5rem; font-weight: 600; color: var(--blue); margin-bottom: 24px; }
-    .ch-story { font-family: var(--f-body); font-size: 1rem; line-height: 1.85; color: rgba(12,54,123,.6); margin-bottom: 20px; }
-    .ch-perks { list-style: none; margin: 0 0 28px; }
-    .ch-perks li { font-family: var(--f-body); font-size: .92rem; line-height: 1.6; color: rgba(12,54,123,.58); padding: 8px 0; border-bottom: 1px solid rgba(12,54,123,.06); display: flex; align-items: flex-start; gap: 10px; }
-    .ch-perks li::before { content: '—'; color: rgba(12,54,123,.3); flex-shrink: 0; }
-    .ch-img { overflow: hidden; aspect-ratio: 4/5; }
-    .ch-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.4s var(--ease); }
-    .ch-img:hover img { transform: scale(1.05); }
-    .ch-custom-note {
-      margin-top: 8px; font-family: var(--f-body); font-size: .9rem; color: rgba(12,54,123,.5);
+    .rk-hero-img { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+    .rk-hero-img img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.02); }
+    .rk-hero-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,54,123,.5), rgba(12,54,123,.75)); }
+    .rk-hero-txt {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center;
+      padding: calc(var(--nav-h) + 80px) var(--px) 80px;
+      max-width: 760px;
+      text-shadow: 0 2px 24px rgba(0,0,0,.55);
     }
-    .ch-custom-note a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+    .rk-super { font-family: var(--f-body); font-size: .68rem; letter-spacing: .38em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 16px; }
+    .rk-title { font-family: var(--f-display); font-weight: 300; font-size: clamp(2.4rem, 6vw, 5.4rem); color: var(--white); line-height: .95; margin-bottom: 20px; }
+    .rk-desc { font-family: var(--f-body); font-weight: 400; font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,.88); max-width: 560px; margin: 0 auto 32px; }
+    .rk-flavours { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; margin-bottom: 36px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.18); width: 100%; }
+    .rk-flavour { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .rk-flavour-name { font-family: var(--f-body); font-weight: 700; font-size: .62rem; letter-spacing: .28em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+    .rk-flavour-price { font-family: var(--f-display); font-size: 1.4rem; color: var(--white); }
 
-    @media (max-width: 1100px) {
-      .ch-layout { grid-template-columns: 1fr; }
-      .ch-img { max-width: 480px; }
+    /* ── SIZE / OPTION PICKER MODAL (choose which box to add) ── */
+    .rk-modal-overlay {
+      position: fixed; inset: 0; z-index: 4000;
+      background: rgba(12,54,123,.35);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; visibility: hidden;
+      transition: opacity .3s var(--ease), visibility .3s;
+    }
+    .rk-modal-overlay.open { opacity: 1; visibility: visible; }
+    .rk-modal {
+      position: relative;
+      background: var(--white);
+      width: min(460px, 100%);
+      padding: 44px 36px 36px;
+      text-align: center;
+      transform: translateY(16px);
+      transition: transform .3s var(--ease);
+    }
+    .rk-modal-overlay.open .rk-modal { transform: translateY(0); }
+    .rk-modal-close {
+      position: absolute; top: 14px; right: 14px;
+      font-family: var(--f-body); font-size: 1.6rem; line-height: 1;
+      color: rgba(12,54,123,.5); background: none; border: none; cursor: pointer;
+      transition: color .2s;
+    }
+    .rk-modal-close:hover { color: var(--blue); }
+    .rk-modal-title { font-family: var(--f-display); font-size: 1.6rem; font-weight: 400; color: var(--blue); margin-bottom: 28px; }
+    .rk-modal-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+    .rk-modal-option {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 20px 12px; border: 1px solid rgba(12,54,123,.15); background: none;
+      cursor: pointer; transition: border-color .2s, background .2s;
+    }
+    .rk-modal-option:hover { border-color: rgba(12,54,123,.35); }
+    .rk-modal-option.is-selected { border-color: var(--blue); background: rgba(12,54,123,.05); }
+    .rk-modal-opt-name { font-family: var(--f-display); font-size: 1.05rem; color: var(--blue); }
+    .rk-modal-opt-wt { font-family: var(--f-body); font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(12,54,123,.4); }
+    .rk-modal-opt-price { font-family: var(--f-display); font-size: 1.3rem; color: var(--blue); margin-top: 4px; }
+    .rk-modal-confirm { width: 100%; }
+
+    /* ── FULL STORY ── */
+    #full-story { background: #f9f8f6; padding: var(--py) 60px; }
+    .fs-inner { max-width: var(--max); margin: 0 auto; }
+    .fs-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin: 0 0 88px; }
+    .fs-photo { aspect-ratio: 4/5; overflow: hidden; }
+    .fs-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .9s var(--ease); }
+    .fs-photo:hover img { transform: scale(1.05); }
+    .fs-grid { display: flex; justify-content: center; }
+    .fs-txt { max-width: 680px; width: 100%; text-align: center; }
+    .fs-txt .eye { margin-bottom: 18px; }
+    .fs-txt h2 { margin-bottom: 44px; }
+    .fs-txt blockquote {
+      position: relative;
+      font-family: var(--f-display); font-weight: 400; font-style: italic;
+      font-size: clamp(1.9rem, 3.2vw, 2.7rem); color: var(--blue); line-height: 1.32;
+      max-width: 620px; margin: 0 auto 56px;
+    }
+    .fs-txt blockquote::before {
+      content: '"'; position: absolute; top: -.5em; left: -.06em;
+      font-family: var(--f-display); font-style: normal; font-size: 3.2em; line-height: 1;
+      color: rgba(12,54,123,.1);
+    }
+    .fs-body { text-align: left; max-width: 600px; margin: 0 auto; }
+    .fs-body p { font-family: var(--f-body); font-size: 1.05rem; line-height: 1.9; color: rgba(12,54,123,.62); margin-bottom: 22px; }
+    .fs-body p:first-of-type::first-letter {
+      font-family: var(--f-display); font-weight: 400; font-size: 3.6em; line-height: .78;
+      float: left; padding: 6px 10px 0 0; color: var(--blue);
     }
 
-    /* ── MORE GIFTING PICKS (reuses shared .prod-card / .prod-region /
-       .prod-name / .prod-desc / .prod-price from css/styles.css) ── */
-    #more-picks { padding: var(--py) var(--px); background: #f9f8f6; }
-    .mp-inner { max-width: var(--max); margin: 0 auto; }
-    .mp-head { text-align: center; margin-bottom: 56px; }
-    .mp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px 32px; }
-    @media (max-width: 1100px) {
-      .mp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 640px) {
-      .mp-grid { grid-template-columns: 1fr; }
-    }
-    .mp-cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    /* ── FLAVOURS & ORDER ── */
+    #rk-order { padding: var(--py) var(--px); }
+    .rko-inner { max-width: var(--max); margin: 0 auto; }
+    .rko-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(12,54,123,.06); margin-top: 56px; }
+    .rko-card { background: var(--white); padding: 60px 48px; }
+    .rko-card.featured { background: var(--blue); }
+    .rko-badge { display: inline-block; font-family: var(--f-body); font-size: .62rem; letter-spacing: .28em; text-transform: uppercase; color: rgba(12,54,123,.35); background: rgba(12,54,123,.05); padding: 6px 12px; margin-bottom: 20px; }
+    .rko-badge.w { color: rgba(255,255,255,.45); background: rgba(255,255,255,.07); }
+    .rko-name { font-family: var(--f-display); font-size: 2.2rem; font-weight: 300; color: var(--blue); line-height: 1.1; margin-bottom: 8px; }
+    .rko-name.w { color: var(--white); }
+    .rko-unit { font-family: var(--f-body); font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: rgba(12,54,123,.3); margin-bottom: 28px; }
+    .rko-unit.w { color: rgba(255,255,255,.3); }
+    .rko-price { font-family: var(--f-display); font-size: 2.5rem; color: var(--blue); font-weight: 300; }
+    .rko-price.w { color: var(--white); }
+    .rko-txt { font-family: var(--f-body); font-size: .88rem; line-height: 1.7; color: rgba(12,54,123,.5); margin-top: 20px; margin-bottom: 36px; }
+    .rko-txt.w { color: rgba(255,255,255,.5); }
 
-    /* ── CLOSING CTA ── */
-    #cta-band { background: linear-gradient(140deg, rgba(12,54,123,.98), rgba(12,54,123,.84)); color: var(--white); padding: 90px var(--px); text-align: center; }
-    .cta-inner { max-width: 900px; margin: 0 auto; }
+    @media (max-width:1100px) {
+      .rk-hero-txt { padding-top: calc(var(--nav-h)+40px); }
+      .rko-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width:640px) {
+      .fs-photos { grid-template-columns: 1fr; gap: 16px; margin-bottom: 48px; }
+    }
   </style>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -178,108 +238,156 @@
 
   <!-- HERO -->
   <section id="hero" data-dark data-hero-dark>
-    <p class="hero-kicker r">Raksha Bandhan</p>
-    <h1 class="hero-title r d1">Rakhi Gifting,<br>Handcrafted.</h1>
-    <p class="hero-desc r d2">A thread tied, a promise renewed — and this year, something worth unwrapping alongside it. Gift-ready boxes, beautifully packaged, shipped free across India.</p>
-  </section>
-
-  <!-- STORY INTRO -->
-  <section id="intro">
-    <div class="intro-inner r">
-      <blockquote>"The best Rakhi gifts aren't just sweet — they're remembered."</blockquote>
-      <p>Every box is packed to travel, wrapped to be opened slowly, and finished with a personal touch on request. Whether it's for a sibling across the city or across the country, Oryn ships pan-India so the distance never gets in the way of the celebration.</p>
+    <div class="rk-hero-img">
+      <img src="All Product Images/All Cookies/Aurelia Cookies/2.png" alt="Rakhi Gifting — The Classic Cookie Box" loading="eager">
     </div>
-  </section>
-
-  <!-- FEATURED HAMPER -->
-  <section class="chapter">
-    <div class="ch-inner">
-      <div class="ch-layout">
-        <div class="ch-img r-l">
-          <img src="All Product Images/All Cookies/Aurelia Cookies/2.png" alt="The Classic Cookie Box" loading="lazy">
+    <div class="rk-hero-txt">
+      <p class="rk-super r">Raksha Bandhan</p>
+      <h1 class="rk-title r d2">Rakhi Gifting,<br>Handcrafted.</h1>
+      <p class="rk-desc r d3">A thread tied, a promise renewed — and this year, something worth unwrapping alongside it. The Classic Cookie Box, packed to travel and ready to give.</p>
+      <div class="rk-flavours r d4">
+        <div class="rk-flavour">
+          <span class="rk-flavour-name">Aurelia</span>
+          <span class="rk-flavour-price">₹800</span>
         </div>
-        <div class="ch-body r-r">
-          <p class="ch-eyel">The Rakhi Pick</p>
-          <h2 class="ch-name">The Classic Cookie Box</h2>
-          <p class="ch-price-tag">₹800 <span style="font-size:.85rem;font-weight:400;opacity:.6;">/ Box of 6</span></p>
-          <p class="ch-story">Two cookies each of Aurelia, Jade Caramel, and Cloud Crumb — three distinct personalities in one box, so there's something for every sibling's taste.</p>
-          <ul class="ch-perks">
-            <li>2 cookies each of all 3 flavours</li>
-            <li>Signature Oryn kraft gift box</li>
-            <li>A sticker with tasting notes</li>
-            <li>Handwritten personalised message on request</li>
-          </ul>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <a href="order.html" class="btn btn-b btn-cart" data-add-to-cart="true" data-cart-sku="COOKIE-MIX" data-cart-name="Classic Box of 6" data-cart-price="800" data-cart-details="Rakhi Gifting · 2 each of Aurelia, Jade Caramel &amp; Cloud Crumb · Pan India"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
-            <a href="cookies.html" class="btn btn-ob">View the Collection →</a>
-          </div>
-          <p class="ch-custom-note">Prefer to pick your own combination? <a href="cookies.html#box-options">Build your own box</a> on the Cookie Collection page.</p>
+        <div class="rk-flavour">
+          <span class="rk-flavour-name">Jade Caramel</span>
+          <span class="rk-flavour-price">₹800</span>
+        </div>
+        <div class="rk-flavour">
+          <span class="rk-flavour-name">Cloud Crumb</span>
+          <span class="rk-flavour-price">₹800</span>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- MORE GIFTING PICKS -->
-  <section id="more-picks">
-    <div class="mp-inner">
-      <div class="mp-head r">
-        <span class="eye eye-b mb16">More Gifting-Ready Picks</span>
-        <h2 class="h1 mb8">Or Gift a Single Favourite</h2>
-        <p class="body-md opacity-b" style="max-width:520px; margin:0 auto;">Every cookie box ships free across India — just as gift-ready on its own.</p>
-      </div>
-      <div class="mp-grid">
-        <article class="prod-card r">
-          <div class="img-cover img-4-5">
-            <img src="All Product Images/All Cookies/Aurelia Cookies/2.png" alt="Aurelia" loading="lazy">
-          </div>
-          <p class="prod-region">Cookie Collection</p>
-          <h3 class="prod-name">Aurelia</h3>
-          <p class="prod-desc">Orange zest, warm cinnamon, ginger, and nutmeg — golden and quietly elegant</p>
-          <p class="prod-price">₹800 <span class="prod-unit">/ Box of 6</span></p>
-          <div class="mp-cta-row">
-            <a href="order.html" class="btn btn-b btn-sm btn-cart" data-add-to-cart="true" data-cart-sku="AURELIA-BOX" data-cart-name="Aurelia" data-cart-price="800" data-cart-details="Rakhi Gifting · Box of 6"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
-            <a href="cookie-aurelia.html" class="btn btn-ob btn-sm">View Details →</a>
-          </div>
-        </article>
-        <article class="prod-card r d1">
-          <div class="img-cover img-4-5">
-            <img src="Jade_Caramel_Card.png" alt="Jade Caramel" loading="lazy">
-          </div>
-          <p class="prod-region">Cookie Collection</p>
-          <h3 class="prod-name">Jade Caramel</h3>
-          <p class="prod-desc">Matcha and butterscotch, dense and chewy, with pockets of melting caramel</p>
-          <p class="prod-price">₹800 <span class="prod-unit">/ Box of 6</span></p>
-          <div class="mp-cta-row">
-            <a href="order.html" class="btn btn-b btn-sm btn-cart" data-add-to-cart="true" data-cart-sku="JADECARAMEL-BOX" data-cart-name="Jade Caramel" data-cart-price="800" data-cart-details="Rakhi Gifting · Box of 6"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
-            <a href="cookie-jade-caramel.html" class="btn btn-ob btn-sm">View Details →</a>
-          </div>
-        </article>
-        <article class="prod-card r d2">
-          <div class="img-cover img-4-5">
-            <img src="Cloude_Crum_Cookie.png" alt="Cloud Crumb" loading="lazy">
-          </div>
-          <p class="prod-region">Cookie Collection</p>
-          <h3 class="prod-name">Cloud Crumb</h3>
-          <p class="prod-desc">A soft, delicate crumb with molten dark chocolate and toasted mini marshmallows</p>
-          <p class="prod-price">₹800 <span class="prod-unit">/ Box of 6</span></p>
-          <div class="mp-cta-row">
-            <a href="order.html" class="btn btn-b btn-sm btn-cart" data-add-to-cart="true" data-cart-sku="CLOUDCRUMB-BOX" data-cart-name="Cloud Crumb" data-cart-price="800" data-cart-details="Rakhi Gifting · Box of 6"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
-            <a href="cookie-cloud-crumb.html" class="btn btn-ob btn-sm">View Details →</a>
-          </div>
-        </article>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;" class="r d5">
+        <button type="button" class="btn btn-w btn-cart" id="rkHeroAddBtn" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;white-space:nowrap;"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</button>
+        <a href="#full-story" class="btn btn-ow" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;white-space:nowrap;">The Story</a>
       </div>
     </div>
   </section>
 
-  <!-- CLOSING CTA -->
-  <section id="cta-band" data-dark>
-    <div class="cta-inner">
-      <h2 class="h1 w-white mb20 r d1">Planning a bulk or corporate Rakhi order?</h2>
-      <p class="body-lg mb32 r d2" style="color:rgba(255,255,255,.7)">Get in touch and our team will help you put together something special.</p>
-      <div class="r d3" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <a href="contact.html" class="btn btn-w" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;">Contact Us</a>
-        <a href="all-products.html" class="btn btn-ow" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;">See All Products</a>
+  <!-- OPTION PICKER MODAL -->
+  <div class="rk-modal-overlay" id="rkOptionModal">
+    <div class="rk-modal" role="dialog" aria-modal="true" aria-label="Choose your box">
+      <button type="button" class="rk-modal-close" data-rk-modal-close aria-label="Close">&times;</button>
+      <span class="eye eye-b mb8">Rakhi Gifting</span>
+      <h3 class="rk-modal-title">Choose Your Box</h3>
+      <div class="rk-modal-options">
+        <button type="button" class="rk-modal-option is-selected" data-sku="COOKIE-MIX">
+          <span class="rk-modal-opt-name">Classic Mix</span>
+          <span class="rk-modal-opt-wt">2 each of 3 flavours</span>
+          <span class="rk-modal-opt-price">₹800</span>
+        </button>
+        <button type="button" class="rk-modal-option" data-sku="AURELIA-BOX">
+          <span class="rk-modal-opt-name">Aurelia</span>
+          <span class="rk-modal-opt-wt">Box of 6</span>
+          <span class="rk-modal-opt-price">₹800</span>
+        </button>
+        <button type="button" class="rk-modal-option" data-sku="JADECARAMEL-BOX">
+          <span class="rk-modal-opt-name">Jade Caramel</span>
+          <span class="rk-modal-opt-wt">Box of 6</span>
+          <span class="rk-modal-opt-price">₹800</span>
+        </button>
+        <button type="button" class="rk-modal-option" data-sku="CLOUDCRUMB-BOX">
+          <span class="rk-modal-opt-name">Cloud Crumb</span>
+          <span class="rk-modal-opt-wt">Box of 6</span>
+          <span class="rk-modal-opt-price">₹800</span>
+        </button>
       </div>
+      <button type="button" class="btn btn-b rk-modal-confirm" id="rkModalConfirm">Confirm Item</button>
+    </div>
+  </div>
+
+  <!-- FULL STORY -->
+  <section id="full-story">
+    <div class="fs-photos">
+      <div class="fs-photo r"><img src="All Product Images/All Cookies/Aurelia Cookies/2.png" alt="Aurelia cookie" loading="lazy"></div>
+      <div class="fs-photo r d1"><img src="Jade_Caramel_Card.png" alt="Jade Caramel cookie" loading="lazy"></div>
+      <div class="fs-photo r d2"><img src="Cloude_Crum_Cookie.png" alt="Cloud Crumb cookie" loading="lazy"></div>
+    </div>
+    <div class="fs-inner">
+      <div class="fs-grid">
+        <div class="fs-txt r d1">
+          <span class="eye eye-b">The Story</span>
+          <h2 class="h2">A Box Built for Rakhi</h2>
+          <blockquote>"The best Rakhi gifts aren't just sweet — they're remembered."</blockquote>
+          <div class="fs-body">
+            <p>Every Rakhi brings the same small dilemma: something sweet, yes, but something that actually feels chosen. Not a box picked up on the way, but one that says a sibling thought about what the other would genuinely like.</p>
+            <p>The Classic Cookie Box exists for exactly that moment. Two cookies each of Aurelia, Jade Caramel, and Cloud Crumb — three distinct personalities in one box, so there's something for every sibling's taste, whether they lean toward warm spice, earthy caramel, or soft chocolate.</p>
+            <p>It arrives in our signature kraft box, finished with a sticker carrying tasting notes for each flavour, and a handwritten personalised message on request — ready to give as it is, no extra wrapping needed.</p>
+            <p>And because Rakhi doesn't always mean being in the same city, every box ships free across India, packed to travel so the distance never gets in the way of the celebration.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee">
+    <div class="marquee-track">
+      <span class="marquee-item">Rakhi Gifting · Pan India</span>
+      <span class="marquee-item">Handcrafted Cookie Boxes</span>
+      <span class="marquee-item">Signature Kraft Gift Box</span>
+      <span class="marquee-item">Free Shipping Across India</span>
+      <span class="marquee-item">Personalised Message on Request</span>
+      <span class="marquee-item">Rakhi Gifting · Pan India</span>
+      <span class="marquee-item">Handcrafted Cookie Boxes</span>
+      <span class="marquee-item">Signature Kraft Gift Box</span>
+      <span class="marquee-item">Free Shipping Across India</span>
+      <span class="marquee-item">Personalised Message on Request</span>
+      <span class="marquee-item">Rakhi Gifting · Pan India</span>
+      <span class="marquee-item">Handcrafted Cookie Boxes</span>
+      <span class="marquee-item">Signature Kraft Gift Box</span>
+      <span class="marquee-item">Free Shipping Across India</span>
+      <span class="marquee-item">Personalised Message on Request</span>
+      <span class="marquee-item">Rakhi Gifting · Pan India</span>
+      <span class="marquee-item">Handcrafted Cookie Boxes</span>
+      <span class="marquee-item">Signature Kraft Gift Box</span>
+      <span class="marquee-item">Free Shipping Across India</span>
+      <span class="marquee-item">Personalised Message on Request</span>
+    </div>
+  </div>
+
+  <!-- FLAVOURS & ORDER -->
+  <section id="rk-order">
+    <div class="rko-inner">
+      <div class="tc r">
+        <span class="eye eye-b mb16">Choose Your Box</span>
+        <h2 class="h1">The Classic, or Your Own</h2>
+        <p class="body-md opacity-b r d1" style="max-width:460px;margin:0 auto;">Every box is ₹800 for 6 — the difference is purely in the mix.</p>
+      </div>
+      <div class="rko-grid">
+        <div class="rko-card r">
+          <span class="rko-badge">Box of 6</span>
+          <p class="rko-name">The Classic Mix</p>
+          <p class="rko-unit">2 each of 3 flavours</p>
+          <p class="rko-price">₹800</p>
+          <p class="rko-txt">Two cookies each of Aurelia, Jade Caramel, and Cloud Crumb. The easiest way to gift all three — no guessing which flavour they'll like best.</p>
+          <a href="order.html" class="btn btn-b btn-cart" data-add-to-cart="true" data-cart-sku="COOKIE-MIX" data-cart-name="Classic Box of 6" data-cart-price="800" data-cart-details="Rakhi Gifting · 2 each of Aurelia, Jade Caramel &amp; Cloud Crumb · Pan India"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+        </div>
+        <div class="rko-card featured r d1" data-dark>
+          <span class="rko-badge w">Build Your Own</span>
+          <p class="rko-name w">Pick Your Favourite</p>
+          <p class="rko-unit w">Any single flavour, box of 6</p>
+          <p class="rko-price w">₹800</p>
+          <p class="rko-txt w">Know which one they'll love? Choose Aurelia, Jade Caramel, or Cloud Crumb on its own, or mix your own combination on the Cookie Collection page.</p>
+          <a href="cookies.html#box-options" class="btn btn-w">Build Your Box →</a>
+        </div>
+      </div>
+      <div class="tc mt56 r d2">
+        <p class="body-sm opacity-b">Ships free across India. Delhi NCR orders require 48 hours advance notice; pan-India orders require 72 hours.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GIFTING BAR -->
+  <section style="background:var(--blue);padding:60px var(--px);" data-dark>
+    <div style="max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;">
+      <div class="r">
+        <p class="eye eye-w mb8">A Note on Gifting</p>
+        <h3 class="h3 w-white mb8">Planning a Bulk or Corporate Rakhi Order?</h3>
+        <p style="color:rgba(255,255,255,.5);font-family:var(--f-body);font-size:.9rem;max-width:480px;">Every box already arrives in our signature kraft packaging, ready to give. For larger Rakhi orders, get in touch and our team will help you put something together.</p>
+      </div>
+      <a href="contact.html" class="btn btn-w r d1" style="flex-shrink:0">Contact Us</a>
     </div>
   </section>
 
@@ -344,5 +452,48 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+    (() => {
+      const openBtn = document.getElementById('rkHeroAddBtn');
+      const modal = document.getElementById('rkOptionModal');
+      if (!openBtn || !modal) return;
+      const closeBtn = modal.querySelector('[data-rk-modal-close]');
+      const options = modal.querySelectorAll('.rk-modal-option');
+      const confirmBtn = document.getElementById('rkModalConfirm');
+
+      const items = {
+        'COOKIE-MIX': { sku: 'COOKIE-MIX', name: 'Classic Box of 6', price: 800, details: 'Rakhi Gifting · 2 each of Aurelia, Jade Caramel & Cloud Crumb · Pan India', quantity: 1 },
+        'AURELIA-BOX': { sku: 'AURELIA-BOX', name: 'Aurelia', price: 800, details: 'Rakhi Gifting · Box of 6', quantity: 1 },
+        'JADECARAMEL-BOX': { sku: 'JADECARAMEL-BOX', name: 'Jade Caramel', price: 800, details: 'Rakhi Gifting · Box of 6', quantity: 1 },
+        'CLOUDCRUMB-BOX': { sku: 'CLOUDCRUMB-BOX', name: 'Cloud Crumb', price: 800, details: 'Rakhi Gifting · Box of 6', quantity: 1 },
+      };
+      let selected = 'COOKIE-MIX';
+
+      function setSelected(sku) {
+        selected = sku;
+        options.forEach(opt => opt.classList.toggle('is-selected', opt.dataset.sku === sku));
+      }
+      function openModal() {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+      modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+      options.forEach(opt => opt.addEventListener('click', () => setSelected(opt.dataset.sku)));
+
+      confirmBtn.addEventListener('click', () => {
+        addItemToCart({ ...items[selected] });
+        closeModal();
+        openCartDrawer();
+      });
+    })();
+  </script>
 </body>
 </html>
