@@ -90,15 +90,15 @@ textarea {
 
 /* ─── CURSOR ─────────────────────────────────────── */
 .cursor-dot {
-  width: 28px;
-  height: 35px;
+  width: 30px;
+  height: 31px;
   background: transparent;
   border-radius: 0;
   position: fixed;
   pointer-events: none;
   z-index: 99999;
   transform: translate(-50%, -50%);
-  background-image: url("../cursor-muffin.svg");
+  background-image: url("../cursor-muffin.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
