@@ -36,6 +36,7 @@ describe('Catalog API (Products / Collections)', () => {
     assert.equal(variant.price, '800.00');
     assert.equal(variant.sku, 'AURELIA-BOX');
     assert.equal(typeof variant.quantity, 'number');
+    assert.equal(typeof variant.inventory_quantity, 'number');
     assert.equal(variant.taxable, true);
     assert.ok(variant.image && variant.image.src.startsWith('http'), 'each variant must carry its own `image`, or Checkout reports "No product image found for variant"');
     assert.equal(variant.image.src, sample.image.src);
