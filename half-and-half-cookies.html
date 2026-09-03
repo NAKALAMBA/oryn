@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Banana Cookie Melt — Oryn's signature eggless banana loaf with choco chip filling. 350g ₹350 / 500g ₹500. Delhi NCR delivery.">
-  <title>Banana Cookie Melt — Oryn</title>
+  <meta name="description" content="1/2 & 1/2 Cookies — Oryn's two-flavour cookies. Solstice (lemon × blueberry), Eclipse (dark chocolate × vanilla confetti), or an assorted box. Box of 8, ₹1,000. Pan India delivery.">
+  <title>1/2 & 1/2 Cookies — Oryn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Amita:wght@400;700&family=Comforter+Brush&display=swap" rel="stylesheet">
@@ -19,35 +19,25 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center;
     }
-    .bcm-hero-img { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
-    .bcm-hero-img img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.02); }
-    .bcm-hero-txt {
+    .hh-hero-img { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+    .hh-hero-img img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.02); }
+    .hh-hero-txt {
       position: relative; z-index: 1;
       display: flex; flex-direction: column; align-items: center;
       padding: calc(var(--nav-h) + 80px) var(--px) 80px;
       max-width: 760px;
       text-shadow: 0 2px 24px rgba(0,0,0,.55);
     }
-    .bcm-super { font-family: var(--f-body); font-size: .68rem; letter-spacing: .38em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 16px; }
-    .bcm-accent { font-family: var(--f-body); font-style: normal; font-size: clamp(1.3rem,2.2vw,2rem); color: var(--white); margin-bottom: 20px; line-height: 1.4; }
-    .bcm-title { font-family: var(--f-display); font-weight: 300; font-size: clamp(2.4rem, 6vw, 5.4rem); color: var(--white); line-height: .92; margin-bottom: 20px; white-space: nowrap; }
-    .bcm-desc { font-family: var(--f-body); font-weight: 400; font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,.88); max-width: 560px; margin: 0 auto 32px; }
-    .bcm-sizes { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; margin-bottom: 36px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.18); width: 100%; }
-    .bcm-size { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .bcm-size-name { font-family: var(--f-body); font-weight: 700; font-size: .62rem; letter-spacing: .28em; text-transform: uppercase; color: rgba(255,255,255,.7); }
-    .bcm-size-price { font-family: var(--f-display); font-size: 1.4rem; color: var(--white); }
-
-    /* ── STORY ── */
-    #bcm-story { padding: var(--py) var(--px); }
-    .bs-inner { max-width: var(--max); margin: 0 auto; }
-    .bs-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 80px; align-items: start; }
-    .bs-num { font-family: var(--f-display); font-size: 5rem; font-weight: 300; color: rgba(12,54,123,.06); line-height: 1; }
-    .bs-head { font-family: var(--f-display); font-size: 1.4rem; color: var(--blue); margin-bottom: 16px; }
-    .bs-txt { font-family: var(--f-body); font-size: .92rem; line-height: 1.85; color: rgba(12,54,123,.57); }
+    .hh-super { font-family: var(--f-body); font-size: .68rem; letter-spacing: .38em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 16px; }
+    .hh-title { font-family: var(--f-display); font-weight: 300; font-size: clamp(2.6rem, 7vw, 5.6rem); color: var(--white); line-height: .96; margin-bottom: 20px; }
+    .hh-desc { font-family: var(--f-body); font-weight: 400; font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,.88); max-width: 560px; margin: 0 auto 32px; }
+    .hh-sizes { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; margin-bottom: 36px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.18); width: 100%; }
+    .hh-size { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .hh-size-name { font-family: var(--f-body); font-weight: 700; font-size: .62rem; letter-spacing: .28em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+    .hh-size-price { font-family: var(--f-display); font-size: 1.4rem; color: var(--white); }
 
     /* ── FULL STORY ── */
     #full-story { background: #f9f8f6; padding: var(--py) 60px; }
-    .s-super { font-family: var(--f-body); font-size: .68rem; letter-spacing: .38em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 16px; }
     .fs-inner { max-width: var(--max); margin: 0 auto; }
     .fs-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin: 0 0 88px; }
     .fs-photo { aspect-ratio: 4/5; overflow: hidden; }
@@ -75,37 +65,28 @@
       float: left; padding: 6px 10px 0 0; color: var(--blue);
     }
 
-    /* ── LAYERS ── */
-    #layers { background: var(--blue); padding: var(--py) var(--px); }
-    .ly-inner { max-width: var(--max); margin: 0 auto; }
-    .layer-visual { position: relative; margin: 56px auto; max-width: 680px; }
-    .layer-item { display: flex; gap: 32px; align-items: flex-start; padding: 28px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
-    .layer-item:last-child { border-bottom: none; }
-    .layer-bar { width: 4px; background: rgba(255,255,255,.15); flex-shrink: 0; margin-top: 4px; height: 48px; border-radius: 2px; }
-    .layer-n { font-family: var(--f-display); font-size: 1.4rem; font-weight: 300; color: rgba(255,255,255,.25); flex-shrink: 0; width: 32px; }
-    .layer-body { flex: 1; }
-    .layer-name { font-family: var(--f-display); font-size: 1.2rem; color: var(--white); margin-bottom: 6px; }
-    .layer-desc { font-family: var(--f-body); font-size: .86rem; line-height: 1.7; color: rgba(255,255,255,.45); }
-
-    /* ── SIZES & ORDER ── */
-    #bcm-sizes { padding: var(--py) var(--px); }
+    /* ── BOXES & ORDER ── */
+    #hh-boxes { padding: var(--py) var(--px); }
     .sz-inner { max-width: var(--max); margin: 0 auto; }
-    .size-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(12,54,123,.06); margin-top: 56px; }
-    .size-card { background: var(--white); padding: 60px 48px; }
-    .size-card.featured { background: var(--blue); }
+    .hh-box-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: rgba(12,54,123,.06); margin-top: 56px; }
+    .hh-box-card { background: var(--white); padding: 56px 40px; display: flex; flex-direction: column; }
+    .hh-box-card.featured { background: var(--blue); }
+    .hh-box-card .btn { margin-top: auto; align-self: flex-start; }
     .sz-badge { display: inline-block; font-family: var(--f-body); font-size: .62rem; letter-spacing: .28em; text-transform: uppercase; color: rgba(12,54,123,.35); background: rgba(12,54,123,.05); padding: 6px 12px; margin-bottom: 20px; }
     .sz-badge.w { color: rgba(255,255,255,.45); background: rgba(255,255,255,.07); }
-    .sz-weight { font-family: var(--f-display); font-size: 5rem; font-weight: 300; color: var(--blue); line-height: 1; margin-bottom: 8px; }
-    .sz-weight.w { color: var(--white); }
-    .sz-unit { font-family: var(--f-body); font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: rgba(12,54,123,.3); margin-bottom: 28px; }
-    .sz-unit.w { color: rgba(255,255,255,.3); }
+    .hh-box-name { font-family: var(--f-display); font-size: 2.6rem; font-weight: 300; color: var(--blue); line-height: 1; margin-bottom: 6px; }
+    .hh-box-name.w { color: var(--white); }
+    .hh-box-sub { font-family: var(--f-body); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(12,54,123,.35); margin-bottom: 22px; }
+    .hh-box-sub.w { color: rgba(255,255,255,.4); }
     .sz-price { font-family: var(--f-display); font-size: 2.5rem; color: var(--blue); font-weight: 300; }
     .sz-price.w { color: var(--white); }
-    .sz-txt { font-family: var(--f-body); font-size: .88rem; line-height: 1.7; color: rgba(12,54,123,.5); margin-top: 20px; margin-bottom: 36px; }
+    .sz-txt { font-family: var(--f-body); font-size: .88rem; line-height: 1.7; color: rgba(12,54,123,.5); margin-top: 20px; margin-bottom: 20px; }
     .sz-txt.w { color: rgba(255,255,255,.5); }
+    .hh-box-notes { font-family: var(--f-body); font-size: .74rem; letter-spacing: .06em; color: rgba(12,54,123,.4); margin-bottom: 32px; }
+    .hh-box-notes.w { color: rgba(255,255,255,.4); }
 
-    /* ── SIZE PICKER MODAL ── */
-    .bcm-modal-overlay {
+    /* ── BOX PICKER MODAL ── */
+    .hh-modal-overlay {
       position: fixed; inset: 0; z-index: 4000;
       background: rgba(12,54,123,.35);
       display: flex; align-items: center; justify-content: center;
@@ -113,42 +94,42 @@
       opacity: 0; visibility: hidden;
       transition: opacity .3s var(--ease), visibility .3s;
     }
-    .bcm-modal-overlay.open { opacity: 1; visibility: visible; }
-    .bcm-modal {
+    .hh-modal-overlay.open { opacity: 1; visibility: visible; }
+    .hh-modal {
       position: relative;
       background: var(--white);
-      width: min(420px, 100%);
+      width: min(460px, 100%);
       padding: 44px 36px 36px;
       text-align: center;
       transform: translateY(16px);
       transition: transform .3s var(--ease);
     }
-    .bcm-modal-overlay.open .bcm-modal { transform: translateY(0); }
-    .bcm-modal-close {
+    .hh-modal-overlay.open .hh-modal { transform: translateY(0); }
+    .hh-modal-close {
       position: absolute; top: 14px; right: 14px;
       font-family: var(--f-body); font-size: 1.6rem; line-height: 1;
       color: rgba(12,54,123,.5); background: none; border: none; cursor: pointer;
       transition: color .2s;
     }
-    .bcm-modal-close:hover { color: var(--blue); }
-    .bcm-modal-title { font-family: var(--f-display); font-size: 1.6rem; font-weight: 400; color: var(--blue); margin-bottom: 28px; }
-    .bcm-modal-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
-    .bcm-modal-option {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      padding: 20px 12px; border: 1px solid rgba(12,54,123,.15); background: none;
-      cursor: pointer; transition: border-color .2s, background .2s;
+    .hh-modal-close:hover { color: var(--blue); }
+    .hh-modal-title { font-family: var(--f-display); font-size: 1.6rem; font-weight: 400; color: var(--blue); margin-bottom: 28px; }
+    .hh-modal-options { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 28px; }
+    .hh-modal-option {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+      padding: 18px 20px; border: 1px solid rgba(12,54,123,.15); background: none;
+      cursor: pointer; transition: border-color .2s, background .2s; text-align: left;
     }
-    .bcm-modal-option:hover { border-color: rgba(12,54,123,.35); }
-    .bcm-modal-option.is-selected { border-color: var(--blue); background: rgba(12,54,123,.05); }
-    .bcm-modal-opt-name { font-family: var(--f-display); font-size: 1.05rem; color: var(--blue); }
-    .bcm-modal-opt-wt { font-family: var(--f-body); font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(12,54,123,.4); }
-    .bcm-modal-opt-price { font-family: var(--f-display); font-size: 1.3rem; color: var(--blue); margin-top: 4px; }
-    .bcm-modal-confirm { width: 100%; }
+    .hh-modal-option:hover { border-color: rgba(12,54,123,.35); }
+    .hh-modal-option.is-selected { border-color: var(--blue); background: rgba(12,54,123,.05); }
+    .hh-modal-opt-main { display: flex; flex-direction: column; gap: 2px; }
+    .hh-modal-opt-name { font-family: var(--f-display); font-size: 1.15rem; color: var(--blue); }
+    .hh-modal-opt-desc { font-family: var(--f-body); font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; color: rgba(12,54,123,.4); }
+    .hh-modal-opt-price { font-family: var(--f-display); font-size: 1.3rem; color: var(--blue); flex-shrink: 0; }
+    .hh-modal-confirm { width: 100%; }
 
     @media (max-width:1100px) {
-      .bcm-hero-txt { padding-top: calc(var(--nav-h)+40px); }
-      .bs-cols { grid-template-columns: 1fr; }
-      .size-grid { grid-template-columns: 1fr; }
+      .hh-hero-txt { padding-top: calc(var(--nav-h)+40px); }
+      .hh-box-grid { grid-template-columns: 1fr; }
     }
     @media (max-width:640px) {
       .fs-photos { grid-template-columns: 1fr; gap: 16px; margin-bottom: 48px; }
@@ -262,142 +243,161 @@
 
   <!-- HERO -->
   <section id="hero" data-dark data-hero-dark>
-    <div class="bcm-hero-img">
-      <img src="Banana_hero.png" alt="Banana Cookie Melt" loading="eager">
+    <div class="hh-hero-img">
+      <img src="All Product Images/Half and Half Cookies/hero.png" alt="A half-lemon, half-blueberry Solstice cookie" loading="eager">
     </div>
-    <div class="bcm-hero-txt">
-      <p class="s-super r">Ripe. Rich. Remarkable.</p>
-      <h1 class="bcm-title r d2">Banana Cookie Melt</h1>
-      <p class="bcm-desc r d3">An eggless banana loaf built around overripe bananas and a hidden choco chip filling that melts into the crumb. Dense with flavour. Impossible to stop at one slice.</p>
-      <div class="bcm-sizes r d4">
-        <div class="bcm-size">
-          <span class="bcm-size-name">Classic · 350g</span>
-          <span class="bcm-size-price">₹350</span>
+    <div class="hh-hero-txt">
+      <p class="hh-super r">Two Halves. One Very Good Cookie.</p>
+      <h1 class="hh-title r d2">1/2 &amp; 1/2<br>Cookies</h1>
+      <p class="hh-desc r d3">Why choose one flavour when you can have two? Freshly baked cookies that bring two contrasting flavours together in every bite — one half one thing, the other half something completely different, and somehow they work beautifully together.</p>
+      <div class="hh-sizes r d4">
+        <div class="hh-size">
+          <span class="hh-size-name">Solstice · Box of 8</span>
+          <span class="hh-size-price">₹1,000</span>
         </div>
-        <div class="bcm-size">
-          <span class="bcm-size-name">Large · 500g</span>
-          <span class="bcm-size-price">₹500</span>
+        <div class="hh-size">
+          <span class="hh-size-name">Eclipse · Box of 8</span>
+          <span class="hh-size-price">₹1,000</span>
+        </div>
+        <div class="hh-size">
+          <span class="hh-size-name">Assorted · 4 + 4</span>
+          <span class="hh-size-price">₹1,000</span>
         </div>
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;" class="r d5">
-        <button type="button" class="btn btn-w btn-cart" id="bcmHeroAddBtn" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;white-space:nowrap;"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</button>
+        <button type="button" class="btn btn-w btn-cart" id="hhHeroAddBtn" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;white-space:nowrap;"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</button>
         <a href="#full-story" class="btn btn-ow" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;white-space:nowrap;">The Story</a>
       </div>
     </div>
   </section>
 
-  <!-- SIZE PICKER MODAL -->
-  <div class="bcm-modal-overlay" id="bcmSizeModal">
-    <div class="bcm-modal" role="dialog" aria-modal="true" aria-label="Choose your size">
-      <button type="button" class="bcm-modal-close" data-bcm-modal-close aria-label="Close">&times;</button>
-      <span class="eye eye-b mb8">Banana Cookie Melt</span>
-      <h3 class="bcm-modal-title">Choose Your Size</h3>
-      <div class="bcm-modal-options">
-        <button type="button" class="bcm-modal-option is-selected" data-sku="BCM-350">
-          <span class="bcm-modal-opt-name">Classic</span>
-          <span class="bcm-modal-opt-wt">350g</span>
-          <span class="bcm-modal-opt-price">₹350</span>
+  <!-- BOX PICKER MODAL -->
+  <div class="hh-modal-overlay" id="hhBoxModal">
+    <div class="hh-modal" role="dialog" aria-modal="true" aria-label="Choose your box">
+      <button type="button" class="hh-modal-close" data-hh-modal-close aria-label="Close">&times;</button>
+      <span class="eye eye-b mb8">1/2 &amp; 1/2 Cookies</span>
+      <h3 class="hh-modal-title">Choose Your Box</h3>
+      <div class="hh-modal-options">
+        <button type="button" class="hh-modal-option" data-sku="HALFHALF-SOLSTICE">
+          <span class="hh-modal-opt-main">
+            <span class="hh-modal-opt-name">Solstice</span>
+            <span class="hh-modal-opt-desc">8 Cookies · Lemon × Blueberry</span>
+          </span>
+          <span class="hh-modal-opt-price">₹1,000</span>
         </button>
-        <button type="button" class="bcm-modal-option" data-sku="BCM-500">
-          <span class="bcm-modal-opt-name">Large</span>
-          <span class="bcm-modal-opt-wt">500g</span>
-          <span class="bcm-modal-opt-price">₹500</span>
+        <button type="button" class="hh-modal-option" data-sku="HALFHALF-ECLIPSE">
+          <span class="hh-modal-opt-main">
+            <span class="hh-modal-opt-name">Eclipse</span>
+            <span class="hh-modal-opt-desc">8 Cookies · Dark Chocolate × Vanilla Confetti</span>
+          </span>
+          <span class="hh-modal-opt-price">₹1,000</span>
+        </button>
+        <button type="button" class="hh-modal-option is-selected" data-sku="HALFHALF-ASSORTED">
+          <span class="hh-modal-opt-main">
+            <span class="hh-modal-opt-name">Assorted</span>
+            <span class="hh-modal-opt-desc">4 Solstice + 4 Eclipse</span>
+          </span>
+          <span class="hh-modal-opt-price">₹1,000</span>
         </button>
       </div>
-      <button type="button" class="btn btn-b bcm-modal-confirm" id="bcmModalConfirm">Confirm Item</button>
+      <button type="button" class="btn btn-b hh-modal-confirm" id="hhModalConfirm">Confirm Item</button>
     </div>
   </div>
 
   <!-- FULL STORY -->
   <section id="full-story">
     <div class="fs-photos">
-      <div class="fs-photo r"><img src="All Product Images/Banana Cookie Melt Loaf/1.png" alt="Banana Cookie Melt sliced loaf with chocolate chips and an open book" loading="lazy"></div>
-      <div class="fs-photo r d1"><img src="All Product Images/Banana Cookie Melt Loaf/2.png" alt="Banana Cookie Melt slices in a bowl with coffee and vintage books" loading="lazy"></div>
-      <div class="fs-photo r d2"><img src="All Product Images/Banana Cookie Melt Loaf/3.png" alt="Banana Cookie Melt loaves sliced close up" loading="lazy"></div>
+      <div class="fs-photo r"><img src="All Product Images/Half and Half Cookies/solstice-break.png" alt="A Solstice cookie broken in half — lemon on one side, blueberry on the other" loading="lazy"></div>
+      <div class="fs-photo r d1"><img src="All Product Images/Half and Half Cookies/eclipse-standing.png" alt="An Eclipse cookie standing upright — vanilla confetti meeting dark chocolate" loading="lazy"></div>
+      <div class="fs-photo r d2"><img src="All Product Images/Half and Half Cookies/eclipse-break.png" alt="An Eclipse cookie pulled apart between two hands" loading="lazy"></div>
     </div>
     <div class="fs-inner">
       <div class="fs-grid">
         <div class="fs-txt r d1">
           <span class="eye eye-b">The Story</span>
-          <h2 class="h2">The Story Behind the Loaf</h2>
-          <blockquote>"The loaf that started as a conversation about what great comfort food really means."</blockquote>
+          <h2 class="h2">Why Choose One When You Can Have Two?</h2>
+          <blockquote>"Made for curious taste buds, late-night cravings, and anyone who believes the best things come in pairs."</blockquote>
           <div class="fs-body">
-            <p>Banana bread has long been the answer to overripe bananas. A practical bake born from the instinct not to waste. We began with that familiar loaf — but wondered what would happen if it became something worth craving in its own right.</p>
-            <p>What if banana bread wasn't just comforting, but carefully composed? What if every element, from the ripeness of the fruit to the texture hidden within, was treated with the same precision we bring to every Oryn creation?</p>
-            <p>The result is the Banana Cookie Melt. Months of testing went into finding the balance: the number of bananas that deliver a naturally moist crumb without heaviness, the bake that keeps the loaf tender, and a brown butter cookie filling that holds its identity through the oven instead of disappearing into the batter. Studded with dark chocolate, it reveals itself only once sliced — a distinct layer that turns every bite into something unexpected.</p>
-            <p>We changed ratios, temperatures, and techniques until there was nothing left to improve. When the loaf finally delivered exactly what we had imagined, we stopped.</p>
-            <p>It is offered in two sizes because good baking should fit the moment. Whether shared around a table or enjoyed one slice at a time, every loaf is made with the same recipe, the same patience, and the same uncompromising attention to detail.</p>
+            <p>The 1/2 &amp; 1/2 Cookie began with a simple, slightly indulgent question: why settle for one flavour when a single cookie could carry two? We built each one around a contrast — two distinct doughs joined down the middle, baked together so neither half loses its character.</p>
+            <p><strong>Solstice</strong> is the bright one. Half fresh, citrusy lemon; half juicy, fruity blueberry. Together they land somewhere zesty and beautifully balanced — a little citrus, a little berry, and a whole lot of sunshine.</p>
+            <p><strong>Eclipse</strong> is the rich, playful one. On one side, deep, indulgent dark chocolate. On the other, nostalgic vanilla confetti — sweet, creamy, and scattered with colour. Every cookie is a delicious back-and-forth between bold and playful.</p>
+            <p>And when choosing favourites feels like too much responsibility, there is the <strong>Assorted Box</strong> — four Solstice and four Eclipse, so you don't have to choose sides at all.</p>
+            <p>Every box holds eight cookies, freshly baked and carefully packed. ₹1,000 a box, with shipping included across India.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-
   <div class="marquee">
     <div class="marquee-track">
-      <span class="marquee-item">Eggless · Artisan</span>
-      <span class="marquee-item">Overripe Bananas</span>
-      <span class="marquee-item">Hidden Cookie Crumb Filling</span>
-      <span class="marquee-item">Dense · Moist · Unforgettable</span>
-      <span class="marquee-item">Delhi NCR Delivery</span>
-      <span class="marquee-item">Eggless · Artisan</span>
-      <span class="marquee-item">Overripe Bananas</span>
-      <span class="marquee-item">Hidden Cookie Crumb Filling</span>
-      <span class="marquee-item">Dense · Moist · Unforgettable</span>
-      <span class="marquee-item">Delhi NCR Delivery</span>
-      <span class="marquee-item">Eggless · Artisan</span>
-      <span class="marquee-item">Overripe Bananas</span>
-      <span class="marquee-item">Hidden Cookie Crumb Filling</span>
-      <span class="marquee-item">Dense · Moist · Unforgettable</span>
-      <span class="marquee-item">Delhi NCR Delivery</span>
-      <span class="marquee-item">Eggless · Artisan</span>
-      <span class="marquee-item">Overripe Bananas</span>
-      <span class="marquee-item">Hidden Cookie Crumb Filling</span>
-      <span class="marquee-item">Dense · Moist · Unforgettable</span>
-      <span class="marquee-item">Delhi NCR Delivery</span>
-      <span class="marquee-item">Eggless · Artisan</span>
-      <span class="marquee-item">Overripe Bananas</span>
-      <span class="marquee-item">Hidden Cookie Crumb Filling</span>
-      <span class="marquee-item">Dense · Moist · Unforgettable</span>
-      <span class="marquee-item">Delhi NCR Delivery</span>
-      <span class="marquee-item">Eggless · Artisan</span>
-      <span class="marquee-item">Overripe Bananas</span>
-      <span class="marquee-item">Hidden Cookie Crumb Filling</span>
-      <span class="marquee-item">Dense · Moist · Unforgettable</span>
-      <span class="marquee-item">Delhi NCR Delivery</span>
+      <span class="marquee-item">Two Flavours · One Cookie</span>
+      <span class="marquee-item">Solstice · Lemon × Blueberry</span>
+      <span class="marquee-item">Eclipse · Dark Chocolate × Vanilla Confetti</span>
+      <span class="marquee-item">Freshly Baked · Carefully Packed</span>
+      <span class="marquee-item">Pan India Delivery</span>
+      <span class="marquee-item">Two Flavours · One Cookie</span>
+      <span class="marquee-item">Solstice · Lemon × Blueberry</span>
+      <span class="marquee-item">Eclipse · Dark Chocolate × Vanilla Confetti</span>
+      <span class="marquee-item">Freshly Baked · Carefully Packed</span>
+      <span class="marquee-item">Pan India Delivery</span>
+      <span class="marquee-item">Two Flavours · One Cookie</span>
+      <span class="marquee-item">Solstice · Lemon × Blueberry</span>
+      <span class="marquee-item">Eclipse · Dark Chocolate × Vanilla Confetti</span>
+      <span class="marquee-item">Freshly Baked · Carefully Packed</span>
+      <span class="marquee-item">Pan India Delivery</span>
+      <span class="marquee-item">Two Flavours · One Cookie</span>
+      <span class="marquee-item">Solstice · Lemon × Blueberry</span>
+      <span class="marquee-item">Eclipse · Dark Chocolate × Vanilla Confetti</span>
+      <span class="marquee-item">Freshly Baked · Carefully Packed</span>
+      <span class="marquee-item">Pan India Delivery</span>
+      <span class="marquee-item">Two Flavours · One Cookie</span>
+      <span class="marquee-item">Solstice · Lemon × Blueberry</span>
+      <span class="marquee-item">Eclipse · Dark Chocolate × Vanilla Confetti</span>
+      <span class="marquee-item">Freshly Baked · Carefully Packed</span>
+      <span class="marquee-item">Pan India Delivery</span>
     </div>
   </div>
 
-
-  <!-- SIZES & ORDER -->
-  <section id="bcm-sizes">
+  <!-- BOXES & ORDER -->
+  <section id="hh-boxes">
     <div class="sz-inner">
       <div class="tc r">
-        <span class="eye eye-b mb16">Sizes</span>
-        <h2 class="h1">Choose Your Loaf</h2>
-        <p class="body-md opacity-b r d1" style="max-width:440px;margin:0 auto;">Both sizes are made from the identical recipe. The difference is purely in weight and yield — perfect for different occasions.</p>
+        <span class="eye eye-b mb16">Choose Your Box</span>
+        <h2 class="h1">Order Your Favourite — <br>Or Don't Choose Sides</h2>
+        <p class="body-md opacity-b r d1" style="max-width:460px;margin:0 auto;">Every box holds 8 cookies at ₹1,000. Shipping is included across India. Freshly baked, carefully packed, delivered nationwide.</p>
       </div>
-      <div class="size-grid">
-        <div class="size-card r">
-          <span class="sz-badge">Classic</span>
-          <p class="sz-weight">350</p>
-          <p class="sz-unit">grams</p>
-          <p class="sz-price">₹350</p>
-          <p class="sz-txt">The personal size. 6–8 generous slices. Perfect for a solo indulgence stretched across a few days, a small gathering, or a thoughtful personal gift. This is the loaf for one person who takes their banana bread seriously.</p>
+      <div class="hh-box-grid">
+        <div class="hh-box-card r">
+          <span class="sz-badge">Solstice</span>
+          <p class="hh-box-name">Solstice</p>
+          <p class="hh-box-sub">Half Lemon × Half Blueberry</p>
+          <p class="sz-price">₹1,000</p>
+          <p class="sz-txt">Bright, zesty and beautifully balanced. The fresh citrusy brightness of lemon on one half, the juicy fruity character of blueberry on the other. 8 cookies.</p>
+          <p class="hh-box-notes">Lemon · Blueberry · Citrusy · Fruity · Fresh</p>
           <a href="order.html" class="btn btn-b btn-cart"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
         </div>
-        <div class="size-card featured r d1" data-dark>
-          <span class="sz-badge w">Large</span>
-          <p class="sz-weight w">500</p>
-          <p class="sz-unit w">grams</p>
-          <p class="sz-price w">₹500</p>
-          <p class="sz-txt w">The sharing size. 10–12 slices. For a family, a gathering, or an event where you want to share something genuinely impressive. The same recipe, more of it. The most economical way to experience the Banana Cookie Melt.</p>
+        <div class="hh-box-card r d1">
+          <span class="sz-badge">Eclipse</span>
+          <p class="hh-box-name">Eclipse</p>
+          <p class="hh-box-sub">Half Dark Chocolate × Half Vanilla Confetti</p>
+          <p class="sz-price">₹1,000</p>
+          <p class="sz-txt">Rich, indulgent and a little playful. Deep dark chocolate on one half, sweet and creamy vanilla confetti on the other. 8 cookies.</p>
+          <p class="hh-box-notes">Dark Chocolate · Vanilla · Confetti · Rich · Sweet</p>
+          <a href="order.html" class="btn btn-b btn-cart"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+        </div>
+        <div class="hh-box-card featured r d2" data-dark>
+          <span class="sz-badge w">Assorted</span>
+          <p class="hh-box-name w">Assorted</p>
+          <p class="hh-box-sub w">4 Solstice + 4 Eclipse</p>
+          <p class="sz-price w">₹1,000</p>
+          <p class="sz-txt w">Can't pick just one? Get the best of both worlds — four Solstice and four Eclipse in a single box. Because choosing favourites is sometimes just too much responsibility.</p>
+          <p class="hh-box-notes w">Lemon · Blueberry · Dark Chocolate · Vanilla · Confetti</p>
           <a href="order.html" class="btn btn-w btn-cart"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
         </div>
       </div>
       <div class="tc mt56 r d2">
-        <p class="body-sm opacity-b">Available for delivery across Delhi NCR: Delhi, Gurgaon, Noida, Greater Noida, Ghaziabad, Faridabad. Orders placed 48 hours in advance.</p>
+        <p class="body-sm opacity-b">Freshly baked. Carefully packed. Delivered across India. Orders are baked to order — please allow a short lead time before dispatch.</p>
       </div>
     </div>
   </section>
@@ -407,8 +407,8 @@
     <div style="max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;">
       <div class="r">
         <p class="eye eye-w mb8">A Note on Gifting</p>
-        <h3 class="h3 w-white mb8">The Loaf as a Gift</h3>
-        <p style="color:rgba(255,255,255,.5);font-family:var(--f-body);font-size:.9rem;max-width:480px;">The Banana Cookie Melt is one of our most-gifted products. It arrives in our signature kraft box with a ribbon — ready to give, needing no additional wrapping. We can add a personalised message card on request.</p>
+        <h3 class="h3 w-white mb8">The Box That Doesn't Pick Sides</h3>
+        <p style="color:rgba(255,255,255,.5);font-family:var(--f-body);font-size:.9rem;max-width:480px;">The Assorted Box is one of our easiest gifts — two flavours, eight cookies, no decisions required. It arrives in our signature packaging, ready to give. We can add a personalised message card on request.</p>
       </div>
       <a href="order.html" class="btn btn-w r d1" style="flex-shrink:0">Order &amp; Enquire</a>
     </div>
@@ -474,22 +474,22 @@
     </div>
   </footer>
 
-
   <script src="js/main.js"></script>
   <script>
     (() => {
-      const openBtn = document.getElementById('bcmHeroAddBtn');
-      const modal = document.getElementById('bcmSizeModal');
+      const openBtn = document.getElementById('hhHeroAddBtn');
+      const modal = document.getElementById('hhBoxModal');
       if (!openBtn || !modal) return;
-      const closeBtn = modal.querySelector('[data-bcm-modal-close]');
-      const options = modal.querySelectorAll('.bcm-modal-option');
-      const confirmBtn = document.getElementById('bcmModalConfirm');
+      const closeBtn = modal.querySelector('[data-hh-modal-close]');
+      const options = modal.querySelectorAll('.hh-modal-option');
+      const confirmBtn = document.getElementById('hhModalConfirm');
 
       const items = {
-        'BCM-350': { sku: 'BCM-350', name: 'Banana Cookie Melt - Classic Loaf', price: 350, details: 'Banana Cookie Melt · 350g · Delhi NCR', quantity: 1 },
-        'BCM-500': { sku: 'BCM-500', name: 'Banana Cookie Melt - Large Loaf', price: 500, details: 'Banana Cookie Melt · 500g · Delhi NCR', quantity: 1 },
+        'HALFHALF-SOLSTICE': { sku: 'HALFHALF-SOLSTICE', name: '1/2 & 1/2 Cookies - Solstice Box', price: 1000, details: 'Solstice · Lemon × Blueberry · Box of 8 · Pan India', quantity: 1 },
+        'HALFHALF-ECLIPSE': { sku: 'HALFHALF-ECLIPSE', name: '1/2 & 1/2 Cookies - Eclipse Box', price: 1000, details: 'Eclipse · Dark Chocolate × Vanilla Confetti · Box of 8 · Pan India', quantity: 1 },
+        'HALFHALF-ASSORTED': { sku: 'HALFHALF-ASSORTED', name: '1/2 & 1/2 Cookies - Assorted Box', price: 1000, details: 'Assorted · 4 Solstice + 4 Eclipse · Box of 8 · Pan India', quantity: 1 },
       };
-      let selected = 'BCM-350';
+      let selected = 'HALFHALF-ASSORTED';
 
       function setSelected(sku) {
         selected = sku;

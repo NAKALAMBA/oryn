@@ -17,8 +17,8 @@ describe('Catalog API (Products / Collections)', () => {
     assert.equal(res.status, 200);
     const body = await res.json();
 
-    assert.equal(body.data.total, 17);
-    assert.equal(body.data.products.length, 17);
+    assert.equal(body.data.total, 18);
+    assert.equal(body.data.products.length, 18);
 
     const sample = body.data.products.find(p => p.variants[0].sku === 'AURELIA-BOX');
     assert.ok(sample);
@@ -55,14 +55,14 @@ describe('Catalog API (Products / Collections)', () => {
     assert.ok(cookieCollection.image && cookieCollection.image.src.startsWith('http'), 'collection should have a single `image` object');
 
     const total = body.data.collections.reduce((sum, c) => sum + c.products_count, 0);
-    assert.equal(total, 17, 'every product should belong to exactly one collection');
+    assert.equal(total, 18, 'every product should belong to exactly one collection');
   });
 
   it('GET /api/catalog/collections/:id/products filters correctly', async () => {
     const res = await fetch(`${baseUrl}/api/catalog/collections/best-sellers/products`);
     assert.equal(res.status, 200);
     const body = await res.json();
-    assert.equal(body.data.total, 2);
+    assert.equal(body.data.total, 3);
     assert.ok(body.data.products.every(p => p.product_type === 'Best Sellers'));
   });
 
@@ -75,7 +75,7 @@ describe('Catalog API (Products / Collections)', () => {
     const res = await fetch(`${baseUrl}/api/catalog/products?collection_id=best-sellers`);
     assert.equal(res.status, 200);
     const body = await res.json();
-    assert.equal(body.data.total, 2);
+    assert.equal(body.data.total, 3);
     assert.ok(body.data.products.every(p => p.product_type === 'Best Sellers'));
   });
 

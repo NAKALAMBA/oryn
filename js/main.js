@@ -384,6 +384,7 @@ const cartItem = (sku, name, price, details) => ({ sku, name, price, details });
 const cartPageConfigs = {
   'best-sellers.html': [
     { selector: '#chapters .chapter:nth-of-type(1) a.btn[href="order.html"]', item: cartItem('SAANJH-BOX', 'Saanjh', 400, 'Best Sellers · Box of 6') },
+    { selector: '#chapters .chapter:nth-of-type(3) a.btn[href="order.html"]', item: cartItem('HALFHALF-ASSORTED', '1/2 & 1/2 Cookies - Assorted Box', 1000, 'Best Sellers · Assorted · Box of 8') },
   ],
   'muffins.html': [
     { selector: '#chapters .chapter:nth-of-type(1) a.btn[href="order.html"]', item: cartItem('CSB-150', 'Citrus Spice Bloom', 600, 'A Delhi Love Story · Box of 4') },
@@ -418,6 +419,11 @@ const cartPageConfigs = {
     { selector: '#bcm-sizes .size-card:nth-of-type(1) a.btn[href="order.html"]', item: cartItem('BCM-350', 'Banana Cookie Melt - Classic Loaf', 350, 'Banana Cookie Melt · 350g · Delhi NCR') },
     { selector: '#bcm-sizes .size-card:nth-of-type(2) a.btn[href="order.html"]', item: cartItem('BCM-500', 'Banana Cookie Melt - Large Loaf', 500, 'Banana Cookie Melt · 500g · Delhi NCR') },
   ],
+  'half-and-half-cookies.html': [
+    { selector: '#hh-boxes .hh-box-card:nth-of-type(1) a.btn[href="order.html"]', item: cartItem('HALFHALF-SOLSTICE', '1/2 & 1/2 Cookies - Solstice Box', 1000, 'Solstice · Lemon × Blueberry · Box of 8 · Pan India') },
+    { selector: '#hh-boxes .hh-box-card:nth-of-type(2) a.btn[href="order.html"]', item: cartItem('HALFHALF-ECLIPSE', '1/2 & 1/2 Cookies - Eclipse Box', 1000, 'Eclipse · Dark Chocolate × Vanilla Confetti · Box of 8 · Pan India') },
+    { selector: '#hh-boxes .hh-box-card:nth-of-type(3) a.btn[href="order.html"]', item: cartItem('HALFHALF-ASSORTED', '1/2 & 1/2 Cookies - Assorted Box', 1000, 'Assorted · 4 Solstice + 4 Eclipse · Box of 8 · Pan India') },
+  ],
 };
 
 /* Master product list, used only to power "You May Also Like" suggestions
@@ -440,6 +446,7 @@ const PRODUCT_CATALOG = [
   { sku: 'APRICUS-BENTO', name: 'Apricus Bento Cake', price: 450, details: 'Flavours of India · 1 box', href: 'bento-apricus.html', image: 'All Product Images/Apricus Bento Cake/1.png' },
   { sku: 'SAANJH-BOX', name: 'Saanjh', price: 400, details: 'Best Sellers · Box of 6', href: 'saanjh.html', image: 'All Product Images/Saanjh/1.png' },
   { sku: 'BCM-350', name: 'Banana Cookie Melt', price: 350, details: 'Best Sellers · 350g', href: 'banana-cookie-melt.html', image: 'All Product Images/Banana Cookie Melt Loaf/1.png' },
+  { sku: 'HALFHALF-ASSORTED', name: '1/2 & 1/2 Cookies', price: 1000, details: 'Best Sellers · Box of 8', href: 'half-and-half-cookies.html', image: 'All Product Images/Half and Half Cookies/eclipse-standing.png' },
 ];
 
 /* Fisher-Yates — used so "You May Also Like" never repeats the same order twice. */
