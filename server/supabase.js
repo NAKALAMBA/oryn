@@ -1,82 +1,101 @@
 'use strict';
 
-// Durable backup of order data in Supabase. The Express server's own
-// SQLite database is NOT persistent on hosts without a disk add-on (e.g.
-// Render's free tier resets it on every restart) — this gives every order
-// a second, always-on home. Everything else (email validation, Shiprocket
-// sync, order tracking) keeps working exactly as before; this is purely
-// additive and fails open: a Supabase hiccup never blocks or loses a real
-// customer order.
+// Supabase is the ONLY datastore for this server. Every order, contact
+// message, newsletter subscriber and event registration lives here and
+// nowhere else — there is no local SQLite fallback.
 //
-// Uses the same public anon key already embedded in js/supabase-config.js
-// (safe to expose — Row Level Security on the Supabase side only allows
-// INSERT, never SELECT/UPDATE/DELETE, for the anon role). Run
-// server/supabase-orders-schema.sql once in the Supabase SQL Editor
-// before this will work.
+// All server-side calls use the SERVICE-ROLE (secret) key, which bypasses
+// Row Level Security. That key is server-side only and never reaches the
+// browser. The browser-direct paths (contact.html, Noida-registration.html
+// via supabase-js) keep using the publishable key + the INSERT-only RLS
+// policies.
+//
+// Schema: server/supabase-orders-schema.sql + server/supabase-admin-schema.sql.
 
-const crypto = require('node:crypto');
-
-// No hardcoded fallback on purpose — tests (and any environment that
-// hasn't configured this yet) must fail open into SupabaseUnavailableError
-// rather than silently writing to a real, shared Supabase project.
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-// Service-role key: bypasses Row Level Security so the admin panel can
-// READ / UPDATE / DELETE order + newsletter data that the anon key is
-// deliberately only allowed to INSERT. Server-side only — never sent to
-// the browser. When unset, the admin endpoints fall back to local SQLite.
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 class SupabaseUnavailableError extends Error {}
 
-function supabaseConfigured() {
-  return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
-}
-
-// Whether the admin panel can use Supabase as its durable data source.
-function adminConfigured() {
+function configured() {
   return Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
 }
 
-async function insertRows(table, rows) {
-  if (!supabaseConfigured()) {
-    throw new SupabaseUnavailableError('Supabase is not configured (missing SUPABASE_URL/SUPABASE_ANON_KEY).');
-  }
-  let res;
-  try {
-    res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        Prefer: 'return=minimal',
-      },
-      body: JSON.stringify(rows),
-    });
-  } catch (err) {
-    throw new SupabaseUnavailableError(`Supabase request failed for "${table}": ${err.message}`);
-  }
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new SupabaseUnavailableError(`Supabase insert into "${table}" failed (HTTP ${res.status}): ${text}`);
+function requireConfigured() {
+  if (!configured()) {
+    throw new SupabaseUnavailableError('Supabase is not configured (missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).');
   }
 }
 
-// order: the row already saved locally (full_name/email/phone/address/
-// state/city/pin_code/delivery_date/product_interest/quantity_details/
-// gift_message/cart_summary/subtotal). items: the order_items rows
-// already saved locally (sku/name/price/quantity/details).
-//
-// Generates its OWN uuid for the Supabase copy rather than reusing the
-// local integer id, so order_items can be inserted with the correct
-// order_id without an insert...returning round trip — that would need a
-// SELECT policy we deliberately don't grant (this data is customer PII).
-async function saveOrderToSupabase(order, items) {
-  const supabaseOrderId = crypto.randomUUID();
+// Low-level PostgREST call. `path` is everything after /rest/v1/.
+async function rest(path, init = {}) {
+  requireConfigured();
+  let res;
+  try {
+    res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        ...(init.headers || {}),
+      },
+    });
+  } catch (err) {
+    throw new SupabaseUnavailableError(`Supabase request failed (${path}): ${err.message}`);
+  }
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new SupabaseUnavailableError(`Supabase ${init.method || 'GET'} ${path} failed (HTTP ${res.status}): ${text}`);
+  }
+  if (res.status === 204) return null;
+  return res.json().catch(() => null);
+}
 
-  await insertRows('orders', [{
-    id: supabaseOrderId,
+const enc = encodeURIComponent;
+
+async function insert(table, rows, { returning = true, prefer } = {}) {
+  const preferParts = [returning ? 'return=representation' : 'return=minimal'];
+  if (prefer) preferParts.push(prefer);
+  const out = await rest(table, {
+    method: 'POST',
+    headers: { Prefer: preferParts.join(',') },
+    body: JSON.stringify(rows),
+  });
+  return out;
+}
+
+async function selectWhere(table, filters = {}, { order, limit } = {}) {
+  const params = ['select=*'];
+  for (const [col, val] of Object.entries(filters)) params.push(`${col}=eq.${enc(val)}`);
+  if (order) params.push(`order=${order}`);
+  if (limit) params.push(`limit=${limit}`);
+  return (await rest(`${table}?${params.join('&')}`)) || [];
+}
+
+async function updateWhere(table, filters, patch) {
+  const params = [];
+  for (const [col, val] of Object.entries(filters)) params.push(`${col}=eq.${enc(val)}`);
+  const rows = await rest(`${table}?${params.join('&')}`, {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify(patch),
+  });
+  return Array.isArray(rows) ? rows[0] : rows;
+}
+
+async function deleteWhere(table, filters) {
+  const params = [];
+  for (const [col, val] of Object.entries(filters)) params.push(`${col}=eq.${enc(val)}`);
+  await rest(`${table}?${params.join('&')}`, { method: 'DELETE' });
+}
+
+/* ── Orders ─────────────────────────────────────────────────────────── */
+
+// order: the customer/billing fields. items: [{sku,name,price,quantity,details}].
+// Returns { id (uuid), order_number (sequential int) }.
+async function createOrder(order, items) {
+  const [row] = await insert('orders', [{
     full_name: order.full_name,
     email: order.email,
     phone: order.phone,
@@ -90,7 +109,6 @@ async function saveOrderToSupabase(order, items) {
     gift_message: order.gift_message || null,
     cart_summary: order.cart_summary || null,
     subtotal: order.subtotal,
-    // Admin-panel fields — same starting state as the local SQLite row.
     discount: 0,
     shipping: null,
     final_payment: order.subtotal,
@@ -98,100 +116,112 @@ async function saveOrderToSupabase(order, items) {
     order_status: 'Pending',
   }]);
 
+  let insertedItems = [];
   if (Array.isArray(items) && items.length) {
-    await insertRows('order_items', items.map(item => ({
-      id: crypto.randomUUID(),
-      order_id: supabaseOrderId,
+    insertedItems = await insert('order_items', items.map(item => ({
+      order_id: row.id,
       sku: item.sku || null,
       name: item.name,
       price: item.price,
       quantity: item.quantity,
       details: item.details || null,
       variant: item.details || null,
-    })));
+    }))) || [];
   }
 
-  return { supabaseOrderId };
+  return { id: row.id, order_number: row.order_number, items: insertedItems };
 }
 
-// Durable copy of a newsletter signup. Fail-open, same as the order path.
-async function saveNewsletterToSupabase({ name, email, sourcePage }) {
-  await insertRows('newsletter_subscribers', [{
+async function setOrderShiprocket(orderId, fields) {
+  await updateWhere('orders', { id: orderId }, {
+    ...fields,
+    shiprocket_synced_at: new Date().toISOString(),
+  });
+}
+
+async function findOrderByNumber(orderNumber) {
+  const rows = await selectWhere('orders', { order_number: orderNumber });
+  return rows[0] || null;
+}
+
+async function listOrderItems(orderId) {
+  return selectWhere('order_items', { order_id: orderId }, { order: 'id.asc' });
+}
+
+/* ── Contact / newsletter / registrations ───────────────────────────── */
+
+async function insertContact(row) {
+  const [out] = await insert('contact_messages', [{
+    full_name: row.full_name,
+    email: row.email,
+    phone: row.phone,
+    subject: row.subject || null,
+    message: row.message,
+  }]);
+  return out;
+}
+
+// Idempotent on email. merge-duplicates keeps the row and updates name /
+// source_page if a later signup carries them.
+async function upsertNewsletter({ name, email, sourcePage }) {
+  await insert('newsletter_subscribers?on_conflict=email', [{
     name: name || null,
     email,
     source_page: sourcePage || null,
-  }]);
+  }], { returning: false, prefer: 'resolution=merge-duplicates' });
 }
 
-/* ── Admin (service-role) reads & writes ────────────────────────────────
-   These bypass RLS. `adminConfigured()` gates every call site; when it's
-   false the server uses local SQLite instead. Errors surface as
-   SupabaseUnavailableError so callers can fall back rather than 500. */
-
-async function serviceFetch(pathAndQuery, init = {}) {
-  if (!adminConfigured()) {
-    throw new SupabaseUnavailableError('Supabase admin access is not configured (missing SUPABASE_SERVICE_ROLE_KEY).');
-  }
-  let res;
-  try {
-    res = await fetch(`${SUPABASE_URL}/rest/v1/${pathAndQuery}`, {
-      ...init,
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-        ...(init.headers || {}),
-      },
-    });
-  } catch (err) {
-    throw new SupabaseUnavailableError(`Supabase admin request failed: ${err.message}`);
-  }
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new SupabaseUnavailableError(`Supabase admin request failed (HTTP ${res.status}): ${text}`);
-  }
-  if (res.status === 204) return null;
-  return res.json().catch(() => null);
+async function insertRegistrations(rows) {
+  await insert('event_registrations', rows, { returning: false });
 }
 
-// Every order + its items, newest first. Filtering is done in server.js so
-// the exact same set powers the table and the Excel export.
-async function adminListOrders() {
-  const orders = await serviceFetch('orders?select=*&order=created_at.desc');
-  const items = await serviceFetch('order_items?select=*');
+/* ── Admin reads / writes ───────────────────────────────────────────── */
+
+async function listOrdersWithItems() {
+  const orders = await rest('orders?select=*&order=created_at.desc') || [];
+  const items = await rest('order_items?select=*') || [];
   const byOrder = new Map();
-  for (const it of (items || [])) {
+  for (const it of items) {
     if (!byOrder.has(it.order_id)) byOrder.set(it.order_id, []);
     byOrder.get(it.order_id).push(it);
   }
-  return (orders || []).map(o => ({ ...o, items: byOrder.get(o.id) || [] }));
+  return orders.map(o => ({ ...o, items: byOrder.get(o.id) || [] }));
 }
 
-async function adminUpdateOrder(id, patch) {
-  const rows = await serviceFetch(`orders?id=eq.${encodeURIComponent(id)}`, {
-    method: 'PATCH',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify(patch),
-  });
-  return Array.isArray(rows) ? rows[0] : rows;
+async function updateOrder(id, patch) {
+  return updateWhere('orders', { id }, patch);
 }
 
-async function adminListNewsletter() {
-  return (await serviceFetch('newsletter_subscribers?select=*&order=created_at.desc')) || [];
+async function listNewsletter() {
+  return rest('newsletter_subscribers?select=*&order=created_at.desc') || [];
 }
 
-async function adminDeleteNewsletter(id) {
-  await serviceFetch(`newsletter_subscribers?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE' });
+async function deleteNewsletter(id) {
+  await deleteWhere('newsletter_subscribers', { id });
+}
+
+async function listContacts() {
+  return rest('contact_messages?select=*&order=created_at.desc') || [];
+}
+
+async function listRegistrations() {
+  return rest('event_registrations?select=*&order=created_at.desc') || [];
 }
 
 module.exports = {
-  saveOrderToSupabase,
-  saveNewsletterToSupabase,
-  supabaseConfigured,
-  adminConfigured,
-  adminListOrders,
-  adminUpdateOrder,
-  adminListNewsletter,
-  adminDeleteNewsletter,
+  configured,
   SupabaseUnavailableError,
+  createOrder,
+  setOrderShiprocket,
+  findOrderByNumber,
+  listOrderItems,
+  insertContact,
+  upsertNewsletter,
+  insertRegistrations,
+  listOrdersWithItems,
+  updateOrder,
+  listNewsletter,
+  deleteNewsletter,
+  listContacts,
+  listRegistrations,
 };

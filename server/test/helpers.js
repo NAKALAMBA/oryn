@@ -1,40 +1,41 @@
 'use strict';
 
-// Every test file gets its own process under `node --test`, so setting this
-// here (before ../server / ../db is ever required) gives each file a fresh,
-// isolated in-memory database instead of touching the real oryn.db.
-process.env.ORYN_DB_PATH = ':memory:';
+// Test-mode flag: auth.js treats this like "local dev" (requireAdmin is a
+// no-op) so the existing admin tests can hit /api/admin/* without a token.
+// admin-auth.test.js / admin-failclosed.test.js opt out by setting their
+// own env before requiring this.
+process.env.ORYN_TEST = process.env.ORYN_TEST || '1';
 
-// Tests must never depend on (or accidentally hit) whatever real provider
-// keys happen to be sitting in the developer's local .env — dotenv only
-// fills in env vars that are still undefined, so pre-setting this to an
-// empty string here locks every test file to demo/fail-open mode regardless
-// of what's configured for local dev. email.test.js/shiprocket.test.js opt
-// back in per-test via their own explicit env values.
+// Lock every test to demo/fail-open mode regardless of the developer's
+// local .env (dotenv only fills in still-undefined vars).
 process.env.MSG91_AUTH_KEY = '';
 process.env.SHIPROCKET_EMAIL = '';
 process.env.SHIPROCKET_PASSWORD = '';
 process.env.SHIPROCKET_PICKUP_LOCATION = '';
-process.env.SUPABASE_URL = '';
-process.env.SUPABASE_ANON_KEY = '';
+
+// Supabase is the only datastore — point it at the in-memory fake.
+process.env.SUPABASE_URL = process.env.SUPABASE_URL || 'https://fake.supabase.co';
+process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'fake-service-key';
+
+const fakeSupabase = require('./fake-supabase');
+fakeSupabase.install();
 
 function startServer() {
+  fakeSupabase.reset();
   const app = require('../server');
   return new Promise(resolve => {
     const server = app.listen(0, () => {
       const port = server.address().port;
-      resolve({ server, baseUrl: `http://localhost:${port}` });
+      resolve({ server, baseUrl: `http://localhost:${port}`, fakeSupabase });
     });
   });
 }
 
-// Valid-looking Indian mobile numbers (10 digits, starts 6-9). Unique per
-// call within a test run via a millisecond timestamp tail plus a sequence
-// digit.
+// Valid-looking Indian mobile numbers (10 digits, starts 6-9), unique per call.
 let phoneSeq = 0;
 function uniquePhone() {
   phoneSeq += 1;
   return `9${String(Date.now()).slice(-8)}${phoneSeq % 10}`;
 }
 
-module.exports = { startServer, uniquePhone };
+module.exports = { startServer, uniquePhone, fakeSupabase };

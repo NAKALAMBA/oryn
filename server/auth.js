@@ -37,7 +37,7 @@ function authEnabled() {
 // The two exceptions are the test suite (isolated in-memory DB) and an
 // explicit local opt-in.
 function openWhenUnconfigured() {
-  return process.env.ORYN_DB_PATH === ':memory:' || process.env.ORYN_ADMIN_OPEN === '1';
+  return process.env.ORYN_TEST === '1' || process.env.ORYN_ADMIN_OPEN === '1';
 }
 
 function b64url(buf) {

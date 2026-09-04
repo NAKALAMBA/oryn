@@ -49,7 +49,7 @@ describe('Orders API', () => {
     assert.equal(body.subtotal, 800 * 2 + 400 * 1);
 
     const orders = await (await fetch(`${baseUrl}/api/admin/orders`)).json();
-    const created = orders.find(o => o.id === body.id);
+    const created = orders.find(o => o.order_number === body.id);
     assert.ok(created, 'order should appear in the admin listing');
     assert.equal(created.full_name, 'Priya Sharma');
     assert.equal(created.items.length, 2);
@@ -71,7 +71,7 @@ describe('Orders API', () => {
     const { id } = await res.json();
 
     const orders = await (await fetch(`${baseUrl}/api/admin/orders`)).json();
-    const created = orders.find(o => String(o.id) === String(id));
+    const created = orders.find(o => o.order_number === id);
     assert.ok(created, 'order should appear in the admin listing');
     assert.equal(created.order_status, 'Pending');
     assert.equal(created.payment_status, 'Pending');
@@ -109,7 +109,7 @@ describe('Orders API', () => {
     assert.equal(body.subtotal, 800, 'total order value should be stored correctly');
 
     const orders = await (await fetch(`${baseUrl}/api/admin/orders`)).json();
-    const created = orders.find(o => o.id === body.id);
+    const created = orders.find(o => o.order_number === body.id);
     assert.ok(created, 'order should be visible in the dashboard');
     assert.equal(created.full_name, 'Rahul Verma');
     assert.equal(created.email, 'rahul@example.com');
@@ -145,7 +145,7 @@ describe('Orders API', () => {
     assert.equal(body.subtotal, 100, 'subtotal should only count the named item (50 x 2)');
 
     const orders = await (await fetch(`${baseUrl}/api/admin/orders`)).json();
-    const created = orders.find(o => o.id === body.id);
+    const created = orders.find(o => o.order_number === body.id);
     assert.equal(created.items.length, 1, 'the empty-name item should not be stored');
     assert.equal(created.items[0].name, 'Valid Item');
   });
@@ -166,7 +166,7 @@ describe('Orders API', () => {
     assert.equal(body.subtotal, 200, 'a missing quantity should be treated as 1, not 0');
 
     const orders = await (await fetch(`${baseUrl}/api/admin/orders`)).json();
-    const created = orders.find(o => o.id === body.id);
+    const created = orders.find(o => o.order_number === body.id);
     assert.equal(created.items[0].quantity, 1, 'stored line item should also default quantity to 1');
   });
 });
