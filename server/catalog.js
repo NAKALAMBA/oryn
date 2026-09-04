@@ -43,6 +43,7 @@ const PRODUCTS = [
   ['APRICUS-BENTO', 'Apricus Bento Cake', 450, 'Flavours of India', '1 box', 'bento-apricus.html', 'All Product Images/Apricus Bento Cake/1.png'],
   ['SAANJH-BOX', 'Saanjh', 400, 'Best Sellers', 'Box of 6', 'saanjh.html', 'All Product Images/Saanjh/1.png'],
   ['BCM-350', 'Banana Cookie Melt', 350, 'Best Sellers', '350g', 'banana-cookie-melt.html', 'All Product Images/Banana Cookie Melt Loaf/1.png'],
+  ['HALFHALF-ASSORTED', '1/2 & 1/2 Cookies', 1000, 'Best Sellers', 'Box of 8', 'half-and-half-cookies.html', 'All Product Images/Half and Half Cookies/eclipse-standing.png'],
 ];
 
 function slugify(name) {
