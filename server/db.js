@@ -95,6 +95,36 @@ addMissingColumns('orders', [
   ['shiprocket_status', 'TEXT'],
   ['shiprocket_error', 'TEXT'],
   ['shiprocket_synced_at', 'TEXT'],
+  // ── Admin panel: amounts + statuses managed from /admin ──
+  // `discount` is admin-entered (0 until then). `shipping` stays NULL —
+  // "not set yet" — until an actual charge is entered, deliberately
+  // distinct from a real 0. `final_payment` = subtotal - discount +
+  // coalesce(shipping,0), recomputed on every admin edit.
+  ['discount', 'INTEGER NOT NULL DEFAULT 0'],
+  ['shipping', 'INTEGER'],
+  ['final_payment', 'INTEGER'],
+  // Payment is tracked separately from fulfilment. payment_status:
+  // 'Pending' | 'Paid'. order_status: 'Pending' | 'Completed' |
+  // 'Cancelled'. The legacy `status` column (default 'new') is left in
+  // place, untouched — new code reads/writes `order_status` only.
+  ['payment_status', "TEXT NOT NULL DEFAULT 'Pending'"],
+  ['order_status', "TEXT NOT NULL DEFAULT 'Pending'"],
 ]);
+addMissingColumns('order_items', [
+  // The human-readable variant/label for the line ("Solstice · Box of 8",
+  // "500g", …) — mirrors the cart item's `details`.
+  ['variant', 'TEXT'],
+]);
+addMissingColumns('newsletter_subscribers', [
+  ['name', 'TEXT'],
+]);
+
+// Backfill final_payment for any pre-existing rows created before these
+// columns existed (ALTER ... ADD COLUMN can't compute a per-row default).
+db.exec(`
+  UPDATE orders
+  SET final_payment = subtotal - discount + COALESCE(shipping, 0)
+  WHERE final_payment IS NULL
+`);
 
 module.exports = db;

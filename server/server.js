@@ -9,6 +9,10 @@ const email = require('./email');
 const shiprocket = require('./shiprocket');
 const catalog = require('./catalog');
 const supabase = require('./supabase');
+const auth = require('./auth');
+
+const ORDER_STATUSES = ['Pending', 'Completed', 'Cancelled'];
+const PAYMENT_STATUSES = ['Pending', 'Paid'];
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -124,19 +128,22 @@ app.post('/api/orders', async (req, res) => {
     }));
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  // discount / payment_status / order_status take their column DEFAULTs
+  // (0 / 'Pending' / 'Pending'); shipping stays NULL ("not set yet");
+  // final_payment starts equal to the subtotal.
   const insertOrder = db.prepare(`
-    INSERT INTO orders (full_name, email, phone, address, state, city, pin_code, delivery_date, product_interest, quantity_details, gift_message, cart_summary, subtotal)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO orders (full_name, email, phone, address, state, city, pin_code, delivery_date, product_interest, quantity_details, gift_message, cart_summary, subtotal, final_payment)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
-  const result = insertOrder.run(fullName, emailAddress, phone, address || null, state || null, city, pinCode || null, deliveryDate || null, product || null, quantityDetails || null, giftMessage || null, cartSummary || null, subtotal);
+  const result = insertOrder.run(fullName, emailAddress, phone, address || null, state || null, city, pinCode || null, deliveryDate || null, product || null, quantityDetails || null, giftMessage || null, cartSummary || null, subtotal, subtotal);
   const orderId = Number(result.lastInsertRowid);
 
   const insertItem = db.prepare(`
-    INSERT INTO order_items (order_id, sku, name, price, quantity, details)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO order_items (order_id, sku, name, price, quantity, details, variant)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
   const insertedItems = items.map(item => {
-    const itemResult = insertItem.run(orderId, item.sku, item.name, item.price, item.quantity, item.details);
+    const itemResult = insertItem.run(orderId, item.sku, item.name, item.price, item.quantity, item.details, item.details);
     return { ...item, id: Number(itemResult.lastInsertRowid) };
   });
 
@@ -241,18 +248,34 @@ app.post('/api/contact', (req, res) => {
 });
 
 /* ── Newsletter signup (footer form, every page) ── */
-app.post('/api/newsletter', (req, res) => {
-  const { email, sourcePage } = req.body || {};
+app.post('/api/newsletter', async (req, res) => {
+  const { name, email, sourcePage } = req.body || {};
 
   if (!isNonEmptyString(email)) {
     return res.status(400).json({ error: 'email is required.' });
   }
 
-  const insert = db.prepare(`
-    INSERT OR IGNORE INTO newsletter_subscribers (email, source_page)
-    VALUES (?, ?)
-  `);
-  insert.run(email, sourcePage || null);
+  const cleanName = isNonEmptyString(name) ? name.trim() : null;
+
+  // INSERT OR IGNORE keeps repeat signups idempotent; a follow-up UPDATE
+  // fills in a name if we now have one and didn't before.
+  db.prepare(`
+    INSERT OR IGNORE INTO newsletter_subscribers (name, email, source_page)
+    VALUES (?, ?, ?)
+  `).run(cleanName, email, sourcePage || null);
+  if (cleanName) {
+    db.prepare(`UPDATE newsletter_subscribers SET name = ? WHERE email = ? AND (name IS NULL OR name = '')`).run(cleanName, email);
+  }
+
+  // Durable backup (fail-open — never block a signup over the backup).
+  try {
+    await supabase.saveNewsletterToSupabase({ name: cleanName, email, sourcePage });
+  } catch (err) {
+    if (!(err instanceof supabase.SupabaseUnavailableError)) {
+      console.error('[newsletter] unexpected Supabase error:', err.message);
+    }
+  }
+
   res.status(201).json({ email });
 });
 
@@ -282,20 +305,246 @@ app.post('/api/registrations', (req, res) => {
   res.status(201).json({ groupId, attendeeCount: list.length });
 });
 
-/* ── Admin read endpoints (local dashboard use) ── */
-app.get('/api/admin/orders', (req, res) => {
+/* ── Admin panel (/admin) ──────────────────────────────────────────────
+   Auth: one shared password (ADMIN_PASSWORD) is swapped for a signed
+   token via /api/admin/login; every other /api/admin/* route then
+   requires `Authorization: Bearer <token>`. When ADMIN_PASSWORD is unset
+   (local dev, tests) auth is a no-op — see auth.js.
+
+   Data source: Supabase when a service-role key is configured (durable —
+   survives Render's periodic local-disk resets), otherwise local SQLite.
+   Filtering happens here so the table and the Excel export are always
+   built from the exact same set of rows. */
+
+function toInt(value, fallback = 0) {
+  const n = Math.trunc(Number(value));
+  return Number.isFinite(n) ? n : fallback;
+}
+
+// Normalise one order row (SQLite or Supabase) + recompute derived money.
+function shapeOrder(order) {
+  const subtotal = toInt(order.subtotal, 0);
+  const discount = toInt(order.discount, 0);
+  const shipping = (order.shipping === null || order.shipping === undefined || order.shipping === '')
+    ? null : toInt(order.shipping, 0);
+  const items = (order.items || []).map(it => ({
+    id: it.id,
+    sku: it.sku || null,
+    name: it.name,
+    quantity: toInt(it.quantity, 1),
+    price: toInt(it.price, 0),
+    variant: it.variant || it.details || null,
+    details: it.details || null,
+  }));
+  // Spread the raw row first so passthrough columns (shiprocket_*, legacy
+  // `status`, etc.) survive, then override with the normalised/derived
+  // admin fields.
+  return {
+    ...order,
+    subtotal,
+    discount,
+    shipping,
+    final_payment: subtotal - discount + (shipping || 0),
+    payment_status: PAYMENT_STATUSES.includes(order.payment_status) ? order.payment_status : 'Pending',
+    order_status: ORDER_STATUSES.includes(order.order_status) ? order.order_status : 'Pending',
+    items,
+  };
+}
+
+// created_at comes back as "YYYY-MM-DD HH:MM:SS" (SQLite) or ISO
+// "YYYY-MM-DDTHH:MM:SS...Z" (Supabase) — the first 10 chars are the date
+// in both, which is all the start/end filter needs.
+function orderDateKey(order) {
+  return String(order.created_at || '').slice(0, 10);
+}
+
+function filterOrders(orders, query) {
+  const start = isNonEmptyString(query.start) ? query.start.slice(0, 10) : null;
+  const end = isNonEmptyString(query.end) ? query.end.slice(0, 10) : null;
+  const orderStatus = isNonEmptyString(query.orderStatus) && query.orderStatus !== 'all' ? query.orderStatus : null;
+  const paymentStatus = isNonEmptyString(query.paymentStatus) && query.paymentStatus !== 'all' ? query.paymentStatus : null;
+  const q = isNonEmptyString(query.q) ? query.q.trim().toLowerCase() : null;
+
+  return orders.filter(o => {
+    const day = orderDateKey(o);
+    if (start && day < start) return false;
+    if (end && day > end) return false;
+    if (orderStatus && o.order_status !== orderStatus) return false;
+    if (paymentStatus && o.payment_status !== paymentStatus) return false;
+    if (q) {
+      const haystack = [
+        o.full_name, o.email, o.phone, o.city, o.product_interest,
+        ...o.items.map(i => `${i.name} ${i.variant || ''}`),
+      ].join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function readOrdersFromSqlite() {
   const orders = db.prepare('SELECT * FROM orders ORDER BY id DESC').all();
   const itemsStmt = db.prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id');
-  const withItems = orders.map(order => ({ ...order, items: itemsStmt.all(order.id) }));
-  res.json(withItems);
+  return orders.map(order => ({ ...order, items: itemsStmt.all(order.id) }));
+}
+
+app.post('/api/admin/login', async (req, res) => {
+  const password = String((req.body && req.body.password) || '');
+  const result = auth.login(password);
+  if (result.ok) {
+    return res.json({ token: result.token });
+  }
+  // Constant-ish delay so a wrong password can't be timed, and a generic
+  // message regardless of reason.
+  await new Promise(r => setTimeout(r, 400));
+  if (result.reason === 'disabled') {
+    return res.status(200).json({ token: null, authDisabled: true });
+  }
+  return res.status(401).json({ error: 'Incorrect password.' });
+});
+
+app.use('/api/admin', auth.requireAdmin);
+
+app.get('/api/admin/orders', async (req, res) => {
+  let source = 'sqlite';
+  let raw;
+  if (supabase.adminConfigured()) {
+    try {
+      raw = await supabase.adminListOrders();
+      source = 'supabase';
+    } catch (err) {
+      console.warn('[admin/orders] Supabase read failed, falling back to SQLite:', err.message);
+      raw = readOrdersFromSqlite();
+    }
+  } else {
+    raw = readOrdersFromSqlite();
+  }
+  const shaped = raw.map(shapeOrder);
+  const filtered = filterOrders(shaped, req.query);
+  res.set('X-Oryn-Data-Source', source);
+  res.json(filtered);
+});
+
+app.patch('/api/admin/orders/:id', async (req, res) => {
+  const { order_status, payment_status, discount, shipping } = req.body || {};
+  const patch = {};
+
+  if (order_status !== undefined) {
+    if (!ORDER_STATUSES.includes(order_status)) {
+      return res.status(400).json({ error: `order_status must be one of: ${ORDER_STATUSES.join(', ')}` });
+    }
+    patch.order_status = order_status;
+  }
+  if (payment_status !== undefined) {
+    if (!PAYMENT_STATUSES.includes(payment_status)) {
+      return res.status(400).json({ error: `payment_status must be one of: ${PAYMENT_STATUSES.join(', ')}` });
+    }
+    patch.payment_status = payment_status;
+  }
+  if (discount !== undefined) {
+    const d = toInt(discount, NaN);
+    if (!Number.isFinite(d) || d < 0) return res.status(400).json({ error: 'discount must be a non-negative number.' });
+    patch.discount = d;
+  }
+  if (shipping !== undefined) {
+    if (shipping === null || shipping === '') {
+      patch.shipping = null;
+    } else {
+      const s = toInt(shipping, NaN);
+      if (!Number.isFinite(s) || s < 0) return res.status(400).json({ error: 'shipping must be a non-negative number, or blank.' });
+      patch.shipping = s;
+    }
+  }
+
+  if (Object.keys(patch).length === 0) {
+    return res.status(400).json({ error: 'Nothing to update.' });
+  }
+
+  // Local SQLite row (also the fallback source of `subtotal` for the
+  // final_payment recompute).
+  const localId = Number(req.params.id);
+  const localRow = Number.isInteger(localId) ? db.prepare('SELECT * FROM orders WHERE id = ?').get(localId) : null;
+
+  let updated = null;
+
+  if (supabase.adminConfigured()) {
+    try {
+      // Recompute final_payment from the row's current values + this patch.
+      const current = await supabase.adminListOrders();
+      const target = current.find(o => String(o.id) === String(req.params.id));
+      if (!target) return res.status(404).json({ error: 'Order not found.' });
+      const nextDiscount = patch.discount ?? toInt(target.discount, 0);
+      const nextShipping = patch.shipping !== undefined ? patch.shipping
+        : (target.shipping === null || target.shipping === undefined ? null : toInt(target.shipping, 0));
+      patch.final_payment = toInt(target.subtotal, 0) - nextDiscount + (nextShipping || 0);
+      updated = shapeOrder({ ...target, ...patch, items: target.items || [] });
+      await supabase.adminUpdateOrder(req.params.id, patch);
+    } catch (err) {
+      console.warn('[admin/orders PATCH] Supabase update failed:', err.message);
+      if (!localRow) return res.status(502).json({ error: 'Could not update the order.' });
+    }
+  }
+
+  if (localRow) {
+    const nextDiscount = patch.discount ?? toInt(localRow.discount, 0);
+    const nextShipping = patch.shipping !== undefined ? patch.shipping
+      : (localRow.shipping === null || localRow.shipping === undefined ? null : toInt(localRow.shipping, 0));
+    const finalPayment = toInt(localRow.subtotal, 0) - nextDiscount + (nextShipping || 0);
+    const sets = [];
+    const vals = [];
+    for (const [k, v] of Object.entries(patch)) {
+      if (k === 'final_payment') continue;
+      sets.push(`${k} = ?`); vals.push(v);
+    }
+    sets.push('final_payment = ?'); vals.push(finalPayment);
+    vals.push(localRow.id);
+    db.prepare(`UPDATE orders SET ${sets.join(', ')} WHERE id = ?`).run(...vals);
+    const fresh = db.prepare('SELECT * FROM orders WHERE id = ?').get(localRow.id);
+    const items = db.prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id').all(localRow.id);
+    if (!updated) updated = shapeOrder({ ...fresh, items });
+  }
+
+  if (!updated) return res.status(404).json({ error: 'Order not found.' });
+  res.json(updated);
+});
+
+app.get('/api/admin/newsletter', async (req, res) => {
+  let rows;
+  if (supabase.adminConfigured()) {
+    try {
+      rows = await supabase.adminListNewsletter();
+    } catch (err) {
+      console.warn('[admin/newsletter] Supabase read failed, falling back to SQLite:', err.message);
+      rows = db.prepare('SELECT * FROM newsletter_subscribers ORDER BY id DESC').all();
+    }
+  } else {
+    rows = db.prepare('SELECT * FROM newsletter_subscribers ORDER BY id DESC').all();
+  }
+  const q = isNonEmptyString(req.query.q) ? req.query.q.trim().toLowerCase() : null;
+  const shaped = rows
+    .map(r => ({ id: r.id, name: r.name || null, email: r.email, created_at: r.created_at, source_page: r.source_page || null }))
+    .filter(r => !q || `${r.name || ''} ${r.email}`.toLowerCase().includes(q));
+  res.json(shaped);
+});
+
+app.delete('/api/admin/newsletter/:id', async (req, res) => {
+  const localId = Number(req.params.id);
+  if (Number.isInteger(localId)) {
+    db.prepare('DELETE FROM newsletter_subscribers WHERE id = ?').run(localId);
+  }
+  if (supabase.adminConfigured()) {
+    try {
+      await supabase.adminDeleteNewsletter(req.params.id);
+    } catch (err) {
+      console.warn('[admin/newsletter DELETE] Supabase delete failed:', err.message);
+      return res.status(502).json({ error: 'Could not remove that subscriber.' });
+    }
+  }
+  res.json({ ok: true });
 });
 
 app.get('/api/admin/contacts', (req, res) => {
   res.json(db.prepare('SELECT * FROM contact_messages ORDER BY id DESC').all());
-});
-
-app.get('/api/admin/newsletter', (req, res) => {
-  res.json(db.prepare('SELECT * FROM newsletter_subscribers ORDER BY id DESC').all());
 });
 
 app.get('/api/admin/registrations', (req, res) => {
@@ -307,7 +556,9 @@ app.get('/api/health', (req, res) => res.json({ ok: true }));
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Oryn server running at http://localhost:${PORT}`);
-    console.log(`Admin dashboard: open admin-dashboard/index.html and point its API URL at this address.`);
+    console.log(`Admin panel: http://localhost:${PORT}/admin-dashboard/  (in production it's served at /admin)`);
+    if (!process.env.ADMIN_PASSWORD) console.log('  ⚠  ADMIN_PASSWORD is not set — the admin panel is currently open (no login).');
+    if (!supabase.adminConfigured()) console.log('  ⓘ  SUPABASE_SERVICE_ROLE_KEY not set — admin reads from local SQLite (resets on restart).');
   });
 }
 

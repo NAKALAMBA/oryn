@@ -720,6 +720,7 @@ footer {
 }
 .ft-signup-form {
   display: flex;
+  flex-wrap: wrap;
   border: 1px solid rgba(255, 255, 255, 0.3);
   max-width: 300px;
 }
@@ -733,6 +734,11 @@ footer {
   font-size: 0.85rem;
   color: var(--white);
   outline: none;
+}
+/* Name sits on its own row above the email + button. */
+.ft-signup-form input[name="ft-name"] {
+  flex: 1 1 100%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 .ft-signup-form input::placeholder {
   color: rgba(255, 255, 255, 0.4);

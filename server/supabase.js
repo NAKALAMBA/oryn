@@ -21,11 +21,21 @@ const crypto = require('node:crypto');
 // rather than silently writing to a real, shared Supabase project.
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+// Service-role key: bypasses Row Level Security so the admin panel can
+// READ / UPDATE / DELETE order + newsletter data that the anon key is
+// deliberately only allowed to INSERT. Server-side only — never sent to
+// the browser. When unset, the admin endpoints fall back to local SQLite.
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 class SupabaseUnavailableError extends Error {}
 
 function supabaseConfigured() {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+}
+
+// Whether the admin panel can use Supabase as its durable data source.
+function adminConfigured() {
+  return Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
 }
 
 async function insertRows(table, rows) {
@@ -80,6 +90,12 @@ async function saveOrderToSupabase(order, items) {
     gift_message: order.gift_message || null,
     cart_summary: order.cart_summary || null,
     subtotal: order.subtotal,
+    // Admin-panel fields — same starting state as the local SQLite row.
+    discount: 0,
+    shipping: null,
+    final_payment: order.subtotal,
+    payment_status: 'Pending',
+    order_status: 'Pending',
   }]);
 
   if (Array.isArray(items) && items.length) {
@@ -91,10 +107,91 @@ async function saveOrderToSupabase(order, items) {
       price: item.price,
       quantity: item.quantity,
       details: item.details || null,
+      variant: item.details || null,
     })));
   }
 
   return { supabaseOrderId };
 }
 
-module.exports = { saveOrderToSupabase, supabaseConfigured, SupabaseUnavailableError };
+// Durable copy of a newsletter signup. Fail-open, same as the order path.
+async function saveNewsletterToSupabase({ name, email, sourcePage }) {
+  await insertRows('newsletter_subscribers', [{
+    name: name || null,
+    email,
+    source_page: sourcePage || null,
+  }]);
+}
+
+/* ── Admin (service-role) reads & writes ────────────────────────────────
+   These bypass RLS. `adminConfigured()` gates every call site; when it's
+   false the server uses local SQLite instead. Errors surface as
+   SupabaseUnavailableError so callers can fall back rather than 500. */
+
+async function serviceFetch(pathAndQuery, init = {}) {
+  if (!adminConfigured()) {
+    throw new SupabaseUnavailableError('Supabase admin access is not configured (missing SUPABASE_SERVICE_ROLE_KEY).');
+  }
+  let res;
+  try {
+    res = await fetch(`${SUPABASE_URL}/rest/v1/${pathAndQuery}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        ...(init.headers || {}),
+      },
+    });
+  } catch (err) {
+    throw new SupabaseUnavailableError(`Supabase admin request failed: ${err.message}`);
+  }
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new SupabaseUnavailableError(`Supabase admin request failed (HTTP ${res.status}): ${text}`);
+  }
+  if (res.status === 204) return null;
+  return res.json().catch(() => null);
+}
+
+// Every order + its items, newest first. Filtering is done in server.js so
+// the exact same set powers the table and the Excel export.
+async function adminListOrders() {
+  const orders = await serviceFetch('orders?select=*&order=created_at.desc');
+  const items = await serviceFetch('order_items?select=*');
+  const byOrder = new Map();
+  for (const it of (items || [])) {
+    if (!byOrder.has(it.order_id)) byOrder.set(it.order_id, []);
+    byOrder.get(it.order_id).push(it);
+  }
+  return (orders || []).map(o => ({ ...o, items: byOrder.get(o.id) || [] }));
+}
+
+async function adminUpdateOrder(id, patch) {
+  const rows = await serviceFetch(`orders?id=eq.${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify(patch),
+  });
+  return Array.isArray(rows) ? rows[0] : rows;
+}
+
+async function adminListNewsletter() {
+  return (await serviceFetch('newsletter_subscribers?select=*&order=created_at.desc')) || [];
+}
+
+async function adminDeleteNewsletter(id) {
+  await serviceFetch(`newsletter_subscribers?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+module.exports = {
+  saveOrderToSupabase,
+  saveNewsletterToSupabase,
+  supabaseConfigured,
+  adminConfigured,
+  adminListOrders,
+  adminUpdateOrder,
+  adminListNewsletter,
+  adminDeleteNewsletter,
+  SupabaseUnavailableError,
+};
