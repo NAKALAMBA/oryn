@@ -4,7 +4,6 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const express = require('express');
 const cors = require('cors');
-const db = require('./db');
 const email = require('./email');
 const shiprocket = require('./shiprocket');
 const catalog = require('./catalog');
@@ -128,69 +127,49 @@ app.post('/api/orders', async (req, res) => {
     }));
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // discount / payment_status / order_status take their column DEFAULTs
-  // (0 / 'Pending' / 'Pending'); shipping stays NULL ("not set yet");
-  // final_payment starts equal to the subtotal.
-  const insertOrder = db.prepare(`
-    INSERT INTO orders (full_name, email, phone, address, state, city, pin_code, delivery_date, product_interest, quantity_details, gift_message, cart_summary, subtotal, final_payment)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  const result = insertOrder.run(fullName, emailAddress, phone, address || null, state || null, city, pinCode || null, deliveryDate || null, product || null, quantityDetails || null, giftMessage || null, cartSummary || null, subtotal, subtotal);
-  const orderId = Number(result.lastInsertRowid);
+  // Single source of truth: Supabase. discount/shipping/final_payment/
+  // payment_status/order_status start at their defaults (0 / null /
+  // subtotal / Pending / Pending) — see server/supabase.js.
+  let created;
+  try {
+    created = await supabase.createOrder(
+      { full_name: fullName, email: emailAddress, phone, address, state, city, pin_code: pinCode, delivery_date: deliveryDate, product_interest: product, quantity_details: quantityDetails, gift_message: giftMessage, cart_summary: cartSummary, subtotal },
+      items
+    );
+  } catch (err) {
+    console.error('[orders] could not save order:', err.message);
+    return res.status(502).json({ error: "We couldn't save your order just now. Please try again in a moment, or reach us on Instagram @oryn.patisserie." });
+  }
 
-  const insertItem = db.prepare(`
-    INSERT INTO order_items (order_id, sku, name, price, quantity, details, variant)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
-  const insertedItems = items.map(item => {
-    const itemResult = insertItem.run(orderId, item.sku, item.name, item.price, item.quantity, item.details, item.details);
-    return { ...item, id: Number(itemResult.lastInsertRowid) };
-  });
+  const orderNumber = created.order_number;
 
   /* ── Shiprocket: stage the shipment immediately. Fails open — a shipping
-     partner hiccup never loses or blocks a real customer order; failures
-     are recorded on the order row so the admin dashboard can surface and
-     retry them. ── */
+     partner hiccup never loses or blocks a real customer order; the
+     failure is recorded on the order row for the admin dashboard. ── */
   try {
     const shiprocketOrder = await shiprocket.createShiprocketOrder(
-      { id: orderId, full_name: fullName, email: emailAddress, phone, address, city, pin_code: pinCode, state, subtotal },
-      insertedItems
+      { id: orderNumber, full_name: fullName, email: emailAddress, phone, address, city, pin_code: pinCode, state, subtotal },
+      created.items
     );
-    db.prepare(`
-      UPDATE orders SET shiprocket_order_id = ?, shiprocket_shipment_id = ?, shiprocket_status = ?, shiprocket_synced_at = datetime('now')
-      WHERE id = ?
-    `).run(shiprocketOrder.shiprocketOrderId, shiprocketOrder.shipmentId, shiprocketOrder.status, orderId);
+    await supabase.setOrderShiprocket(created.id, {
+      shiprocket_order_id: shiprocketOrder.shiprocketOrderId,
+      shiprocket_shipment_id: shiprocketOrder.shipmentId,
+      shiprocket_status: shiprocketOrder.status,
+    });
   } catch (err) {
     if (!(err instanceof shiprocket.ShiprocketUnavailableError)) {
       console.error('[orders] unexpected Shiprocket error:', err.message);
     } else {
-      console.warn(`[orders] Shiprocket sync failed for order ${orderId}: ${err.message}`);
+      console.warn(`[orders] Shiprocket sync failed for order ${orderNumber}: ${err.message}`);
     }
-    db.prepare(`
-      UPDATE orders SET shiprocket_status = 'failed', shiprocket_error = ?, shiprocket_synced_at = datetime('now')
-      WHERE id = ?
-    `).run(err.message, orderId);
-  }
-
-  /* ── Supabase: durable backup copy. The local SQLite file is NOT
-     persistent on hosts without a disk add-on (e.g. Render's free tier
-     resets it on every restart) — this gives every order a second,
-     always-on home. Fails open, same as Shiprocket above: a Supabase
-     hiccup never blocks or loses a real customer order. ── */
-  try {
-    await supabase.saveOrderToSupabase(
-      { full_name: fullName, email: emailAddress, phone, address, state, city, pin_code: pinCode, delivery_date: deliveryDate, product_interest: product, quantity_details: quantityDetails, gift_message: giftMessage, cart_summary: cartSummary, subtotal },
-      insertedItems
-    );
-  } catch (err) {
-    if (!(err instanceof supabase.SupabaseUnavailableError)) {
-      console.error('[orders] unexpected Supabase error:', err.message);
-    } else {
-      console.warn(`[orders] Supabase backup failed for order ${orderId}: ${err.message}`);
+    try {
+      await supabase.setOrderShiprocket(created.id, { shiprocket_status: 'failed', shiprocket_error: err.message });
+    } catch (e) {
+      console.warn(`[orders] could not record Shiprocket failure for order ${orderNumber}: ${e.message}`);
     }
   }
 
-  res.status(201).json({ id: orderId, subtotal });
+  res.status(201).json({ id: orderNumber, subtotal });
 });
 
 /* ── Order tracking (track-order.html) — order ID + phone number proves
@@ -198,53 +177,62 @@ app.post('/api/orders', async (req, res) => {
    same generic "not found" error regardless of which part was wrong, so a
    guess-the-order-id attempt can't be used to enumerate real orders. ── */
 app.post('/api/orders/track', async (req, res) => {
-  const orderId = Number(req.body && req.body.orderId);
+  const orderNumber = Number(req.body && req.body.orderId);
   const phone = normalizePhone(req.body && req.body.phone);
-  if (!Number.isInteger(orderId) || orderId <= 0 || !phone) {
+  if (!Number.isInteger(orderNumber) || orderNumber <= 0 || !phone) {
     return res.status(400).json({ error: 'Please enter both your Order ID and phone number.' });
   }
 
-  const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
+  let order, items;
+  try {
+    order = await supabase.findOrderByNumber(orderNumber);
+    if (order && normalizePhone(order.phone) === phone) {
+      items = await supabase.listOrderItems(order.id);
+    }
+  } catch (err) {
+    console.error('[orders/track] lookup failed:', err.message);
+    return res.status(502).json({ error: 'Order tracking is temporarily unavailable. Please try again shortly.' });
+  }
+
   if (!order || normalizePhone(order.phone) !== phone) {
     return res.status(404).json({ error: "We couldn't find an order with that ID and phone number. Please double-check both." });
   }
 
-  const items = db.prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id').all(orderId);
-
-  let tracking = { status: order.shiprocket_shipment_id ? 'Not yet dispatched' : 'Not yet dispatched', activities: [] };
+  let tracking = { status: 'Not yet dispatched', activities: [] };
   if (order.shiprocket_shipment_id) {
     try {
       tracking = await shiprocket.trackShipment(order.shiprocket_shipment_id);
     } catch (err) {
-      console.warn(`[orders/track] tracking lookup failed for order ${orderId}: ${err.message}`);
+      console.warn(`[orders/track] tracking lookup failed for order ${orderNumber}: ${err.message}`);
       tracking = { status: 'Shipment status temporarily unavailable — please check again shortly.', activities: [] };
     }
   }
 
   res.json({
-    id: order.id,
+    id: order.order_number,
     createdAt: order.created_at,
     city: order.city,
     subtotal: order.subtotal,
-    items: items.map(item => ({ name: item.name, quantity: item.quantity, price: item.price })),
+    items: (items || []).map(item => ({ name: item.name, quantity: item.quantity, price: item.price })),
     tracking,
   });
 });
 
 /* ── Contact form (contact.html) ── */
-app.post('/api/contact', (req, res) => {
+app.post('/api/contact', async (req, res) => {
   const { fullName, email, phone, subject, message } = req.body || {};
 
   if (!isNonEmptyString(fullName) || !isNonEmptyString(email) || !isNonEmptyString(phone) || !isNonEmptyString(message)) {
     return res.status(400).json({ error: 'fullName, email, phone and message are required.' });
   }
 
-  const insert = db.prepare(`
-    INSERT INTO contact_messages (full_name, email, phone, subject, message)
-    VALUES (?, ?, ?, ?, ?)
-  `);
-  const result = insert.run(fullName, email, phone, subject || null, message);
-  res.status(201).json({ id: Number(result.lastInsertRowid) });
+  try {
+    const row = await supabase.insertContact({ full_name: fullName, email, phone, subject, message });
+    res.status(201).json({ id: row.id });
+  } catch (err) {
+    console.error('[contact] could not save message:', err.message);
+    res.status(502).json({ error: "We couldn't send this just now. Please try again, or reach us on Instagram @oryn.patisserie." });
+  }
 });
 
 /* ── Newsletter signup (footer form, every page) ── */
@@ -257,31 +245,18 @@ app.post('/api/newsletter', async (req, res) => {
 
   const cleanName = isNonEmptyString(name) ? name.trim() : null;
 
-  // INSERT OR IGNORE keeps repeat signups idempotent; a follow-up UPDATE
-  // fills in a name if we now have one and didn't before.
-  db.prepare(`
-    INSERT OR IGNORE INTO newsletter_subscribers (name, email, source_page)
-    VALUES (?, ?, ?)
-  `).run(cleanName, email, sourcePage || null);
-  if (cleanName) {
-    db.prepare(`UPDATE newsletter_subscribers SET name = ? WHERE email = ? AND (name IS NULL OR name = '')`).run(cleanName, email);
-  }
-
-  // Durable backup (fail-open — never block a signup over the backup).
   try {
-    await supabase.saveNewsletterToSupabase({ name: cleanName, email, sourcePage });
+    await supabase.upsertNewsletter({ name: cleanName, email, sourcePage });
+    res.status(201).json({ email });
   } catch (err) {
-    if (!(err instanceof supabase.SupabaseUnavailableError)) {
-      console.error('[newsletter] unexpected Supabase error:', err.message);
-    }
+    console.error('[newsletter] could not save signup:', err.message);
+    res.status(502).json({ error: "Couldn't sign you up just now — please try again shortly." });
   }
-
-  res.status(201).json({ email });
 });
 
 /* ── Event registrations (Noida-registration.html) ── */
-app.post('/api/registrations', (req, res) => {
-  const { guestCount, attendees } = req.body || {};
+app.post('/api/registrations', async (req, res) => {
+  const { guestCount, attendees, eventName } = req.body || {};
   const list = Array.isArray(attendees) ? attendees : [];
 
   if (!list.length) {
@@ -294,15 +269,26 @@ app.post('/api/registrations', (req, res) => {
   }
 
   const groupId = crypto.randomUUID();
-  const insert = db.prepare(`
-    INSERT INTO event_registrations (group_id, guest_count, full_name, email, phone, city, allergies, notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  for (const attendee of list) {
-    insert.run(groupId, Number(guestCount) || list.length, attendee.fullName, attendee.email, attendee.phone, attendee.city || null, attendee.allergies || null, attendee.notes || null);
-  }
+  const guests = Number(guestCount) || list.length;
+  const rows = list.map(attendee => ({
+    group_id: groupId,
+    event_name: eventName || null,
+    guest_count: guests,
+    full_name: attendee.fullName,
+    email: attendee.email,
+    phone: attendee.phone,
+    city: attendee.city || null,
+    allergies: attendee.allergies || null,
+    notes: attendee.notes || null,
+  }));
 
-  res.status(201).json({ groupId, attendeeCount: list.length });
+  try {
+    await supabase.insertRegistrations(rows);
+    res.status(201).json({ groupId, attendeeCount: list.length });
+  } catch (err) {
+    console.error('[registrations] could not save:', err.message);
+    res.status(502).json({ error: "We couldn't save your registration just now. Please try again shortly." });
+  }
 });
 
 /* ── Admin panel (/admin) ──────────────────────────────────────────────
@@ -311,17 +297,15 @@ app.post('/api/registrations', (req, res) => {
    requires `Authorization: Bearer <token>`. When ADMIN_PASSWORD is unset
    (local dev, tests) auth is a no-op — see auth.js.
 
-   Data source: Supabase when a service-role key is configured (durable —
-   survives Render's periodic local-disk resets), otherwise local SQLite.
-   Filtering happens here so the table and the Excel export are always
-   built from the exact same set of rows. */
+   Data source: Supabase (the only store). Filtering happens here so the
+   table and the Excel export are always built from the exact same rows. */
 
 function toInt(value, fallback = 0) {
   const n = Math.trunc(Number(value));
   return Number.isFinite(n) ? n : fallback;
 }
 
-// Normalise one order row (SQLite or Supabase) + recompute derived money.
+// Normalise one Supabase order row + recompute derived money.
 function shapeOrder(order) {
   const subtotal = toInt(order.subtotal, 0);
   const discount = toInt(order.discount, 0);
@@ -351,9 +335,8 @@ function shapeOrder(order) {
   };
 }
 
-// created_at comes back as "YYYY-MM-DD HH:MM:SS" (SQLite) or ISO
-// "YYYY-MM-DDTHH:MM:SS...Z" (Supabase) — the first 10 chars are the date
-// in both, which is all the start/end filter needs.
+// created_at is ISO "YYYY-MM-DDTHH:MM:SS...Z" — the first 10 chars are the
+// date, which is all the start/end filter needs.
 function orderDateKey(order) {
   return String(order.created_at || '').slice(0, 10);
 }
@@ -373,19 +356,13 @@ function filterOrders(orders, query) {
     if (paymentStatus && o.payment_status !== paymentStatus) return false;
     if (q) {
       const haystack = [
-        o.full_name, o.email, o.phone, o.city, o.product_interest,
+        o.order_number, o.full_name, o.email, o.phone, o.city, o.product_interest,
         ...o.items.map(i => `${i.name} ${i.variant || ''}`),
       ].join(' ').toLowerCase();
       if (!haystack.includes(q)) return false;
     }
     return true;
   });
-}
-
-function readOrdersFromSqlite() {
-  const orders = db.prepare('SELECT * FROM orders ORDER BY id DESC').all();
-  const itemsStmt = db.prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id');
-  return orders.map(order => ({ ...order, items: itemsStmt.all(order.id) }));
 }
 
 app.post('/api/admin/login', async (req, res) => {
@@ -410,23 +387,15 @@ app.post('/api/admin/login', async (req, res) => {
 app.use('/api/admin', auth.requireAdmin);
 
 app.get('/api/admin/orders', async (req, res) => {
-  let source = 'sqlite';
   let raw;
-  if (supabase.adminConfigured()) {
-    try {
-      raw = await supabase.adminListOrders();
-      source = 'supabase';
-    } catch (err) {
-      console.warn('[admin/orders] Supabase read failed, falling back to SQLite:', err.message);
-      raw = readOrdersFromSqlite();
-    }
-  } else {
-    raw = readOrdersFromSqlite();
+  try {
+    raw = await supabase.listOrdersWithItems();
+  } catch (err) {
+    console.error('[admin/orders] Supabase read failed:', err.message);
+    return res.status(502).json({ error: 'Could not load orders from the database.' });
   }
   const shaped = raw.map(shapeOrder);
-  const filtered = filterOrders(shaped, req.query);
-  res.set('X-Oryn-Data-Source', source);
-  res.json(filtered);
+  res.json(filterOrders(shaped, req.query));
 });
 
 app.patch('/api/admin/orders/:id', async (req, res) => {
@@ -464,65 +433,44 @@ app.patch('/api/admin/orders/:id', async (req, res) => {
     return res.status(400).json({ error: 'Nothing to update.' });
   }
 
-  // Local SQLite row (also the fallback source of `subtotal` for the
-  // final_payment recompute).
-  const localId = Number(req.params.id);
-  const localRow = Number.isInteger(localId) ? db.prepare('SELECT * FROM orders WHERE id = ?').get(localId) : null;
+  // :id may be the order's uuid (what the admin table sends) or its
+  // sequential order_number.
+  const id = String(req.params.id);
+  let target, items;
+  try {
+    const all = await supabase.listOrdersWithItems();
+    const found = all.find(o => String(o.id) === id || String(o.order_number) === id);
+    target = found;
+    items = found && found.items;
+  } catch (err) {
+    console.error('[admin/orders PATCH] read failed:', err.message);
+    return res.status(502).json({ error: 'Could not update the order.' });
+  }
+  if (!target) return res.status(404).json({ error: 'Order not found.' });
 
-  let updated = null;
+  // Recompute final_payment from the row's current values + this patch.
+  const nextDiscount = patch.discount ?? toInt(target.discount, 0);
+  const nextShipping = patch.shipping !== undefined ? patch.shipping
+    : (target.shipping === null || target.shipping === undefined ? null : toInt(target.shipping, 0));
+  patch.final_payment = toInt(target.subtotal, 0) - nextDiscount + (nextShipping || 0);
 
-  if (supabase.adminConfigured()) {
-    try {
-      // Recompute final_payment from the row's current values + this patch.
-      const current = await supabase.adminListOrders();
-      const target = current.find(o => String(o.id) === String(req.params.id));
-      if (!target) return res.status(404).json({ error: 'Order not found.' });
-      const nextDiscount = patch.discount ?? toInt(target.discount, 0);
-      const nextShipping = patch.shipping !== undefined ? patch.shipping
-        : (target.shipping === null || target.shipping === undefined ? null : toInt(target.shipping, 0));
-      patch.final_payment = toInt(target.subtotal, 0) - nextDiscount + (nextShipping || 0);
-      updated = shapeOrder({ ...target, ...patch, items: target.items || [] });
-      await supabase.adminUpdateOrder(req.params.id, patch);
-    } catch (err) {
-      console.warn('[admin/orders PATCH] Supabase update failed:', err.message);
-      if (!localRow) return res.status(502).json({ error: 'Could not update the order.' });
-    }
+  try {
+    await supabase.updateOrder(target.id, patch);
+  } catch (err) {
+    console.error('[admin/orders PATCH] update failed:', err.message);
+    return res.status(502).json({ error: 'Could not update the order.' });
   }
 
-  if (localRow) {
-    const nextDiscount = patch.discount ?? toInt(localRow.discount, 0);
-    const nextShipping = patch.shipping !== undefined ? patch.shipping
-      : (localRow.shipping === null || localRow.shipping === undefined ? null : toInt(localRow.shipping, 0));
-    const finalPayment = toInt(localRow.subtotal, 0) - nextDiscount + (nextShipping || 0);
-    const sets = [];
-    const vals = [];
-    for (const [k, v] of Object.entries(patch)) {
-      if (k === 'final_payment') continue;
-      sets.push(`${k} = ?`); vals.push(v);
-    }
-    sets.push('final_payment = ?'); vals.push(finalPayment);
-    vals.push(localRow.id);
-    db.prepare(`UPDATE orders SET ${sets.join(', ')} WHERE id = ?`).run(...vals);
-    const fresh = db.prepare('SELECT * FROM orders WHERE id = ?').get(localRow.id);
-    const items = db.prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id').all(localRow.id);
-    if (!updated) updated = shapeOrder({ ...fresh, items });
-  }
-
-  if (!updated) return res.status(404).json({ error: 'Order not found.' });
-  res.json(updated);
+  res.json(shapeOrder({ ...target, ...patch, items: items || [] }));
 });
 
 app.get('/api/admin/newsletter', async (req, res) => {
   let rows;
-  if (supabase.adminConfigured()) {
-    try {
-      rows = await supabase.adminListNewsletter();
-    } catch (err) {
-      console.warn('[admin/newsletter] Supabase read failed, falling back to SQLite:', err.message);
-      rows = db.prepare('SELECT * FROM newsletter_subscribers ORDER BY id DESC').all();
-    }
-  } else {
-    rows = db.prepare('SELECT * FROM newsletter_subscribers ORDER BY id DESC').all();
+  try {
+    rows = await supabase.listNewsletter();
+  } catch (err) {
+    console.error('[admin/newsletter] Supabase read failed:', err.message);
+    return res.status(502).json({ error: 'Could not load subscribers.' });
   }
   const q = isNonEmptyString(req.query.q) ? req.query.q.trim().toLowerCase() : null;
   const shaped = rows
@@ -532,27 +480,31 @@ app.get('/api/admin/newsletter', async (req, res) => {
 });
 
 app.delete('/api/admin/newsletter/:id', async (req, res) => {
-  const localId = Number(req.params.id);
-  if (Number.isInteger(localId)) {
-    db.prepare('DELETE FROM newsletter_subscribers WHERE id = ?').run(localId);
-  }
-  if (supabase.adminConfigured()) {
-    try {
-      await supabase.adminDeleteNewsletter(req.params.id);
-    } catch (err) {
-      console.warn('[admin/newsletter DELETE] Supabase delete failed:', err.message);
-      return res.status(502).json({ error: 'Could not remove that subscriber.' });
-    }
+  try {
+    await supabase.deleteNewsletter(req.params.id);
+  } catch (err) {
+    console.error('[admin/newsletter DELETE] Supabase delete failed:', err.message);
+    return res.status(502).json({ error: 'Could not remove that subscriber.' });
   }
   res.json({ ok: true });
 });
 
-app.get('/api/admin/contacts', (req, res) => {
-  res.json(db.prepare('SELECT * FROM contact_messages ORDER BY id DESC').all());
+app.get('/api/admin/contacts', async (req, res) => {
+  try {
+    res.json(await supabase.listContacts());
+  } catch (err) {
+    console.error('[admin/contacts] Supabase read failed:', err.message);
+    res.status(502).json({ error: 'Could not load contact messages.' });
+  }
 });
 
-app.get('/api/admin/registrations', (req, res) => {
-  res.json(db.prepare('SELECT * FROM event_registrations ORDER BY id DESC').all());
+app.get('/api/admin/registrations', async (req, res) => {
+  try {
+    res.json(await supabase.listRegistrations());
+  } catch (err) {
+    console.error('[admin/registrations] Supabase read failed:', err.message);
+    res.status(502).json({ error: 'Could not load registrations.' });
+  }
 });
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
@@ -562,7 +514,7 @@ if (require.main === module) {
     console.log(`Oryn server running at http://localhost:${PORT}`);
     console.log(`Admin panel: http://localhost:${PORT}/admin-dashboard/  (in production it's served at /admin)`);
     if (!process.env.ADMIN_PASSWORD) console.log('  ⚠  ADMIN_PASSWORD is not set — the admin panel is currently open (no login).');
-    if (!supabase.adminConfigured()) console.log('  ⓘ  SUPABASE_SERVICE_ROLE_KEY not set — admin reads from local SQLite (resets on restart).');
+    if (!supabase.configured()) console.log('  ⚠  SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set — every form endpoint will 502. Supabase is the only datastore.');
   });
 }
 

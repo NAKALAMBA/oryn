@@ -80,8 +80,8 @@ describe('Admin orders — filtering & inline updates', () => {
     });
 
     const cancelled = await (await fetch(`${baseUrl}/api/admin/orders?orderStatus=Cancelled`)).json();
-    assert.ok(cancelled.some(o => String(o.id) === String(a)));
-    assert.ok(!cancelled.some(o => String(o.id) === String(b)));
+    assert.ok(cancelled.some(o => o.order_number === a));
+    assert.ok(!cancelled.some(o => o.order_number === b));
 
     const paid = await (await fetch(`${baseUrl}/api/admin/orders?paymentStatus=Paid`)).json();
     assert.ok(paid.every(o => o.payment_status === 'Paid'));

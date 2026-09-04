@@ -1,19 +1,18 @@
 'use strict';
 
-// A production-like setup: a real (temp file) DB path and NO ADMIN_PASSWORD.
-// The admin API must fail CLOSED — never serve customer data unauthenticated.
-const os = require('node:os');
-const path = require('node:path');
-const fs = require('node:fs');
-
-const tmpDb = path.join(os.tmpdir(), `oryn-failclosed-${Date.now()}.db`);
-process.env.ORYN_DB_PATH = tmpDb;
+// Production-like: Supabase configured, but NO ADMIN_PASSWORD and NOT in
+// test-open mode. The admin API must FAIL CLOSED — never serve customer
+// data unauthenticated.
 delete process.env.ADMIN_PASSWORD;
 delete process.env.ORYN_ADMIN_OPEN;
+process.env.ORYN_TEST = '0';
+process.env.SUPABASE_URL = 'https://fake.supabase.co';
+process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-service-key';
 process.env.MSG91_AUTH_KEY = '';
 process.env.SHIPROCKET_EMAIL = '';
-process.env.SUPABASE_URL = '';
-process.env.SUPABASE_SERVICE_ROLE_KEY = '';
+
+const fakeSupabase = require('./fake-supabase');
+fakeSupabase.install();
 
 const { describe, it, before, after } = require('node:test');
 const assert = require('node:assert/strict');
@@ -22,6 +21,7 @@ describe('Admin API fails closed when ADMIN_PASSWORD is unset in production', ()
   let server, baseUrl;
 
   before(async () => {
+    fakeSupabase.reset();
     const app = require('../server');
     await new Promise(resolve => {
       server = app.listen(0, () => {
@@ -30,10 +30,7 @@ describe('Admin API fails closed when ADMIN_PASSWORD is unset in production', ()
       });
     });
   });
-  after(() => {
-    server.close();
-    try { fs.unlinkSync(tmpDb); } catch {}
-  });
+  after(() => server.close());
 
   it('blocks GET /api/admin/orders with 503', async () => {
     const res = await fetch(`${baseUrl}/api/admin/orders`);
