@@ -3,224 +3,587 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oryn — Live Admin Dashboard</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Oryn — Admin</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, Segoe UI, Arial, sans-serif; margin: 0; padding: 32px; background: #f5f4f1; color: #0c367b; }
-  h1 { margin: 0 0 4px; font-size: 1.8rem; }
-  .sub { color: rgba(12,54,123,.5); margin-bottom: 24px; font-size: .9rem; }
-  h2 { font-size: 1.1rem; margin: 40px 0 12px; border-bottom: 1px solid rgba(12,54,123,.15); padding-bottom: 8px; }
-  table { width: 100%; border-collapse: collapse; background: #fff; font-size: .84rem; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(12,54,123,.08); vertical-align: top; }
-  th { background: rgba(12,54,123,.05); font-weight: 600; text-transform: uppercase; font-size: .68rem; letter-spacing: .05em; }
-  tr:hover td { background: rgba(12,54,123,.03); }
-  .empty { padding: 16px; color: rgba(12,54,123,.4); font-style: italic; background: #fff; }
-  .items { font-size: .78rem; color: rgba(12,54,123,.7); }
-  .count { display: inline-block; background: #0c367b; color: #fff; border-radius: 10px; padding: 1px 8px; font-size: .72rem; margin-left: 8px; }
+  :root{
+    --blue:#0c367b; --blue-70:rgba(12,54,123,.7); --blue-45:rgba(12,54,123,.45);
+    --blue-20:rgba(12,54,123,.2); --blue-10:rgba(12,54,123,.1); --blue-06:rgba(12,54,123,.06);
+    --cream:#f5f4f1; --paper:#fbfaf7; --white:#fff;
+    --amber:#b7791f; --amber-bg:#fdf3e2; --green:#2f7d4f; --green-bg:#e7f4ec;
+    --red:#b23b34; --red-bg:#fbeae9; --grey:#7a7a72; --grey-bg:#efefec;
+    --f-body:"EB Garamond",Georgia,serif; --f-display:"Cormorant Garamond","EB Garamond",Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f-body);background:var(--cream);color:var(--blue);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--f-display);font-weight:500;line-height:1.1}
+  button,input,select{font-family:inherit;font-size:inherit;color:var(--blue)}
+  button{cursor:pointer}
+  a{color:var(--blue)}
+  [hidden]{display:none!important}
 
-  /* ── Top bar: connection config + live status ── */
-  .topbar {
-    position: sticky; top: 0; z-index: 10; background: #f5f4f1;
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-    padding: 14px 16px; margin: -32px -32px 24px; border-bottom: 1px solid rgba(12,54,123,.1);
-    box-shadow: 0 4px 16px rgba(12,54,123,.05);
+  /* ── Login ── */
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .login-card{background:var(--white);border:1px solid var(--blue-10);max-width:380px;width:100%;padding:44px 38px;box-shadow:0 24px 60px rgba(12,54,123,.08)}
+  .login-card .mark{font-family:var(--f-display);font-size:2rem;letter-spacing:.02em;margin-bottom:4px}
+  .login-card .tag{font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;color:var(--blue-45);margin-bottom:30px}
+  .login-card label{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-45);margin-bottom:8px}
+  .login-card input{width:100%;padding:11px 12px;border:1px solid var(--blue-20);background:var(--paper)}
+  .login-card button{width:100%;margin-top:18px;background:var(--blue);color:var(--white);border:none;padding:12px;letter-spacing:.08em;text-transform:uppercase;font-size:.78rem}
+  .login-err{color:var(--red);font-size:.85rem;margin-top:12px;min-height:1.2em}
+
+  /* ── Shell ── */
+  #app{max-width:1500px;margin:0 auto;padding:0 28px 80px}
+  .topbar{position:sticky;top:0;z-index:20;background:var(--cream);display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    padding:16px 0;border-bottom:1px solid var(--blue-10);margin-bottom:8px}
+  .topbar .mark{font-family:var(--f-display);font-size:1.5rem;letter-spacing:.02em}
+  .topbar .tag{font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--blue-45);padding-left:14px;border-left:1px solid var(--blue-20)}
+  .topbar .spacer{flex:1}
+  .status{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--blue-45)}
+  .status-dot{width:8px;height:8px;border-radius:50%;background:#c9c4b8}
+  .status-dot.live{background:var(--green)}
+  .status-dot.error{background:var(--red)}
+  .btn{background:transparent;border:1px solid var(--blue-20);padding:8px 14px;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase}
+  .btn-solid{background:var(--blue);color:var(--white);border-color:var(--blue)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .tabs{display:flex;gap:4px;margin:22px 0 18px}
+  .tab{background:transparent;border:none;border-bottom:2px solid transparent;padding:8px 4px;margin-right:22px;
+    font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;color:var(--blue-45)}
+  .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+  h1.page{font-size:2rem;margin-bottom:2px}
+  .sub{color:var(--blue-45);font-size:.86rem;margin-bottom:20px}
+
+  /* ── Filters ── */
+  .filters{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:flex-end;background:var(--white);border:1px solid var(--blue-10);padding:18px 20px;margin-bottom:18px}
+  .fg{display:flex;flex-direction:column;gap:6px}
+  .fg label{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-45)}
+  .fg input,.fg select{padding:8px 10px;border:1px solid var(--blue-20);background:var(--paper);min-width:150px}
+  .filters .actions{display:flex;gap:10px;margin-left:auto}
+
+  /* ── Summary tiles ── */
+  .tiles{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+  .tile{background:var(--white);border:1px solid var(--blue-10);padding:14px 18px;min-width:150px}
+  .tile .n{font-family:var(--f-display);font-size:1.7rem}
+  .tile .l{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-45);margin-top:2px}
+
+  /* ── Table ── */
+  .table-wrap{background:var(--white);border:1px solid var(--blue-10);overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.82rem}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--blue-06);vertical-align:top}
+  th{background:var(--blue-06);font-weight:600;text-transform:uppercase;font-size:.64rem;letter-spacing:.06em;white-space:nowrap;position:sticky;top:0}
+  td.num,th.num{text-align:right;white-space:nowrap}
+  tr:hover td{background:rgba(12,54,123,.02)}
+  .muted{color:var(--blue-45)}
+  .stack-line{padding:2px 0}
+  .stack-line + .stack-line{border-top:1px dashed var(--blue-10);margin-top:4px;padding-top:6px}
+
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  .badge.pending{background:var(--amber-bg);color:var(--amber)}
+  .badge.completed,.badge.paid{background:var(--green-bg);color:var(--green)}
+  .badge.cancelled{background:var(--red-bg);color:var(--red)}
+  .badge.unpaid{background:var(--grey-bg);color:var(--grey)}
+
+  select.inline,input.inline{border:1px solid var(--blue-20);background:var(--paper);padding:5px 7px;font-size:.78rem;width:100%;min-width:96px}
+  input.inline.money{max-width:92px;text-align:right}
+
+  .cell-actions button{background:transparent;border:1px solid var(--red);color:var(--red);padding:5px 10px;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase}
+
+  .state{padding:40px;text-align:center;color:var(--blue-45);font-style:italic}
+  .error-banner{background:var(--red-bg);color:var(--red);border:1px solid #f1c9c5;padding:12px 16px;margin-bottom:16px;font-size:.85rem}
+
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--blue-20);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ── Modal ── */
+  .modal-back{position:fixed;inset:0;background:rgba(12,54,123,.32);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px}
+  .modal{background:var(--white);max-width:400px;width:100%;padding:30px 28px;box-shadow:0 24px 60px rgba(12,54,123,.18)}
+  .modal h3{font-size:1.4rem;margin-bottom:10px}
+  .modal p{font-size:.9rem;color:var(--blue-70);margin-bottom:22px}
+  .modal .row{display:flex;gap:10px;justify-content:flex-end}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--blue);color:var(--white);
+    padding:11px 20px;font-size:.82rem;z-index:60;box-shadow:0 12px 30px rgba(12,54,123,.25)}
+
+  .advanced{margin-top:14px;font-size:.78rem;color:var(--blue-45)}
+  .advanced input{border:1px solid var(--blue-20);background:var(--paper);padding:6px 8px;min-width:280px;margin-left:8px}
+
+  @media(max-width:640px){
+    #app{padding:0 14px 60px}
+    .filters .actions{margin-left:0;width:100%}
   }
-  .topbar label { font-size: .72rem; letter-spacing: .04em; color: rgba(12,54,123,.5); }
-  .topbar input[type="url"] {
-    flex: 1 1 260px; min-width: 200px; padding: 8px 10px; border: 1px solid rgba(12,54,123,.2);
-    border-radius: 4px; font-size: .82rem; font-family: inherit; color: #0c367b;
-  }
-  .topbar button {
-    background: #0c367b; color: #fff; border: none; padding: 9px 16px; border-radius: 4px;
-    cursor: pointer; font-size: .8rem; white-space: nowrap;
-  }
-  .topbar button.secondary { background: transparent; color: #0c367b; border: 1px solid rgba(12,54,123,.25); }
-  .status { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: rgba(12,54,123,.55); white-space: nowrap; }
-  .status-dot { width: 9px; height: 9px; border-radius: 50%; background: #c9c4b8; flex-shrink: 0; transition: background .2s; }
-  .status-dot.live { background: #2fb872; box-shadow: 0 0 0 3px rgba(47,184,114,.18); }
-  .status-dot.error { background: #d0453c; box-shadow: 0 0 0 3px rgba(208,69,60,.18); }
-  .error-banner {
-    display: none; background: #fdecea; color: #a4302a; border: 1px solid #f3c6c2;
-    padding: 12px 16px; border-radius: 4px; font-size: .84rem; margin-bottom: 24px;
-  }
-  .error-banner.visible { display: block; }
 </style>
 </head>
 <body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login">
+  <form class="login-card" id="loginForm">
+    <div class="mark">Oryn</div>
+    <div class="tag">Admin Panel</div>
+    <label for="pw">Password</label>
+    <input type="password" id="pw" autocomplete="current-password" required>
+    <button type="submit" id="loginBtn">Sign In</button>
+    <div class="login-err" id="loginErr"></div>
+  </form>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app" hidden>
   <div class="topbar">
-    <label for="apiBase">API URL</label>
-    <input type="url" id="apiBase" placeholder="https://your-oryn-server.example.com" autocomplete="off">
-    <button type="button" id="saveApiBase">Save</button>
-    <button type="button" class="secondary" id="refreshNow">Refresh Now</button>
-    <button type="button" class="secondary" id="toggleAuto">Pause Live Updates</button>
-    <span class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Not connected yet</span></span>
+    <span class="mark">Oryn</span>
+    <span class="tag">Admin</span>
+    <span class="spacer"></span>
+    <span class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">—</span></span>
+    <button class="btn" id="refreshBtn">Refresh</button>
+    <button class="btn" id="logoutBtn">Log Out</button>
   </div>
 
-  <h1>Oryn — Live Admin Dashboard</h1>
-  <p class="sub">Live view of everything customers submit on the Oryn website — orders, enquiries, newsletter signups, and event registrations — read straight from the site's database. This page can be deployed on its own; it just needs the API URL above pointed at wherever the Oryn server is running.</p>
+  <div class="tabs">
+    <button class="tab active" data-tab="orders">Orders</button>
+    <button class="tab" data-tab="newsletter">Newsletter</button>
+  </div>
 
-  <div class="error-banner" id="errorBanner"></div>
+  <div class="error-banner" id="errorBanner" hidden></div>
 
-  <h2>Orders <span class="count" id="orders-count">0</span></h2>
-  <div id="orders"></div>
+  <!-- ORDERS -->
+  <section id="tab-orders">
+    <h1 class="page">Orders</h1>
+    <p class="sub">Every order placed on the Oryn site. Edit discount, shipping, and status inline — changes save immediately.</p>
 
-  <h2>Contact Messages <span class="count" id="contacts-count">0</span></h2>
-  <div id="contacts"></div>
+    <div class="filters">
+      <div class="fg"><label for="fStart">Start Date</label><input type="date" id="fStart"></div>
+      <div class="fg"><label for="fEnd">End Date</label><input type="date" id="fEnd"></div>
+      <div class="fg"><label for="fOrderStatus">Order Status</label>
+        <select id="fOrderStatus"><option value="all">All</option><option>Pending</option><option>Completed</option><option>Cancelled</option></select>
+      </div>
+      <div class="fg"><label for="fPayStatus">Payment Status</label>
+        <select id="fPayStatus"><option value="all">All</option><option>Pending</option><option>Paid</option></select>
+      </div>
+      <div class="fg"><label for="fSearch">Search</label><input type="search" id="fSearch" placeholder="Name, email, phone, product"></div>
+      <div class="actions">
+        <button class="btn btn-solid" id="applyBtn">Apply Filters</button>
+        <button class="btn" id="resetBtn">Reset</button>
+        <button class="btn" id="exportBtn">Export Excel</button>
+      </div>
+    </div>
 
-  <h2>Newsletter Subscribers <span class="count" id="newsletter-count">0</span></h2>
-  <div id="newsletter"></div>
+    <div class="tiles" id="orderTiles"></div>
 
-  <h2>Event Registrations <span class="count" id="registrations-count">0</span></h2>
-  <div id="registrations"></div>
+    <div class="table-wrap">
+      <table id="ordersTable">
+        <thead><tr>
+          <th>Customer Name</th><th>Product</th><th class="num">Quantity</th><th>Variant</th>
+          <th class="num">Price</th><th class="num">Discount</th><th class="num">Final Payment</th>
+          <th class="num">Shipping</th><th>Order Status</th><th>Payment</th><th>Order Date</th>
+        </tr></thead>
+        <tbody id="ordersBody"></tbody>
+      </table>
+      <div class="state" id="ordersState">Loading <span class="spinner"></span></div>
+    </div>
+  </section>
 
-  <script>
-    const STORAGE_KEY = 'oryn-admin-api-base';
-    const POLL_MS = 5000;
+  <!-- NEWSLETTER -->
+  <section id="tab-newsletter" hidden>
+    <h1 class="page">Newsletter</h1>
+    <p class="sub">Everyone who signed up for updates through the site footer.</p>
 
-    const apiBaseInput = document.getElementById('apiBase');
-    const saveBtn = document.getElementById('saveApiBase');
-    const refreshBtn = document.getElementById('refreshNow');
-    const toggleAutoBtn = document.getElementById('toggleAuto');
-    const statusDot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
-    const errorBanner = document.getElementById('errorBanner');
+    <div class="filters">
+      <div class="fg"><label for="nSearch">Search</label><input type="search" id="nSearch" placeholder="Name or email"></div>
+      <div class="actions">
+        <button class="btn btn-solid" id="nApplyBtn">Search</button>
+        <button class="btn" id="nResetBtn">Reset</button>
+        <button class="btn" id="nExportBtn">Export Excel</button>
+      </div>
+    </div>
 
-    function getApiBase() {
-      return (localStorage.getItem(STORAGE_KEY) || apiBaseInput.value || 'http://localhost:3001').replace(/\/+$/, '');
-    }
+    <div class="tiles" id="nlTiles"></div>
 
-    apiBaseInput.value = localStorage.getItem(STORAGE_KEY) || 'http://localhost:3001';
+    <div class="table-wrap">
+      <table id="nlTable">
+        <thead><tr><th>Name</th><th>Email ID</th><th>Subscribed</th><th>Source</th><th>Action</th></tr></thead>
+        <tbody id="nlBody"></tbody>
+      </table>
+      <div class="state" id="nlState">Loading <span class="spinner"></span></div>
+    </div>
+  </section>
 
-    saveBtn.addEventListener('click', () => {
-      const value = apiBaseInput.value.trim().replace(/\/+$/, '') || 'http://localhost:3001';
-      apiBaseInput.value = value;
-      localStorage.setItem(STORAGE_KEY, value);
-      loadAll();
+  <div class="advanced">
+    API URL<input type="url" id="apiBase" autocomplete="off"><button class="btn" id="saveApiBtn" style="margin-left:8px">Save</button>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var TOKEN_KEY = "oryn-admin-token";
+  var API_KEY   = "oryn-admin-api-base";
+  var DEFAULT_API = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? location.origin : "https://oryn-1t1j.onrender.com";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var inr = new Intl.NumberFormat("en-IN", { style:"currency", currency:"INR", maximumFractionDigits:0 });
+
+  function apiBase(){ return (localStorage.getItem(API_KEY) || DEFAULT_API).replace(/\/+$/, ""); }
+  function token(){ try { return localStorage.getItem(TOKEN_KEY) || ""; } catch(e){ return ""; } }
+  function setToken(t){ try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch(e){} }
+
+  function esc(v){ return (v===null||v===undefined) ? "" : String(v).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  function fmtMoney(n){ return (n===null||n===undefined||n==="") ? "" : inr.format(Number(n)); }
+  function fmtDate(s){
+    if(!s) return "";
+    var d = new Date(String(s).replace(" ", "T"));
+    if(isNaN(d)) return String(s);
+    var p = function(x){ return String(x).padStart(2,"0"); };
+    return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear()+"  "+p(d.getHours())+":"+p(d.getMinutes());
+  }
+  function dateOnly(s){
+    if(!s) return "";
+    var d = new Date(String(s).replace(" ","T"));
+    if(isNaN(d)) return String(s).slice(0,10);
+    var p = function(x){ return String(x).padStart(2,"0"); };
+    return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear();
+  }
+
+  /* ── API ── */
+  function api(path, opts){
+    opts = opts || {};
+    var headers = opts.headers || {};
+    headers["Content-Type"] = "application/json";
+    if(token()) headers["Authorization"] = "Bearer " + token();
+    return fetch(apiBase() + path, { method: opts.method || "GET", headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined })
+      .then(function(res){
+        if(res.status === 401 || res.status === 503){
+          setToken(""); showLogin();
+          throw new Error(res.status === 503 ? "Admin access isn't configured on the server yet." : "Session expired — please sign in again.");
+        }
+        return res.json().catch(function(){ return {}; }).then(function(body){
+          if(!res.ok) throw new Error(body.error || ("Request failed (" + res.status + ")"));
+          return body;
+        });
+      });
+  }
+
+  /* ── Login ── */
+  function showLogin(){ $("login").hidden = false; $("app").hidden = true; }
+  function showApp(){ $("login").hidden = true; $("app").hidden = false; init(); }
+
+  $("loginForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var btn = $("loginBtn"); var err = $("loginErr");
+    err.textContent = ""; btn.disabled = true; btn.textContent = "Signing in…";
+    fetch(apiBase() + "/api/admin/login", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ password: $("pw").value })
+    }).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(body){
+        if(res.ok && body.token){ setToken(body.token); showApp(); return; }
+        if(res.ok && body.authDisabled){ setToken("dev"); showApp(); return; }
+        throw new Error(body.error || "Incorrect password.");
+      });
+    }).catch(function(e){ err.textContent = e.message; })
+      .finally(function(){ btn.disabled = false; btn.textContent = "Sign In"; });
+  });
+
+  $("logoutBtn").addEventListener("click", function(){ setToken(""); showLogin(); });
+
+  /* ── Status ── */
+  function setStatus(state, msg){
+    $("statusDot").className = "status-dot" + (state ? " " + state : "");
+    $("statusText").textContent = msg;
+  }
+  function showError(msg){ var b = $("errorBanner"); b.textContent = msg; b.hidden = false; }
+  function clearError(){ $("errorBanner").hidden = true; }
+
+  /* ── Toast + modal ── */
+  function toast(msg){
+    var t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+    $("toastRoot").appendChild(t);
+    setTimeout(function(){ t.remove(); }, 2600);
+  }
+  function confirmModal(title, body, onYes){
+    var back = document.createElement("div"); back.className = "modal-back";
+    back.innerHTML = '<div class="modal"><h3>'+esc(title)+'</h3><p>'+esc(body)+'</p>'+
+      '<div class="row"><button class="btn" data-no>Cancel</button><button class="btn btn-solid" data-yes>Confirm</button></div></div>';
+    $("modalRoot").appendChild(back);
+    var close = function(){ back.remove(); };
+    back.addEventListener("click", function(e){ if(e.target === back) close(); });
+    back.querySelector("[data-no]").addEventListener("click", close);
+    back.querySelector("[data-yes]").addEventListener("click", function(){ close(); onYes(); });
+  }
+
+  /* ── Tabs ── */
+  var tabButtons = document.querySelectorAll(".tab");
+  tabButtons.forEach(function(b){
+    b.addEventListener("click", function(){
+      tabButtons.forEach(function(x){ x.classList.toggle("active", x === b); });
+      var name = b.dataset.tab;
+      $("tab-orders").hidden = name !== "orders";
+      $("tab-newsletter").hidden = name !== "newsletter";
+      if(name === "newsletter" && !nlLoaded) loadNewsletter();
     });
-    apiBaseInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn.click(); });
+  });
 
-    function esc(v) { return (v === null || v === undefined) ? '' : String(v).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  /* ══ ORDERS ══ */
+  var orders = [];
 
-    function renderTable(rows, columns, container) {
-      if (!rows.length) { container.innerHTML = '<div class="empty">Nothing yet.</div>'; return; }
-      const head = columns.map(c => `<th>${c.label}</th>`).join('');
-      const body = rows.map(row => `<tr>${columns.map(c => `<td>${c.render ? c.render(row) : esc(row[c.key])}</td>`).join('')}</tr>`).join('');
-      container.innerHTML = `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+  function currentOrderQuery(){
+    var p = new URLSearchParams();
+    if($("fStart").value) p.set("start", $("fStart").value);
+    if($("fEnd").value) p.set("end", $("fEnd").value);
+    if($("fOrderStatus").value !== "all") p.set("orderStatus", $("fOrderStatus").value);
+    if($("fPayStatus").value !== "all") p.set("paymentStatus", $("fPayStatus").value);
+    if($("fSearch").value.trim()) p.set("q", $("fSearch").value.trim());
+    var s = p.toString();
+    return s ? "?" + s : "";
+  }
+
+  function loadOrders(){
+    $("ordersState").hidden = false;
+    $("ordersState").innerHTML = 'Loading <span class="spinner"></span>';
+    setStatus("", "Loading orders…");
+    return api("/api/admin/orders" + currentOrderQuery()).then(function(rows){
+      orders = rows || [];
+      clearError();
+      renderOrders();
+      setStatus("live", "Updated " + new Date().toLocaleTimeString());
+    }).catch(function(e){
+      setStatus("error", "Connection failed");
+      showError("Couldn't load orders from " + apiBase() + " — " + e.message);
+      $("ordersState").hidden = false;
+      $("ordersState").textContent = "Could not load orders.";
+    });
+  }
+
+  function orderPrimaryName(o){
+    if(o.items && o.items.length) return o.items.map(function(i){ return i.name; }).join(" / ");
+    return o.product_interest || "—";
+  }
+
+  function renderOrders(){
+    var tb = $("ordersBody");
+    if(!orders.length){
+      tb.innerHTML = "";
+      $("ordersState").hidden = false;
+      $("ordersState").textContent = "No orders match these filters.";
+      renderOrderTiles();
+      return;
     }
+    $("ordersState").hidden = true;
+    tb.innerHTML = orders.map(function(o){
+      var items = (o.items && o.items.length) ? o.items : [{ name:o.product_interest||"—", quantity:"", variant:"", price:"" }];
+      var stack = function(fn){ return items.map(function(i){ return '<div class="stack-line">'+fn(i)+'</div>'; }).join(""); };
+      return '<tr data-id="'+esc(o.id)+'">'
+        + '<td>'+esc(o.full_name)+'<div class="muted" style="font-size:.72rem">'+esc(o.email)+'<br>'+esc(o.phone)+'</div></td>'
+        + '<td>'+stack(function(i){ return esc(i.name); })+'</td>'
+        + '<td class="num">'+stack(function(i){ return esc(i.quantity); })+'</td>'
+        + '<td>'+stack(function(i){ return esc(i.variant||"") || '<span class="muted">—</span>'; })+'</td>'
+        + '<td class="num">'+stack(function(i){ return i.price===""?"":fmtMoney(i.price); })
+            +'<div class="muted" style="font-size:.72rem;margin-top:4px">Subtotal '+fmtMoney(o.subtotal)+'</div></td>'
+        + '<td class="num"><input class="inline money" type="number" min="0" step="1" data-field="discount" value="'+(o.discount||0)+'"></td>'
+        + '<td class="num" data-final><strong>'+fmtMoney(o.final_payment)+'</strong></td>'
+        + '<td class="num"><input class="inline money" type="number" min="0" step="1" placeholder="—" data-field="shipping" value="'+(o.shipping===null||o.shipping===undefined?"":o.shipping)+'"></td>'
+        + '<td><select class="inline" data-field="order_status">'+statusOpts(["Pending","Completed","Cancelled"], o.order_status)+'</select></td>'
+        + '<td><select class="inline" data-field="payment_status">'+statusOpts(["Pending","Paid"], o.payment_status)+'</select></td>'
+        + '<td class="muted" style="white-space:nowrap">'+esc(fmtDate(o.created_at))+'</td>'
+        + '</tr>';
+    }).join("");
 
-    function setStatus(state, message) {
-      statusDot.className = 'status-dot' + (state ? ` ${state}` : '');
-      statusText.textContent = message;
-    }
+    tb.querySelectorAll("[data-field]").forEach(function(el){
+      var evt = el.tagName === "SELECT" ? "change" : "change";
+      el.addEventListener(evt, function(){
+        var tr = el.closest("tr");
+        var patch = {};
+        var f = el.dataset.field;
+        patch[f] = (f === "shipping" && el.value === "") ? "" : el.value;
+        el.disabled = true;
+        api("/api/admin/orders/" + tr.dataset.id, { method:"PATCH", body: patch })
+          .then(function(updated){
+            var idx = orders.findIndex(function(x){ return String(x.id) === String(tr.dataset.id); });
+            if(idx > -1) orders[idx] = updated;
+            tr.querySelector("[data-final] strong").textContent = fmtMoney(updated.final_payment);
+            paintBadges();
+            renderOrderTiles();
+            toast("Saved");
+          })
+          .catch(function(e){ showError(e.message); loadOrders(); })
+          .finally(function(){ el.disabled = false; });
+      });
+    });
+    paintBadges();
+    renderOrderTiles();
+  }
 
-    function showError(message) {
-      errorBanner.textContent = message;
-      errorBanner.classList.add('visible');
-    }
-    function clearError() {
-      errorBanner.classList.remove('visible');
-      errorBanner.textContent = '';
-    }
+  function statusOpts(list, current){
+    return list.map(function(s){ return '<option'+(s===current?" selected":"")+'>'+s+'</option>'; }).join("");
+  }
+  // Tint the status selects to read like badges.
+  function paintBadges(){
+    document.querySelectorAll('#ordersBody select[data-field="order_status"], #ordersBody select[data-field="payment_status"]').forEach(function(sel){
+      var v = sel.value.toLowerCase();
+      var map = { pending:["#fdf3e2","#b7791f"], completed:["#e7f4ec","#2f7d4f"], cancelled:["#fbeae9","#b23b34"], paid:["#e7f4ec","#2f7d4f"] };
+      var c = map[v] || ["#efefec","#7a7a72"];
+      sel.style.background = c[0]; sel.style.color = c[1]; sel.style.borderColor = c[0];
+    });
+  }
 
-    async function fetchJson(path) {
-      const res = await fetch(getApiBase() + path);
-      if (!res.ok) throw new Error(`${path} responded ${res.status}`);
-      return res.json();
-    }
+  function renderOrderTiles(){
+    var count = orders.length;
+    var revenue = orders.reduce(function(s,o){ return s + (Number(o.final_payment)||0); }, 0);
+    var paid = orders.filter(function(o){ return o.payment_status === "Paid"; }).length;
+    var pending = orders.filter(function(o){ return o.order_status === "Pending"; }).length;
+    $("orderTiles").innerHTML =
+      tile(count, "Orders") + tile(fmtMoney(revenue), "Final Payment Total") +
+      tile(paid + " / " + count, "Paid") + tile(pending, "Order Pending");
+  }
+  function tile(n, l){ return '<div class="tile"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div></div>'; }
 
-    async function loadAll() {
-      try {
-        const [orders, contacts, newsletter, registrations] = await Promise.all([
-          fetchJson('/api/admin/orders'),
-          fetchJson('/api/admin/contacts'),
-          fetchJson('/api/admin/newsletter'),
-          fetchJson('/api/admin/registrations'),
-        ]);
-
-        clearError();
-        setStatus('live', `Live — updated ${new Date().toLocaleTimeString()}`);
-
-        document.getElementById('orders-count').textContent = orders.length;
-        document.getElementById('contacts-count').textContent = contacts.length;
-        document.getElementById('newsletter-count').textContent = newsletter.length;
-        document.getElementById('registrations-count').textContent = registrations.length;
-
-        renderTable(orders, [
-          { key: 'id', label: 'ID' },
-          { key: 'created_at', label: 'Placed' },
-          { key: 'full_name', label: 'Name' },
-          { key: 'email', label: 'Email' },
-          { key: 'phone', label: 'Phone' },
-          { key: 'address', label: 'Address' },
-          { key: 'state', label: 'State' },
-          { key: 'city', label: 'City' },
-          { key: 'pin_code', label: 'Pin Code' },
-          { key: 'delivery_date', label: 'Delivery Date' },
-          { key: 'subtotal', label: 'Total Value', render: r => `₹${r.subtotal}` },
-          { key: 'items', label: 'Items', render: r => `<div class="items">${r.items.map(i => `${i.quantity} × ${esc(i.name)} (₹${i.price})`).join('<br>') || '—'}</div>` },
-          { key: 'gift_message', label: 'Order Notes' },
-          { key: 'status', label: 'Status' },
-          { key: 'shiprocket_status', label: 'Shiprocket', render: r => {
-            if (r.shiprocket_status === 'failed') return `<span title="${esc(r.shiprocket_error || '')}" style="color:#a4302a;">Failed ⚠</span>`;
-            if (r.shiprocket_shipment_id) return `✓ Shipment #${esc(r.shiprocket_shipment_id)}`;
-            return '—';
-          } },
-        ], document.getElementById('orders'));
-
-        renderTable(contacts, [
-          { key: 'id', label: 'ID' },
-          { key: 'created_at', label: 'Sent' },
-          { key: 'full_name', label: 'Name' },
-          { key: 'email', label: 'Email' },
-          { key: 'phone', label: 'Phone' },
-          { key: 'subject', label: 'Subject' },
-          { key: 'message', label: 'Message' },
-        ], document.getElementById('contacts'));
-
-        renderTable(newsletter, [
-          { key: 'id', label: 'ID' },
-          { key: 'created_at', label: 'Subscribed' },
-          { key: 'email', label: 'Email' },
-          { key: 'source_page', label: 'Source Page' },
-        ], document.getElementById('newsletter'));
-
-        renderTable(registrations, [
-          { key: 'id', label: 'ID' },
-          { key: 'created_at', label: 'Registered' },
-          { key: 'group_id', label: 'Group' },
-          { key: 'full_name', label: 'Name' },
-          { key: 'email', label: 'Email' },
-          { key: 'phone', label: 'Phone' },
-          { key: 'city', label: 'City' },
-          { key: 'guest_count', label: 'Guests' },
-        ], document.getElementById('registrations'));
-      } catch (err) {
-        setStatus('error', 'Connection failed');
-        showError(`Couldn't reach the Oryn server at "${getApiBase()}" — ${err.message}. Check the API URL above (it must point to where the Oryn server is running) and that its CORS settings allow this page's origin.`);
+  /* ── Excel export (orders) ── */
+  function exportOrders(){
+    if(!orders.length){ toast("Nothing to export"); return; }
+    var rows = orders.map(function(o){
+      var items = (o.items && o.items.length) ? o.items : [];
+      var join = function(fn){ return items.length ? items.map(fn).join(" / ") : ""; };
+      return {
+        "Customer Name": o.full_name,
+        "Product": join(function(i){ return i.name; }) || (o.product_interest || ""),
+        "Quantity": join(function(i){ return i.quantity; }),
+        "Variant": join(function(i){ return i.variant || ""; }),
+        "Price": o.subtotal,
+        "Discount": o.discount || 0,
+        "Final Payment": o.final_payment,
+        "Shipping": (o.shipping===null||o.shipping===undefined) ? "" : o.shipping,
+        "Order Status": o.order_status,
+        "Payment Status": o.payment_status,
+        "Order Date": fmtDate(o.created_at)
+      };
+    });
+    var ws = XLSX.utils.json_to_sheet(rows, { header:["Customer Name","Product","Quantity","Variant","Price","Discount","Final Payment","Shipping","Order Status","Payment Status","Order Date"] });
+    // ₹ number format on the money columns (E,F,G,H), skipping blanks.
+    var range = XLSX.utils.decode_range(ws["!ref"]);
+    ["E","F","G","H"].forEach(function(col){
+      for(var r = 1; r <= range.e.r; r++){
+        var cell = ws[col + (r+1)];
+        if(cell && typeof cell.v === "number"){ cell.z = '"₹"#,##0'; }
       }
-    }
-
-    let pollTimer = null;
-    let autoRefresh = true;
-
-    function startPolling() {
-      stopPolling();
-      pollTimer = setInterval(loadAll, POLL_MS);
-    }
-    function stopPolling() {
-      if (pollTimer) clearInterval(pollTimer);
-      pollTimer = null;
-    }
-
-    refreshBtn.addEventListener('click', loadAll);
-    toggleAutoBtn.addEventListener('click', () => {
-      autoRefresh = !autoRefresh;
-      toggleAutoBtn.textContent = autoRefresh ? 'Pause Live Updates' : 'Resume Live Updates';
-      if (autoRefresh) startPolling(); else stopPolling();
     });
+    ws["!cols"] = [{wch:20},{wch:30},{wch:10},{wch:24},{wch:12},{wch:10},{wch:14},{wch:10},{wch:13},{wch:14},{wch:18}];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Orders");
+    var tag = ($("fStart").value || "all") + "_" + ($("fEnd").value || "all");
+    XLSX.writeFile(wb, "oryn-orders_" + tag + ".xlsx");
+  }
 
-    loadAll();
-    startPolling();
-  </script>
+  $("applyBtn").addEventListener("click", loadOrders);
+  $("fSearch").addEventListener("keydown", function(e){ if(e.key === "Enter") loadOrders(); });
+  $("resetBtn").addEventListener("click", function(){
+    $("fStart").value = ""; $("fEnd").value = ""; $("fOrderStatus").value = "all"; $("fPayStatus").value = "all"; $("fSearch").value = "";
+    loadOrders();
+  });
+  $("exportBtn").addEventListener("click", exportOrders);
+  $("refreshBtn").addEventListener("click", function(){ loadOrders(); if(nlLoaded) loadNewsletter(); });
+
+  /* ══ NEWSLETTER ══ */
+  var newsletter = [];
+  var nlLoaded = false;
+
+  function loadNewsletter(){
+    nlLoaded = true;
+    $("nlState").hidden = false;
+    $("nlState").innerHTML = 'Loading <span class="spinner"></span>';
+    var q = $("nSearch").value.trim();
+    return api("/api/admin/newsletter" + (q ? "?q=" + encodeURIComponent(q) : "")).then(function(rows){
+      newsletter = rows || [];
+      renderNewsletter();
+    }).catch(function(e){
+      showError("Couldn't load subscribers — " + e.message);
+      $("nlState").hidden = false;
+      $("nlState").textContent = "Could not load subscribers.";
+    });
+  }
+
+  function renderNewsletter(){
+    var tb = $("nlBody");
+    $("nlTiles").innerHTML = tile(newsletter.length, "Subscribers");
+    if(!newsletter.length){
+      tb.innerHTML = "";
+      $("nlState").hidden = false;
+      $("nlState").textContent = "No subscribers yet.";
+      return;
+    }
+    $("nlState").hidden = true;
+    tb.innerHTML = newsletter.map(function(n){
+      return '<tr data-id="'+esc(n.id)+'">'
+        + '<td>'+ (esc(n.name) || '<span class="muted">—</span>') +'</td>'
+        + '<td>'+esc(n.email)+'</td>'
+        + '<td class="muted">'+esc(dateOnly(n.created_at))+'</td>'
+        + '<td class="muted">'+ (esc(n.source_page) || "—") +'</td>'
+        + '<td class="cell-actions"><button data-del>Delete</button></td>'
+        + '</tr>';
+    }).join("");
+    tb.querySelectorAll("[data-del]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var tr = btn.closest("tr");
+        var sub = newsletter.find(function(x){ return String(x.id) === String(tr.dataset.id); });
+        confirmModal("Remove subscriber", "Remove " + (sub ? sub.email : "this subscriber") + " from the newsletter? This can't be undone.", function(){
+          btn.disabled = true;
+          api("/api/admin/newsletter/" + tr.dataset.id, { method:"DELETE" }).then(function(){
+            newsletter = newsletter.filter(function(x){ return String(x.id) !== String(tr.dataset.id); });
+            renderNewsletter();
+            toast("Subscriber removed");
+          }).catch(function(e){ showError(e.message); btn.disabled = false; });
+        });
+      });
+    });
+  }
+
+  function exportNewsletter(){
+    if(!newsletter.length){ toast("Nothing to export"); return; }
+    var ws = XLSX.utils.json_to_sheet(newsletter.map(function(n){
+      return { "Name": n.name || "", "Email ID": n.email, "Subscribed": dateOnly(n.created_at), "Source": n.source_page || "" };
+    }), { header:["Name","Email ID","Subscribed","Source"] });
+    ws["!cols"] = [{wch:22},{wch:32},{wch:14},{wch:20}];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Newsletter");
+    XLSX.writeFile(wb, "oryn-newsletter.xlsx");
+  }
+
+  $("nApplyBtn").addEventListener("click", loadNewsletter);
+  $("nSearch").addEventListener("keydown", function(e){ if(e.key === "Enter") loadNewsletter(); });
+  $("nResetBtn").addEventListener("click", function(){ $("nSearch").value = ""; loadNewsletter(); });
+  $("nExportBtn").addEventListener("click", exportNewsletter);
+
+  /* ── API URL config ── */
+  $("apiBase").value = localStorage.getItem(API_KEY) || DEFAULT_API;
+  $("saveApiBtn").addEventListener("click", function(){
+    var v = $("apiBase").value.trim().replace(/\/+$/, "");
+    if(v) localStorage.setItem(API_KEY, v); else localStorage.removeItem(API_KEY);
+    location.reload();
+  });
+
+  /* ── Boot ── */
+  var pollTimer = null;
+  function init(){
+    loadOrders();
+    if(pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(function(){
+      if(!document.hidden && $("tab-orders") && !$("tab-orders").hidden) loadOrders();
+    }, 60000);
+  }
+
+  if(token()) showApp(); else showLogin();
+})();
+</script>
 </body>
 </html>

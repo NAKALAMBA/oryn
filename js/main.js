@@ -341,6 +341,7 @@ document.querySelectorAll('form[data-enquiry]').forEach(form => {
 
 /* ─── NEWSLETTER SIGNUP (footer form, every page) ─────── */
 document.querySelectorAll('.ft-signup-form').forEach(form => {
+  const nameInput = form.querySelector('input[name="ft-name"]');
   const input = form.querySelector('input[type="email"]');
   const btn = form.querySelector('button[type="submit"]');
   if (!input || !btn) return;
@@ -348,6 +349,7 @@ document.querySelectorAll('.ft-signup-form').forEach(form => {
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
+    if (nameInput && !nameInput.reportValidity()) return;
     if (!input.reportValidity()) return;
     btn.disabled = true;
     btn.textContent = 'Signing Up…';
@@ -356,11 +358,16 @@ document.querySelectorAll('.ft-signup-form').forEach(form => {
       const res = await fetch(API_BASE + '/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: input.value, sourcePage: location.pathname.split('/').pop() || 'index.html' }),
+        body: JSON.stringify({
+          name: nameInput ? nameInput.value.trim() : '',
+          email: input.value,
+          sourcePage: location.pathname.split('/').pop() || 'index.html',
+        }),
       });
       if (!res.ok) throw new Error('Request failed');
       btn.textContent = 'Signed Up ✓';
       input.value = '';
+      if (nameInput) nameInput.value = '';
       setTimeout(() => { btn.textContent = origBtnText; btn.disabled = false; }, 3000);
     } catch (err) {
       btn.textContent = 'Try Again';

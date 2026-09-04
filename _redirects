@@ -1,0 +1,4 @@
+# Cloudflare Pages redirects / rewrites
+# Serve the admin panel at the clean /admin path (200 = rewrite, URL stays /admin).
+/admin      /admin-dashboard/index.html      200
+/admin/     /admin-dashboard/index.html      200

@@ -57,6 +57,31 @@ describe('Orders API', () => {
     assert.match(created.shiprocket_error, /not configured/i);
   });
 
+  it('starts every order Pending / unpaid, with shipping blank and final payment = subtotal', async () => {
+    const phone = uniquePhone();
+    const res = await fetch(`${baseUrl}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Meera Nair', email: 'meera@example.com', phone, city: 'Kochi',
+        cartItems: [{ sku: 'SAANJH-BOX', name: 'Saanjh', price: 400, quantity: 3, details: 'Box of 6' }],
+      }),
+    });
+    assert.equal(res.status, 201);
+    const { id } = await res.json();
+
+    const orders = await (await fetch(`${baseUrl}/api/admin/orders`)).json();
+    const created = orders.find(o => String(o.id) === String(id));
+    assert.ok(created, 'order should appear in the admin listing');
+    assert.equal(created.order_status, 'Pending');
+    assert.equal(created.payment_status, 'Pending');
+    assert.equal(created.discount, 0);
+    assert.equal(created.shipping, null, 'shipping stays blank until an admin enters it');
+    assert.equal(created.subtotal, 1200);
+    assert.equal(created.final_payment, 1200, 'final payment starts equal to the subtotal');
+    assert.equal(created.items[0].variant, 'Box of 6', 'the cart item detail is stored as the line variant');
+  });
+
   it('stores the full billing address (address, state, city, pin code) and every customer detail from checkout', async () => {
     const phone = uniquePhone();
 
