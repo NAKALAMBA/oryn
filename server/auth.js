@@ -32,6 +32,14 @@ function authEnabled() {
   return adminPassword().length > 0;
 }
 
+// When ADMIN_PASSWORD is unset we normally FAIL CLOSED (block every admin
+// route) so a misconfigured production deploy never exposes customer data.
+// The two exceptions are the test suite (isolated in-memory DB) and an
+// explicit local opt-in.
+function openWhenUnconfigured() {
+  return process.env.ORYN_DB_PATH === ':memory:' || process.env.ORYN_ADMIN_OPEN === '1';
+}
+
 function b64url(buf) {
   return Buffer.from(buf).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
@@ -69,7 +77,7 @@ function verifyToken(token) {
 // Returns { ok: true, token } on success, { ok: false, reason } otherwise.
 function login(password) {
   if (!authEnabled()) {
-    return { ok: false, reason: 'disabled' };
+    return { ok: false, reason: openWhenUnconfigured() ? 'open' : 'disabled' };
   }
   if (!safeEqual(password || '', adminPassword())) {
     return { ok: false, reason: 'bad-password' };
@@ -77,9 +85,14 @@ function login(password) {
   return { ok: true, token: issueToken() };
 }
 
-// Express middleware. No-op when auth is disabled (unconfigured).
+// Express middleware. Fails CLOSED when auth is unconfigured (see
+// openWhenUnconfigured) so a production deploy missing ADMIN_PASSWORD does
+// not serve customer data to the public.
 function requireAdmin(req, res, next) {
-  if (!authEnabled()) return next();
+  if (!authEnabled()) {
+    if (openWhenUnconfigured()) return next();
+    return res.status(503).json({ error: 'Admin access is not configured on the server. Set ADMIN_PASSWORD.' });
+  }
   const header = req.get('authorization') || '';
   const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
   if (!verifyToken(token)) {
@@ -88,4 +101,4 @@ function requireAdmin(req, res, next) {
   return next();
 }
 
-module.exports = { login, requireAdmin, verifyToken, issueToken, authEnabled };
+module.exports = { login, requireAdmin, verifyToken, issueToken, authEnabled, openWhenUnconfigured };

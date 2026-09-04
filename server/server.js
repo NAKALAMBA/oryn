@@ -397,8 +397,12 @@ app.post('/api/admin/login', async (req, res) => {
   // Constant-ish delay so a wrong password can't be timed, and a generic
   // message regardless of reason.
   await new Promise(r => setTimeout(r, 400));
-  if (result.reason === 'disabled') {
+  if (result.reason === 'open') {
+    // Explicit local opt-in (ORYN_ADMIN_OPEN=1 or in-memory test DB).
     return res.status(200).json({ token: null, authDisabled: true });
+  }
+  if (result.reason === 'disabled') {
+    return res.status(503).json({ error: 'Admin access is not configured on the server. Set ADMIN_PASSWORD and redeploy.' });
   }
   return res.status(401).json({ error: 'Incorrect password.' });
 });

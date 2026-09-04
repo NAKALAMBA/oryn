@@ -264,7 +264,10 @@
     if(token()) headers["Authorization"] = "Bearer " + token();
     return fetch(apiBase() + path, { method: opts.method || "GET", headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined })
       .then(function(res){
-        if(res.status === 401){ setToken(""); showLogin(); throw new Error("Session expired — please sign in again."); }
+        if(res.status === 401 || res.status === 503){
+          setToken(""); showLogin();
+          throw new Error(res.status === 503 ? "Admin access isn't configured on the server yet." : "Session expired — please sign in again.");
+        }
         return res.json().catch(function(){ return {}; }).then(function(body){
           if(!res.ok) throw new Error(body.error || ("Request failed (" + res.status + ")"));
           return body;
