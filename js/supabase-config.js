@@ -17,8 +17,9 @@
    ───────────────────────────────────────────────────────────── */
 
 window.ORYN_SUPABASE_URL = "https://lebocatqamhvrhttupdz.supabase.co";
-window.ORYN_SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlYm9jYXRxYW1odnJodHR1cGR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxMjIzODMsImV4cCI6MjA5OTY5ODM4M30.H90Atu1G6VnE82fy6x-lgJ4BkcNzBGUt40ijbkyLim0";
+// Publishable key — safe in the browser. RLS still only allows INSERT for
+// this role (see server/supabase-orders-schema.sql).
+window.ORYN_SUPABASE_ANON_KEY = "sb_publishable_HWMrY8x2WCIbQWzubVOwZA_4qxhdsqZ";
 
 (function initOrynSupabase() {
   if (!window.supabase || !window.supabase.createClient) {
