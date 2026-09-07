@@ -105,6 +105,43 @@
     .bcm-modal-opt-wt { font-family: var(--f-body); font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(12,54,123,.4); }
     .bcm-modal-opt-price { font-family: var(--f-display); font-size: 1.3rem; color: var(--blue); margin-top: 4px; }
     .bcm-modal-confirm { width: 100%; }
+
+    /* ── 1/2 & 1/2 COOKIES BOX PICKER MODAL ── */
+    .hh-modal-overlay {
+      position: fixed; inset: 0; z-index: 4000;
+      background: rgba(12,54,123,.35);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px; opacity: 0; visibility: hidden;
+      transition: opacity .3s var(--ease), visibility .3s;
+    }
+    .hh-modal-overlay.open { opacity: 1; visibility: visible; }
+    .hh-modal {
+      position: relative; background: var(--white); width: min(560px, 100%);
+      padding: 44px 36px 36px; text-align: center;
+      transform: translateY(16px); transition: transform .3s var(--ease);
+    }
+    .hh-modal-overlay.open .hh-modal { transform: translateY(0); }
+    .hh-modal-close {
+      position: absolute; top: 14px; right: 14px;
+      font-family: var(--f-body); font-size: 1.6rem; line-height: 1;
+      color: rgba(12,54,123,.5); background: none; border: none; cursor: pointer; transition: color .2s;
+    }
+    .hh-modal-close:hover { color: var(--blue); }
+    .hh-modal-title { font-family: var(--f-display); font-size: 1.6rem; font-weight: 400; color: var(--blue); margin-bottom: 28px; }
+    .hh-modal-confirm { width: 100%; }
+    .hh-modal-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+    .hh-modal-option {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 20px 12px; border: 1px solid rgba(12,54,123,.15); background: none;
+      cursor: pointer; transition: border-color .2s, background .2s; text-align: center;
+    }
+    .hh-modal-option:hover { border-color: rgba(12,54,123,.35); }
+    .hh-modal-option.is-selected { border-color: var(--blue); background: rgba(12,54,123,.05); }
+    .hh-modal-opt-main { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .hh-modal-opt-name { font-family: var(--f-display); font-size: 1.15rem; color: var(--blue); }
+    .hh-modal-opt-desc { font-family: var(--f-body); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(12,54,123,.4); line-height: 1.5; }
+    .hh-modal-opt-price { font-family: var(--f-display); font-size: 1.3rem; color: var(--blue); margin-top: 2px; }
+    @media (max-width: 520px) { .hh-modal-options { grid-template-columns: 1fr; } }
   </style>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -306,7 +343,7 @@ Crafted with the same attention to detail and uncompromising quality that define
               <span class="tag">Vanilla Confetti</span>
             </div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;">
-              <a href="order.html" class="btn btn-b btn-cart" data-add-to-cart="true" data-cart-sku="HALFHALF-ASSORTED" data-cart-name="1/2 &amp; 1/2 Cookies - Assorted Box" data-cart-price="1000" data-cart-details="Best Sellers · Assorted · Box of 8"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</a>
+              <button type="button" class="btn btn-b btn-cart" id="bsHhAddBtn"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</button>
               <a href="half-and-half-cookies.html" class="btn btn-ob">View Details →</a>
             </div>
           </div>
@@ -411,34 +448,58 @@ Crafted with the same attention to detail and uncompromising quality that define
     </div>
   </div>
 
+  <!-- 1/2 & 1/2 COOKIES BOX PICKER MODAL -->
+  <div class="hh-modal-overlay" id="bsHhBoxModal">
+    <div class="hh-modal" role="dialog" aria-modal="true" aria-label="Choose your box">
+      <button type="button" class="hh-modal-close" data-hh-modal-close aria-label="Close">&times;</button>
+      <span class="eye eye-b mb8">1/2 &amp; 1/2 Cookies</span>
+      <h3 class="hh-modal-title">Choose Your Box</h3>
+      <div class="hh-modal-options">
+        <button type="button" class="hh-modal-option" data-sku="HALFHALF-ECLIPSE">
+          <span class="hh-modal-opt-main">
+            <span class="hh-modal-opt-name">Eclipse</span>
+            <span class="hh-modal-opt-desc">Choc × Confetti</span>
+          </span>
+          <span class="hh-modal-opt-price">₹1,000</span>
+        </button>
+        <button type="button" class="hh-modal-option" data-sku="HALFHALF-SOLSTICE">
+          <span class="hh-modal-opt-main">
+            <span class="hh-modal-opt-name">Solstice</span>
+            <span class="hh-modal-opt-desc">Lemon × Blueberry</span>
+          </span>
+          <span class="hh-modal-opt-price">₹1,000</span>
+        </button>
+        <button type="button" class="hh-modal-option is-selected" data-sku="HALFHALF-ASSORTED">
+          <span class="hh-modal-opt-main">
+            <span class="hh-modal-opt-name">Assorted</span>
+            <span class="hh-modal-opt-desc">4 + 4 Split</span>
+          </span>
+          <span class="hh-modal-opt-price">₹1,000</span>
+        </button>
+      </div>
+      <button type="button" class="btn btn-b hh-modal-confirm" id="bsHhModalConfirm">Confirm Item</button>
+    </div>
+  </div>
+
   <script src="js/main.js"></script>
   <script>
-    (() => {
-      const openBtn = document.getElementById('bsBcmAddBtn');
-      const modal = document.getElementById('bcmSizeModal');
+    /* Picker-modal wiring for the two multi-variant Best Sellers on this page —
+       mirrors banana-cookie-melt.html / half-and-half-cookies.html. */
+    function wirePickerModal(openBtnId, modalId, confirmId, items, defaultSku) {
+      const openBtn = document.getElementById(openBtnId);
+      const modal = document.getElementById(modalId);
       if (!openBtn || !modal) return;
-      const closeBtn = modal.querySelector('[data-bcm-modal-close]');
-      const options = modal.querySelectorAll('.bcm-modal-option');
-      const confirmBtn = document.getElementById('bcmModalConfirm');
-
-      const items = {
-        'BCM-350': { sku: 'BCM-350', name: 'Banana Cookie Melt - Classic Loaf', price: 350, details: 'Banana Cookie Melt · 350g · Delhi NCR', quantity: 1 },
-        'BCM-500': { sku: 'BCM-500', name: 'Banana Cookie Melt - Large Loaf', price: 500, details: 'Banana Cookie Melt · 500g · Delhi NCR', quantity: 1 },
-      };
-      let selected = 'BCM-350';
+      const closeBtn = modal.querySelector('[data-bcm-modal-close], [data-hh-modal-close]');
+      const options = modal.querySelectorAll('.bcm-modal-option, .hh-modal-option');
+      const confirmBtn = document.getElementById(confirmId);
+      let selected = defaultSku;
 
       function setSelected(sku) {
         selected = sku;
         options.forEach(opt => opt.classList.toggle('is-selected', opt.dataset.sku === sku));
       }
-      function openModal() {
-        modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      }
-      function closeModal() {
-        modal.classList.remove('open');
-        document.body.style.overflow = '';
-      }
+      function openModal() { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+      function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
 
       openBtn.addEventListener('click', openModal);
       closeBtn.addEventListener('click', closeModal);
@@ -451,7 +512,18 @@ Crafted with the same attention to detail and uncompromising quality that define
         closeModal();
         openCartDrawer();
       });
-    })();
+    }
+
+    wirePickerModal('bsBcmAddBtn', 'bcmSizeModal', 'bcmModalConfirm', {
+      'BCM-350': { sku: 'BCM-350', name: 'Banana Cookie Melt - Classic Loaf', price: 350, details: 'Banana Cookie Melt · 350g · Delhi NCR', quantity: 1 },
+      'BCM-500': { sku: 'BCM-500', name: 'Banana Cookie Melt - Large Loaf', price: 500, details: 'Banana Cookie Melt · 500g · Delhi NCR', quantity: 1 },
+    }, 'BCM-350');
+
+    wirePickerModal('bsHhAddBtn', 'bsHhBoxModal', 'bsHhModalConfirm', {
+      'HALFHALF-ECLIPSE': { sku: 'HALFHALF-ECLIPSE', name: '1/2 & 1/2 Cookies - Eclipse Box', price: 1000, details: 'Eclipse · Dark Chocolate × Vanilla Confetti · Box of 8 · Pan India', quantity: 1 },
+      'HALFHALF-SOLSTICE': { sku: 'HALFHALF-SOLSTICE', name: '1/2 & 1/2 Cookies - Solstice Box', price: 1000, details: 'Solstice · Lemon × Blueberry · Box of 8 · Pan India', quantity: 1 },
+      'HALFHALF-ASSORTED': { sku: 'HALFHALF-ASSORTED', name: '1/2 & 1/2 Cookies - Assorted Box', price: 1000, details: 'Assorted · 4 Eclipse + 4 Solstice · Box of 8 · Pan India', quantity: 1 },
+    }, 'HALFHALF-ASSORTED');
   </script>
 </body>
 </html>
