@@ -89,3 +89,34 @@ create policy "anon can insert contact" on public.contact_messages
 -- "Answered / not answered" flag for each query, toggled from the Messages tab.
 alter table public.contact_messages add column if not exists answered    boolean not null default false;
 alter table public.contact_messages add column if not exists answered_at  timestamptz;
+
+-- ── event_registrations: the /admin "Oryn Table" tab ─────────────────
+-- Rows are inserted browser-direct (Noida-registration.html via supabase-js,
+-- INSERT-only anon policy) and by POST /api/registrations. The
+-- create-if-not-exists below just keeps this file self-contained.
+create table if not exists public.event_registrations (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  group_id uuid,
+  event_name text,
+  guest_count integer,
+  full_name text not null,
+  email text not null,
+  phone text not null,
+  city text,
+  allergies text,
+  notes text
+);
+alter table public.event_registrations enable row level security;
+drop policy if exists "anon can insert registrations" on public.event_registrations;
+create policy "anon can insert registrations" on public.event_registrations
+  for insert to anon with check (true);
+
+-- Event location + date, stored per registration so the Oryn Table tab can
+-- filter by them. event_date is an ISO date string, e.g. '2026-07-26'.
+alter table public.event_registrations add column if not exists event_location text;
+alter table public.event_registrations add column if not exists event_date     text;
+
+-- RSVP + payment, both admin-managed from the Oryn Table tab.
+alter table public.event_registrations add column if not exists rsvp_status    text not null default 'Pending';  -- Pending | Confirmed | Cancelled
+alter table public.event_registrations add column if not exists payment_status text not null default 'Pending';  -- Pending | Paid | Refunded

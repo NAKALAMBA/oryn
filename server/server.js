@@ -12,6 +12,8 @@ const auth = require('./auth');
 
 const ORDER_STATUSES = ['Pending', 'Completed', 'Cancelled'];
 const PAYMENT_STATUSES = ['Pending', 'Paid'];
+const RSVP_STATUSES = ['Pending', 'Confirmed', 'Cancelled'];
+const REG_PAYMENT_STATUSES = ['Pending', 'Paid', 'Refunded'];
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -256,7 +258,7 @@ app.post('/api/newsletter', async (req, res) => {
 
 /* ── Event registrations (Noida-registration.html) ── */
 app.post('/api/registrations', async (req, res) => {
-  const { guestCount, attendees, eventName } = req.body || {};
+  const { guestCount, attendees, eventName, eventLocation, eventDate } = req.body || {};
   const list = Array.isArray(attendees) ? attendees : [];
 
   if (!list.length) {
@@ -273,6 +275,8 @@ app.post('/api/registrations', async (req, res) => {
   const rows = list.map(attendee => ({
     group_id: groupId,
     event_name: eventName || null,
+    event_location: eventLocation || null,
+    event_date: eventDate || null,
     guest_count: guests,
     full_name: attendee.fullName,
     email: attendee.email,
@@ -517,12 +521,55 @@ app.patch('/api/admin/contacts/:id', async (req, res) => {
   }
 });
 
+// Default the two admin-managed statuses for rows that predate the columns
+// (or came in before the migration ran), so the Oryn Table tab always has a
+// value to show in its dropdowns.
+function shapeRegistration(r) {
+  return {
+    ...r,
+    rsvp_status: RSVP_STATUSES.includes(r.rsvp_status) ? r.rsvp_status : 'Pending',
+    payment_status: REG_PAYMENT_STATUSES.includes(r.payment_status) ? r.payment_status : 'Pending',
+  };
+}
+
 app.get('/api/admin/registrations', async (req, res) => {
   try {
-    res.json(await supabase.listRegistrations());
+    const rows = await supabase.listRegistrations();
+    res.json(rows.map(shapeRegistration));
   } catch (err) {
     console.error('[admin/registrations] Supabase read failed:', err.message);
     res.status(502).json({ error: 'Could not load registrations.' });
+  }
+});
+
+// Set the RSVP confirmation and/or payment status from the Oryn Table tab.
+app.patch('/api/admin/registrations/:id', async (req, res) => {
+  const { rsvp_status, payment_status } = req.body || {};
+  const patch = {};
+
+  if (rsvp_status !== undefined) {
+    if (!RSVP_STATUSES.includes(rsvp_status)) {
+      return res.status(400).json({ error: `rsvp_status must be one of: ${RSVP_STATUSES.join(', ')}` });
+    }
+    patch.rsvp_status = rsvp_status;
+  }
+  if (payment_status !== undefined) {
+    if (!REG_PAYMENT_STATUSES.includes(payment_status)) {
+      return res.status(400).json({ error: `payment_status must be one of: ${REG_PAYMENT_STATUSES.join(', ')}` });
+    }
+    patch.payment_status = payment_status;
+  }
+  if (Object.keys(patch).length === 0) {
+    return res.status(400).json({ error: 'Nothing to update.' });
+  }
+
+  try {
+    const row = await supabase.updateRegistration(req.params.id, patch);
+    if (!row) return res.status(404).json({ error: 'Registration not found.' });
+    res.json(shapeRegistration(row));
+  } catch (err) {
+    console.error('[admin/registrations PATCH] update failed:', err.message);
+    res.status(502).json({ error: 'Could not update the registration.' });
   }
 });
 

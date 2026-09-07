@@ -149,6 +149,7 @@
     <button class="tab active" data-tab="orders">Orders</button>
     <button class="tab" data-tab="messages">Messages</button>
     <button class="tab" data-tab="newsletter">Newsletter</button>
+    <button class="tab" data-tab="oryntable">Oryn Table</button>
   </div>
 
   <div class="error-banner" id="errorBanner" hidden></div>
@@ -240,6 +241,46 @@
         <tbody id="msgBody"></tbody>
       </table>
       <div class="state" id="msgState">Loading <span class="spinner"></span></div>
+    </div>
+  </section>
+
+  <!-- ORYN TABLE -->
+  <section id="tab-oryntable" hidden>
+    <h1 class="page">Oryn Table</h1>
+    <p class="sub">Every guest registered for an Oryn Table seating. Set RSVP and payment status inline — changes save immediately.</p>
+
+    <div class="filters">
+      <div class="fg"><label for="rSearch">Search</label><input type="search" id="rSearch" placeholder="Name, email, phone, city"></div>
+      <div class="fg"><label for="rLocation">Location</label>
+        <select id="rLocation"><option value="all">All</option></select>
+      </div>
+      <div class="fg"><label for="rDate">Event Date</label>
+        <select id="rDate"><option value="all">All</option></select>
+      </div>
+      <div class="fg"><label for="rRsvp">RSVP</label>
+        <select id="rRsvp"><option value="all">All</option><option>Pending</option><option>Confirmed</option><option>Cancelled</option></select>
+      </div>
+      <div class="fg"><label for="rPay">Payment</label>
+        <select id="rPay"><option value="all">All</option><option>Pending</option><option>Paid</option><option>Refunded</option></select>
+      </div>
+      <div class="actions">
+        <button class="btn btn-solid" id="rApplyBtn">Apply Filters</button>
+        <button class="btn" id="rResetBtn">Reset</button>
+        <button class="btn" id="rExportBtn">Export Excel</button>
+      </div>
+    </div>
+
+    <div class="tiles" id="regTiles"></div>
+
+    <div class="table-wrap">
+      <table id="regTable">
+        <thead><tr>
+          <th>Name</th><th>Contact</th><th>City</th><th>Event</th><th class="num">Guests</th>
+          <th>Allergies / Dietary</th><th>Notes</th><th>Registered</th><th>RSVP</th><th>Payment</th>
+        </tr></thead>
+        <tbody id="regBody"></tbody>
+      </table>
+      <div class="state" id="regState">Loading <span class="spinner"></span></div>
     </div>
   </section>
 
@@ -361,8 +402,10 @@
       $("tab-orders").hidden = name !== "orders";
       $("tab-messages").hidden = name !== "messages";
       $("tab-newsletter").hidden = name !== "newsletter";
+      $("tab-oryntable").hidden = name !== "oryntable";
       if(name === "newsletter" && !nlLoaded) loadNewsletter();
       if(name === "messages" && !msgLoaded) loadMessages();
+      if(name === "oryntable" && !regLoaded) loadRegistrations();
     });
   });
 
@@ -523,7 +566,7 @@
     loadOrders();
   });
   $("exportBtn").addEventListener("click", exportOrders);
-  $("refreshBtn").addEventListener("click", function(){ loadOrders(); if(nlLoaded) loadNewsletter(); if(msgLoaded) loadMessages(); });
+  $("refreshBtn").addEventListener("click", function(){ loadOrders(); if(nlLoaded) loadNewsletter(); if(msgLoaded) loadMessages(); if(regLoaded) loadRegistrations(); });
 
   /* ══ NEWSLETTER ══ */
   var newsletter = [];
@@ -694,6 +737,164 @@
   $("mAnswered").addEventListener("change", renderMessages);
   $("mResetBtn").addEventListener("click", function(){ $("mSearch").value = ""; $("mAnswered").value = "all"; renderMessages(); });
   $("mExportBtn").addEventListener("click", exportMessages);
+
+  /* ══ ORYN TABLE ══ */
+  var registrations = [];
+  var regLoaded = false;
+
+  function loadRegistrations(){
+    regLoaded = true;
+    $("regState").hidden = false;
+    $("regState").innerHTML = 'Loading <span class="spinner"></span>';
+    return api("/api/admin/registrations").then(function(rows){
+      registrations = rows || [];
+      populateRegFilters();
+      renderRegistrations();
+    }).catch(function(e){
+      showError("Couldn't load registrations — " + e.message);
+      $("regState").hidden = false;
+      $("regState").textContent = "Could not load registrations.";
+    });
+  }
+
+  function regLocation(r){ return r.event_location || r.event_name || "—"; }
+  function regDate(r){ return r.event_date || ""; }
+
+  function uniqueSorted(arr){
+    var seen = {}, out = [];
+    arr.forEach(function(v){ if(v && !seen[v]){ seen[v] = 1; out.push(v); } });
+    return out.sort();
+  }
+  function fillSelect(id, values, labelFn){
+    var sel = $(id), keep = sel.value;
+    sel.innerHTML = '<option value="all">All</option>' + values.map(function(v){
+      return '<option value="'+esc(v)+'"'+(v===keep?" selected":"")+'>'+esc(labelFn?labelFn(v):v)+'</option>';
+    }).join("");
+  }
+  // Fill the Location + Event Date dropdowns from whatever is in the data.
+  function populateRegFilters(){
+    fillSelect("rLocation", uniqueSorted(registrations.map(regLocation)));
+    fillSelect("rDate", uniqueSorted(registrations.map(regDate).filter(Boolean)), dateOnly);
+  }
+
+  function regFiltersActive(){
+    return $("rLocation").value !== "all" || $("rDate").value !== "all"
+      || $("rRsvp").value !== "all" || $("rPay").value !== "all" || $("rSearch").value.trim() !== "";
+  }
+
+  function filteredRegistrations(){
+    var q = $("rSearch").value.trim().toLowerCase();
+    var loc = $("rLocation").value, dt = $("rDate").value, rsvp = $("rRsvp").value, pay = $("rPay").value;
+    return registrations.filter(function(r){
+      if(loc !== "all" && regLocation(r) !== loc) return false;
+      if(dt !== "all" && regDate(r) !== dt) return false;
+      if(rsvp !== "all" && r.rsvp_status !== rsvp) return false;
+      if(pay !== "all" && r.payment_status !== pay) return false;
+      if(q){
+        var hay = ((r.full_name||"")+" "+(r.email||"")+" "+(r.phone||"")+" "+(r.city||"")+" "+regLocation(r)).toLowerCase();
+        if(hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderRegTiles(rows){
+    var confirmed = rows.filter(function(r){ return r.rsvp_status === "Confirmed"; }).length;
+    var paid = rows.filter(function(r){ return r.payment_status === "Paid"; }).length;
+    var html = tile(rows.length, regFiltersActive() ? "Guests (filtered)" : "Total Guests")
+      + tile(confirmed, "RSVP Confirmed") + tile(paid, "Paid");
+    if(!regFiltersActive()){
+      // One tile per event (location + date) — head-count for each seating.
+      var groups = {};
+      rows.forEach(function(r){
+        var key = regLocation(r) + (regDate(r) ? " · " + dateOnly(regDate(r)) : "");
+        groups[key] = (groups[key] || 0) + 1;
+      });
+      Object.keys(groups).sort().forEach(function(k){ html += tile(groups[k], k); });
+    }
+    $("regTiles").innerHTML = html;
+  }
+
+  function tintReg(sel, kind){
+    var v = sel.value.toLowerCase();
+    var map = kind === "rsvp"
+      ? { pending:["#fdf3e2","#b7791f"], confirmed:["#e7f4ec","#2f7d4f"], cancelled:["#fbeae9","#b23b34"] }
+      : { pending:["#fdf3e2","#b7791f"], paid:["#e7f4ec","#2f7d4f"], refunded:["#efefec","#7a7a72"] };
+    var c = map[v] || ["#efefec","#7a7a72"];
+    sel.style.background = c[0]; sel.style.color = c[1]; sel.style.borderColor = "transparent";
+  }
+
+  function renderRegistrations(){
+    var tb = $("regBody");
+    var rows = filteredRegistrations();
+    renderRegTiles(rows);
+    if(!rows.length){
+      tb.innerHTML = "";
+      $("regState").hidden = false;
+      $("regState").textContent = registrations.length ? "No registrations match these filters." : "No registrations yet.";
+      return;
+    }
+    $("regState").hidden = true;
+    tb.innerHTML = rows.map(function(r){
+      var evt = esc(regLocation(r)) + (regDate(r) ? '<div class="muted" style="font-size:.72rem">'+esc(dateOnly(regDate(r)))+'</div>' : '');
+      return '<tr data-id="'+esc(r.id)+'">'
+        + '<td>'+esc(r.full_name)+'</td>'
+        + '<td class="muted" style="font-size:.74rem;white-space:nowrap">'+esc(r.email)+'<br>'+esc(r.phone)+'</td>'
+        + '<td>'+ (esc(r.city) || '<span class="muted">—</span>') +'</td>'
+        + '<td>'+evt+'</td>'
+        + '<td class="num">'+esc(r.guest_count||"")+'</td>'
+        + '<td style="min-width:150px;max-width:280px;white-space:pre-wrap">'+ (esc(r.allergies) || '<span class="muted">—</span>') +'</td>'
+        + '<td style="min-width:150px;max-width:280px;white-space:pre-wrap">'+ (esc(r.notes) || '<span class="muted">—</span>') +'</td>'
+        + '<td class="muted" style="white-space:nowrap">'+esc(fmtDate(r.created_at))+'</td>'
+        + '<td><select class="inline" data-field="rsvp_status">'+statusOpts(["Pending","Confirmed","Cancelled"], r.rsvp_status)+'</select></td>'
+        + '<td><select class="inline" data-field="payment_status">'+statusOpts(["Pending","Paid","Refunded"], r.payment_status)+'</select></td>'
+        + '</tr>';
+    }).join("");
+
+    tb.querySelectorAll("select[data-field]").forEach(function(sel){
+      tintReg(sel, sel.dataset.field === "rsvp_status" ? "rsvp" : "pay");
+      sel.addEventListener("change", function(){
+        var tr = sel.closest("tr");
+        var patch = {}; patch[sel.dataset.field] = sel.value;
+        sel.disabled = true;
+        api("/api/admin/registrations/" + tr.dataset.id, { method:"PATCH", body: patch })
+          .then(function(updated){
+            var idx = registrations.findIndex(function(x){ return String(x.id) === String(tr.dataset.id); });
+            if(idx > -1) registrations[idx] = updated;
+            renderRegistrations();
+            toast("Saved");
+          })
+          .catch(function(e){ showError(e.message); sel.disabled = false; loadRegistrations(); });
+      });
+    });
+  }
+
+  function exportRegistrations(){
+    var rows = filteredRegistrations();
+    if(!rows.length){ toast("Nothing to export"); return; }
+    var ws = XLSX.utils.json_to_sheet(rows.map(function(r){
+      return {
+        "Name": r.full_name, "Email ID": r.email, "Phone": r.phone, "City": r.city || "",
+        "Event": regLocation(r), "Event Date": regDate(r) ? dateOnly(regDate(r)) : "",
+        "Guests": r.guest_count || "", "Allergies / Dietary": r.allergies || "", "Notes": r.notes || "",
+        "Registered": fmtDate(r.created_at), "RSVP": r.rsvp_status, "Payment": r.payment_status
+      };
+    }), { header:["Name","Email ID","Phone","City","Event","Event Date","Guests","Allergies / Dietary","Notes","Registered","RSVP","Payment"] });
+    ws["!cols"] = [{wch:20},{wch:28},{wch:16},{wch:14},{wch:22},{wch:13},{wch:8},{wch:30},{wch:30},{wch:18},{wch:12},{wch:12}];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Oryn Table");
+    var loc = $("rLocation").value !== "all" ? $("rLocation").value.replace(/\W+/g, "-") : "all";
+    XLSX.writeFile(wb, "oryn-table_" + loc + ".xlsx");
+  }
+
+  $("rApplyBtn").addEventListener("click", renderRegistrations);
+  $("rSearch").addEventListener("keydown", function(e){ if(e.key === "Enter") renderRegistrations(); });
+  ["rLocation","rDate","rRsvp","rPay"].forEach(function(id){ $(id).addEventListener("change", renderRegistrations); });
+  $("rResetBtn").addEventListener("click", function(){
+    $("rSearch").value = ""; $("rLocation").value = "all"; $("rDate").value = "all"; $("rRsvp").value = "all"; $("rPay").value = "all";
+    renderRegistrations();
+  });
+  $("rExportBtn").addEventListener("click", exportRegistrations);
 
   /* ── API URL config ── */
   $("apiBase").value = localStorage.getItem(API_KEY) || DEFAULT_API;

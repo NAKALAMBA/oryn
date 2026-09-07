@@ -478,6 +478,11 @@
   <script src="js/main.js"></script>
   <script>
     (function () {
+      // This page is the Noida seating for The Oryn Table. Stored on every
+      // registration row so the admin "Oryn Table" tab can filter by
+      // location + date and count guests event-wise.
+      const EVENT = { name: 'The Oryn Table — Noida', location: 'Noida', date: '2026-07-26' };
+
       const guestCountSelect = document.getElementById('guest-count');
       const attendeeForm     = document.getElementById('reg-attendee-form');
       const submitBtn        = document.getElementById('reg-submit-btn');
@@ -705,6 +710,9 @@
           const rows = allAttendees.map(function (a) {
             return {
               group_id: groupId,
+              event_name: EVENT.name,
+              event_location: EVENT.location,
+              event_date: EVENT.date,
               guest_count: Number(totalGuests) || allAttendees.length,
               full_name: a.fullName,
               email: a.email,

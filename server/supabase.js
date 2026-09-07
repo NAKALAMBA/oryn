@@ -212,6 +212,10 @@ async function listRegistrations() {
   return rest('event_registrations?select=*&order=created_at.desc') || [];
 }
 
+async function updateRegistration(id, patch) {
+  return updateWhere('event_registrations', { id }, patch);
+}
+
 module.exports = {
   configured,
   SupabaseUnavailableError,
@@ -229,4 +233,5 @@ module.exports = {
   listContacts,
   updateContact,
   listRegistrations,
+  updateRegistration,
 };
