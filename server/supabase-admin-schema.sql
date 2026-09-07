@@ -68,3 +68,24 @@ alter table public.newsletter_subscribers enable row level security;
 drop policy if exists "anon can insert newsletter" on public.newsletter_subscribers;
 create policy "anon can insert newsletter" on public.newsletter_subscribers
   for insert to anon with check (true);
+
+-- ── contact_messages: the /admin "Messages" tab ──────────────────────
+-- The table itself is created by the browser-direct contact form path;
+-- the create-if-not-exists below just keeps this file self-contained.
+create table if not exists public.contact_messages (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  full_name text not null,
+  email text not null,
+  phone text not null,
+  subject text,
+  message text not null
+);
+alter table public.contact_messages enable row level security;
+drop policy if exists "anon can insert contact" on public.contact_messages;
+create policy "anon can insert contact" on public.contact_messages
+  for insert to anon with check (true);
+
+-- "Answered / not answered" flag for each query, toggled from the Messages tab.
+alter table public.contact_messages add column if not exists answered    boolean not null default false;
+alter table public.contact_messages add column if not exists answered_at  timestamptz;

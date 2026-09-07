@@ -204,6 +204,10 @@ async function listContacts() {
   return rest('contact_messages?select=*&order=created_at.desc') || [];
 }
 
+async function updateContact(id, patch) {
+  return updateWhere('contact_messages', { id }, patch);
+}
+
 async function listRegistrations() {
   return rest('event_registrations?select=*&order=created_at.desc') || [];
 }
@@ -223,5 +227,6 @@ module.exports = {
   listNewsletter,
   deleteNewsletter,
   listContacts,
+  updateContact,
   listRegistrations,
 };

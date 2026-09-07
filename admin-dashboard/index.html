@@ -147,6 +147,7 @@
 
   <div class="tabs">
     <button class="tab active" data-tab="orders">Orders</button>
+    <button class="tab" data-tab="messages">Messages</button>
     <button class="tab" data-tab="newsletter">Newsletter</button>
   </div>
 
@@ -211,6 +212,34 @@
         <tbody id="nlBody"></tbody>
       </table>
       <div class="state" id="nlState">Loading <span class="spinner"></span></div>
+    </div>
+  </section>
+
+  <!-- MESSAGES -->
+  <section id="tab-messages" hidden>
+    <h1 class="page">Messages</h1>
+    <p class="sub">Queries sent through the Contact form. Set each one to Answered once you've replied.</p>
+
+    <div class="filters">
+      <div class="fg"><label for="mSearch">Search</label><input type="search" id="mSearch" placeholder="Name, email, subject"></div>
+      <div class="fg"><label for="mAnswered">Status</label>
+        <select id="mAnswered"><option value="all">All</option><option value="no">Not Answered</option><option value="yes">Answered</option></select>
+      </div>
+      <div class="actions">
+        <button class="btn btn-solid" id="mApplyBtn">Search</button>
+        <button class="btn" id="mResetBtn">Reset</button>
+        <button class="btn" id="mExportBtn">Export Excel</button>
+      </div>
+    </div>
+
+    <div class="tiles" id="msgTiles"></div>
+
+    <div class="table-wrap">
+      <table id="msgTable">
+        <thead><tr><th>Name</th><th>Contact</th><th>Subject</th><th>Message</th><th>Received</th><th>Answered</th></tr></thead>
+        <tbody id="msgBody"></tbody>
+      </table>
+      <div class="state" id="msgState">Loading <span class="spinner"></span></div>
     </div>
   </section>
 
@@ -330,8 +359,10 @@
       tabButtons.forEach(function(x){ x.classList.toggle("active", x === b); });
       var name = b.dataset.tab;
       $("tab-orders").hidden = name !== "orders";
+      $("tab-messages").hidden = name !== "messages";
       $("tab-newsletter").hidden = name !== "newsletter";
       if(name === "newsletter" && !nlLoaded) loadNewsletter();
+      if(name === "messages" && !msgLoaded) loadMessages();
     });
   });
 
@@ -492,7 +523,7 @@
     loadOrders();
   });
   $("exportBtn").addEventListener("click", exportOrders);
-  $("refreshBtn").addEventListener("click", function(){ loadOrders(); if(nlLoaded) loadNewsletter(); });
+  $("refreshBtn").addEventListener("click", function(){ loadOrders(); if(nlLoaded) loadNewsletter(); if(msgLoaded) loadMessages(); });
 
   /* ══ NEWSLETTER ══ */
   var newsletter = [];
@@ -563,6 +594,106 @@
   $("nSearch").addEventListener("keydown", function(e){ if(e.key === "Enter") loadNewsletter(); });
   $("nResetBtn").addEventListener("click", function(){ $("nSearch").value = ""; loadNewsletter(); });
   $("nExportBtn").addEventListener("click", exportNewsletter);
+
+  /* ══ MESSAGES ══ */
+  var messages = [];
+  var msgLoaded = false;
+
+  function loadMessages(){
+    msgLoaded = true;
+    $("msgState").hidden = false;
+    $("msgState").innerHTML = 'Loading <span class="spinner"></span>';
+    return api("/api/admin/contacts").then(function(rows){
+      messages = rows || [];
+      renderMessages();
+    }).catch(function(e){
+      showError("Couldn't load messages — " + e.message);
+      $("msgState").hidden = false;
+      $("msgState").textContent = "Could not load messages.";
+    });
+  }
+
+  function filteredMessages(){
+    var q = $("mSearch").value.trim().toLowerCase();
+    var st = $("mAnswered").value;
+    return messages.filter(function(m){
+      if(st === "yes" && !m.answered) return false;
+      if(st === "no" && m.answered) return false;
+      if(q){
+        var hay = ((m.full_name||"") + " " + (m.email||"") + " " + (m.subject||"") + " " + (m.message||"")).toLowerCase();
+        if(hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function tintAnswered(sel){
+    var yes = sel.value === "yes";
+    sel.style.background = yes ? "var(--green-bg)" : "var(--amber-bg)";
+    sel.style.color = yes ? "var(--green)" : "var(--amber)";
+    sel.style.borderColor = "transparent";
+  }
+
+  function renderMessages(){
+    var tb = $("msgBody");
+    var rows = filteredMessages();
+    var open = messages.filter(function(m){ return !m.answered; }).length;
+    $("msgTiles").innerHTML = tile(messages.length, "Total") + tile(open, "Not Answered");
+    if(!rows.length){
+      tb.innerHTML = "";
+      $("msgState").hidden = false;
+      $("msgState").textContent = messages.length ? "No messages match these filters." : "No messages yet.";
+      return;
+    }
+    $("msgState").hidden = true;
+    tb.innerHTML = rows.map(function(m){
+      return '<tr data-id="'+esc(m.id)+'">'
+        + '<td>'+esc(m.full_name)+'</td>'
+        + '<td class="muted" style="font-size:.74rem;white-space:nowrap">'+esc(m.email)+'<br>'+esc(m.phone)+'</td>'
+        + '<td>'+ (esc(m.subject) || '<span class="muted">—</span>') +'</td>'
+        + '<td style="min-width:240px;max-width:440px;white-space:pre-wrap">'+esc(m.message)+'</td>'
+        + '<td class="muted" style="white-space:nowrap">'+esc(fmtDate(m.created_at))+'</td>'
+        + '<td><select class="inline" data-answered>'
+          + '<option value="no"'+(m.answered?"":" selected")+'>Not Answered</option>'
+          + '<option value="yes"'+(m.answered?" selected":"")+'>Answered</option>'
+        + '</select></td>'
+        + '</tr>';
+    }).join("");
+    tb.querySelectorAll("select[data-answered]").forEach(function(sel){
+      tintAnswered(sel);
+      sel.addEventListener("change", function(){
+        var tr = sel.closest("tr");
+        var answered = sel.value === "yes";
+        sel.disabled = true;
+        api("/api/admin/contacts/" + tr.dataset.id, { method:"PATCH", body:{ answered: answered } })
+          .then(function(updated){
+            var idx = messages.findIndex(function(x){ return String(x.id) === String(tr.dataset.id); });
+            if(idx > -1) messages[idx] = updated;
+            renderMessages();
+            toast("Saved");
+          })
+          .catch(function(e){ showError(e.message); sel.disabled = false; loadMessages(); });
+      });
+    });
+  }
+
+  function exportMessages(){
+    var rows = filteredMessages();
+    if(!rows.length){ toast("Nothing to export"); return; }
+    var ws = XLSX.utils.json_to_sheet(rows.map(function(m){
+      return { "Name": m.full_name, "Email ID": m.email, "Phone": m.phone, "Subject": m.subject || "", "Message": m.message, "Received": fmtDate(m.created_at), "Answered": m.answered ? "Yes" : "No" };
+    }), { header:["Name","Email ID","Phone","Subject","Message","Received","Answered"] });
+    ws["!cols"] = [{wch:20},{wch:30},{wch:16},{wch:22},{wch:50},{wch:18},{wch:12}];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Messages");
+    XLSX.writeFile(wb, "oryn-messages.xlsx");
+  }
+
+  $("mApplyBtn").addEventListener("click", renderMessages);
+  $("mSearch").addEventListener("keydown", function(e){ if(e.key === "Enter") renderMessages(); });
+  $("mAnswered").addEventListener("change", renderMessages);
+  $("mResetBtn").addEventListener("click", function(){ $("mSearch").value = ""; $("mAnswered").value = "all"; renderMessages(); });
+  $("mExportBtn").addEventListener("click", exportMessages);
 
   /* ── API URL config ── */
   $("apiBase").value = localStorage.getItem(API_KEY) || DEFAULT_API;

@@ -498,6 +498,25 @@ app.get('/api/admin/contacts', async (req, res) => {
   }
 });
 
+// Mark a query answered / not answered from the Messages tab.
+app.patch('/api/admin/contacts/:id', async (req, res) => {
+  const { answered } = req.body || {};
+  if (typeof answered !== 'boolean') {
+    return res.status(400).json({ error: 'answered must be true or false.' });
+  }
+  try {
+    const row = await supabase.updateContact(req.params.id, {
+      answered,
+      answered_at: answered ? new Date().toISOString() : null,
+    });
+    if (!row) return res.status(404).json({ error: 'Message not found.' });
+    res.json(row);
+  } catch (err) {
+    console.error('[admin/contacts PATCH] update failed:', err.message);
+    res.status(502).json({ error: 'Could not update the message.' });
+  }
+});
+
 app.get('/api/admin/registrations', async (req, res) => {
   try {
     res.json(await supabase.listRegistrations());
