@@ -254,9 +254,7 @@
       <div class="fg"><label for="rLocation">Location</label>
         <select id="rLocation"><option value="all">All</option></select>
       </div>
-      <div class="fg"><label for="rDate">Event Date</label>
-        <select id="rDate"><option value="all">All</option></select>
-      </div>
+      <div class="fg"><label for="rDate">Event Date</label><input type="date" id="rDate"></div>
       <div class="fg"><label for="rRsvp">RSVP</label>
         <select id="rRsvp"><option value="all">All</option><option>Pending</option><option>Confirmed</option><option>Cancelled</option></select>
       </div>
@@ -771,14 +769,14 @@
       return '<option value="'+esc(v)+'"'+(v===keep?" selected":"")+'>'+esc(labelFn?labelFn(v):v)+'</option>';
     }).join("");
   }
-  // Fill the Location + Event Date dropdowns from whatever is in the data.
+  // Fill the Location dropdown from whatever is in the data. The event-date
+  // filter is a calendar input, so nothing to populate there.
   function populateRegFilters(){
     fillSelect("rLocation", uniqueSorted(registrations.map(regLocation)));
-    fillSelect("rDate", uniqueSorted(registrations.map(regDate).filter(Boolean)), dateOnly);
   }
 
   function regFiltersActive(){
-    return $("rLocation").value !== "all" || $("rDate").value !== "all"
+    return $("rLocation").value !== "all" || $("rDate").value !== ""
       || $("rRsvp").value !== "all" || $("rPay").value !== "all" || $("rSearch").value.trim() !== "";
   }
 
@@ -787,7 +785,7 @@
     var loc = $("rLocation").value, dt = $("rDate").value, rsvp = $("rRsvp").value, pay = $("rPay").value;
     return registrations.filter(function(r){
       if(loc !== "all" && regLocation(r) !== loc) return false;
-      if(dt !== "all" && regDate(r) !== dt) return false;
+      if(dt && String(regDate(r)).slice(0, 10) !== dt) return false;
       if(rsvp !== "all" && r.rsvp_status !== rsvp) return false;
       if(pay !== "all" && r.payment_status !== pay) return false;
       if(q){
@@ -891,7 +889,7 @@
   $("rSearch").addEventListener("keydown", function(e){ if(e.key === "Enter") renderRegistrations(); });
   ["rLocation","rDate","rRsvp","rPay"].forEach(function(id){ $(id).addEventListener("change", renderRegistrations); });
   $("rResetBtn").addEventListener("click", function(){
-    $("rSearch").value = ""; $("rLocation").value = "all"; $("rDate").value = "all"; $("rRsvp").value = "all"; $("rPay").value = "all";
+    $("rSearch").value = ""; $("rLocation").value = "all"; $("rDate").value = ""; $("rRsvp").value = "all"; $("rPay").value = "all";
     renderRegistrations();
   });
   $("rExportBtn").addEventListener("click", exportRegistrations);
