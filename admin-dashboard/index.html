@@ -273,7 +273,7 @@
     <div class="table-wrap">
       <table id="regTable">
         <thead><tr>
-          <th>Name</th><th>Contact</th><th>City</th><th>Event</th><th class="num">Guests</th>
+          <th>Name</th><th>Contact</th><th>City</th><th>Event</th><th class="num">Party Size</th>
           <th>Allergies / Dietary</th><th>Notes</th><th>Registered</th><th>RSVP</th><th>Payment</th>
         </tr></thead>
         <tbody id="regBody"></tbody>
@@ -874,10 +874,10 @@
       return {
         "Name": r.full_name, "Email ID": r.email, "Phone": r.phone, "City": r.city || "",
         "Event": regLocation(r), "Event Date": regDate(r) ? dateOnly(regDate(r)) : "",
-        "Guests": r.guest_count || "", "Allergies / Dietary": r.allergies || "", "Notes": r.notes || "",
+        "Party Size": r.guest_count || "", "Allergies / Dietary": r.allergies || "", "Notes": r.notes || "",
         "Registered": fmtDate(r.created_at), "RSVP": r.rsvp_status, "Payment": r.payment_status
       };
-    }), { header:["Name","Email ID","Phone","City","Event","Event Date","Guests","Allergies / Dietary","Notes","Registered","RSVP","Payment"] });
+    }), { header:["Name","Email ID","Phone","City","Event","Event Date","Party Size","Allergies / Dietary","Notes","Registered","RSVP","Payment"] });
     ws["!cols"] = [{wch:20},{wch:28},{wch:16},{wch:14},{wch:22},{wch:13},{wch:8},{wch:30},{wch:30},{wch:18},{wch:12},{wch:12}];
     var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Oryn Table");

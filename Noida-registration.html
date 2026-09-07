@@ -121,6 +121,21 @@
       line-height: 1.6;
       color: #ffb3ae;
     }
+    /* ── Form nav row (Back + Submit) ── */
+    .reg-nav-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .reg-nav-row .btn {
+      flex: 1;
+      text-align: center;
+    }
+    #reg-back-btn { flex: 0 0 auto; }
+    @media (max-width: 520px) {
+      .reg-nav-row { flex-direction: column-reverse; }
+      #reg-back-btn { flex: 1; }
+    }
     /* ── Multi-attendee progress dots ── */
     .attendee-progress {
       display: flex;
@@ -378,7 +393,10 @@
             <textarea id="notes" rows="3" placeholder="Optional notes about seating, accessibility, celebration details, or companion names."></textarea>
           </div>
           <p id="reg-duplicate-error" class="reg-error" hidden role="alert"></p>
-          <button type="submit" class="btn btn-w reg-rest" id="reg-submit-btn" style="width:100%;justify-content:center;margin-top:8px;">Submit Registration →</button>
+          <div class="reg-nav-row reg-rest" id="reg-nav-row">
+            <button type="button" class="btn btn-ow" id="reg-back-btn" hidden>← Previous Attendee</button>
+            <button type="submit" class="btn btn-w" id="reg-submit-btn">Submit Registration →</button>
+          </div>
           <div class="attendee-progress" id="attendee-progress" hidden></div>
           <p id="reg-success" class="reg-success" hidden aria-live="polite"></p>
         </form>
@@ -486,6 +504,7 @@
       const guestCountSelect = document.getElementById('guest-count');
       const attendeeForm     = document.getElementById('reg-attendee-form');
       const submitBtn        = document.getElementById('reg-submit-btn');
+      const backBtn          = document.getElementById('reg-back-btn');
       const progressEl       = document.getElementById('attendee-progress');
       const largeGroupCard   = document.getElementById('large-group-card');
       const fgFullName       = document.getElementById('fg-full-name');
@@ -534,6 +553,22 @@
         cityInput.value = '';
         dietaryInput.value = '';
         notesInput.value = '';
+      }
+
+      function fillAttendeeInputs(a) {
+        a = a || {};
+        fullNameInput.value = a.fullName || '';
+        emailInput.value = a.email || '';
+        phoneInput.value = a.phone || '';
+        cityInput.value = a.city || '';
+        dietaryInput.value = a.allergies || '';
+        notesInput.value = a.notes || '';
+      }
+
+      // The "← Previous Attendee" button only applies mid multi-guest flow,
+      // once at least one attendee has been filled in.
+      function updateBackBtn() {
+        setHidden(backBtn, progressEl.hidden || currentIndex === 0);
       }
 
       function normalizePhone(phone) {
@@ -613,6 +648,7 @@
         formHeading.textContent = DEFAULT_HEADING;
         formDesc.textContent = DEFAULT_DESC;
         submitBtn.textContent = 'Submit Registration →';
+        updateBackBtn();
       }
 
       function startMultiGuestFlow(n) {
@@ -624,6 +660,7 @@
         formHeading.textContent = `Attendee 1 of ${n}`;
         formDesc.textContent = `Fill in Attendee 1's details for the reservation.`;
         submitBtn.textContent = 'Next Attendee Details →';
+        updateBackBtn();
       }
 
       guestCountSelect.addEventListener('change', () => {
@@ -680,17 +717,48 @@
         }
 
         if (currentIndex < n) {
-          clearAttendeeInputs();
+          // Coming back to an attendee that was filled in before shows their
+          // saved values; a fresh attendee starts blank.
+          fillAttendeeInputs(attendees[currentIndex]);
           setCurrentDot(currentIndex);
           formHeading.textContent = `Attendee ${currentIndex + 1} of ${n}`;
           formDesc.textContent = `Fill in Attendee ${currentIndex + 1}'s details for the reservation.`;
           submitBtn.textContent = currentIndex === n - 1
             ? 'Submit Registration →'
             : 'Next Attendee Details →';
+          updateBackBtn();
           fullNameInput.focus();
         } else {
           finalSubmit(attendees);
         }
+      });
+
+      backBtn.addEventListener('click', () => {
+        if (currentIndex === 0) return;
+        hideDuplicateError();
+
+        // Keep whatever is typed for the current attendee so stepping
+        // forward again doesn't lose it.
+        const partial = getAttendeeValues();
+        if (partial.fullName || partial.email || partial.phone ||
+            partial.city || partial.allergies || partial.notes) {
+          attendees[currentIndex] = partial;
+        }
+
+        currentIndex--;
+        const n = parseInt(guestCountSelect.value, 10) || 1;
+
+        fillAttendeeInputs(attendees[currentIndex]);
+        setCurrentDot(currentIndex);
+        const dot = progressEl.children[currentIndex];
+        if (dot) dot.classList.remove('done');
+        formHeading.textContent = `Attendee ${currentIndex + 1} of ${n}`;
+        formDesc.textContent = `Fill in Attendee ${currentIndex + 1}'s details for the reservation.`;
+        submitBtn.textContent = currentIndex === n - 1
+          ? 'Submit Registration →'
+          : 'Next Attendee Details →';
+        updateBackBtn();
+        fullNameInput.focus();
       });
 
       async function finalSubmit(allAttendees) {
