@@ -391,7 +391,6 @@ const cartItem = (sku, name, price, details) => ({ sku, name, price, details });
 const cartPageConfigs = {
   'best-sellers.html': [
     { selector: '#chapters .chapter:nth-of-type(1) a.btn[href="order.html"]', item: cartItem('SAANJH-BOX', 'Saanjh', 400, 'Best Sellers · Box of 6') },
-    { selector: '#chapters .chapter:nth-of-type(3) a.btn[href="order.html"]', item: cartItem('HALFHALF-ASSORTED', '1/2 & 1/2 Cookies - Assorted Box', 1000, 'Best Sellers · Assorted · Box of 8') },
   ],
   'muffins.html': [
     { selector: '#chapters .chapter:nth-of-type(1) a.btn[href="order.html"]', item: cartItem('CSB-150', 'Citrus Spice Bloom', 600, 'A Delhi Love Story · Box of 4') },
@@ -426,33 +425,29 @@ const cartPageConfigs = {
     { selector: '#bcm-sizes .size-card:nth-of-type(1) a.btn[href="order.html"]', item: cartItem('BCM-350', 'Banana Cookie Melt - Classic Loaf', 350, 'Banana Cookie Melt · 350g · Delhi NCR') },
     { selector: '#bcm-sizes .size-card:nth-of-type(2) a.btn[href="order.html"]', item: cartItem('BCM-500', 'Banana Cookie Melt - Large Loaf', 500, 'Banana Cookie Melt · 500g · Delhi NCR') },
   ],
-  'half-and-half-cookies.html': [
-    { selector: '#hh-boxes .hh-box-card:nth-of-type(1) a.btn[href="order.html"]', item: cartItem('HALFHALF-SOLSTICE', '1/2 & 1/2 Cookies - Solstice Box', 1000, 'Solstice · Lemon × Blueberry · Box of 8 · Pan India') },
-    { selector: '#hh-boxes .hh-box-card:nth-of-type(2) a.btn[href="order.html"]', item: cartItem('HALFHALF-ECLIPSE', '1/2 & 1/2 Cookies - Eclipse Box', 1000, 'Eclipse · Dark Chocolate × Vanilla Confetti · Box of 8 · Pan India') },
-    { selector: '#hh-boxes .hh-box-card:nth-of-type(3) a.btn[href="order.html"]', item: cartItem('HALFHALF-ASSORTED', '1/2 & 1/2 Cookies - Assorted Box', 1000, 'Assorted · 4 Solstice + 4 Eclipse · Box of 8 · Pan India') },
-  ],
+  // half-and-half-cookies.html wires its buttons declaratively (data-add-to-cart), so no entry needed here.
 };
 
 /* Master product list, used only to power "You May Also Like" suggestions
    in the cart drawer — every real, orderable product across every collection. */
 const PRODUCT_CATALOG = [
-  { sku: 'CSB-150', name: 'Citrus Spice Bloom', price: 600, details: 'A Delhi Love Story · Box of 4', href: 'muffin-citrus-spice-bloom.html', image: 'All Product Images/Malabar Gold Éclair/1.png' },
-  { sku: 'ML-150', name: 'Mace Latte', price: 600, details: 'A Delhi Love Story · Box of 4', href: 'muffin-mace-latte.html', image: 'All Product Images/Apricus Bento Cake/1.png' },
-  { sku: 'MB-180', name: 'Matcha Butterscotch', price: 720, details: 'A Delhi Love Story · Box of 4', href: 'muffin-matcha-butterscotch.html', image: 'All Product Images/Saanjh/1.png' },
-  { sku: 'SCE-150', name: 'Spiced Cocoa Ember', price: 600, details: 'A Delhi Love Story · Box of 4', href: 'muffin-spiced-cocoa-ember.html', image: 'All Product Images/Nolen Halo Cupcake/1.png' },
-  { sku: 'SCP-180', name: 'Salted Caramel Power Crunch', price: 720, details: 'A Delhi Love Story · Box of 4', href: 'muffin-salted-caramel.html', image: 'All Product Images/Banana Cookie Melt Loaf/1.png' },
+  { sku: 'CSB-150', name: 'Citrus Spice Bloom', price: 600, details: 'A Delhi Love Story · Box of 4', href: 'muffin-citrus-spice-bloom.html', image: 'Citrus_spice_bloom_card.png' },
+  { sku: 'ML-150', name: 'Mace Latte', price: 600, details: 'A Delhi Love Story · Box of 4', href: 'muffin-mace-latte.html', image: 'Mace_Latte_Card.png' },
+  { sku: 'MB-180', name: 'Matcha Butterscotch', price: 720, details: 'A Delhi Love Story · Box of 4', href: 'muffin-matcha-butterscotch.html', image: 'Matcha_Butterscotch.png' },
+  { sku: 'SCE-150', name: 'Spiced Cocoa Ember', price: 600, details: 'A Delhi Love Story · Box of 4', href: 'muffin-spiced-cocoa-ember.html', image: 'Spiced_Cocoa_Ember_Card.png' },
+  { sku: 'SCP-180', name: 'Salted Caramel Power Crunch', price: 720, details: 'A Delhi Love Story · Box of 4', href: 'muffin-salted-caramel.html', image: 'Salted_Caramel_Muffin.png' },
   { sku: 'AURELIA-BOX', name: 'Aurelia', price: 800, details: 'Cookie Collection · Box of 6', href: 'cookie-aurelia.html', image: 'All Product Images/All Cookies/Aurelia Cookies/2.png' },
-  { sku: 'JADECARAMEL-BOX', name: 'Jade Caramel', price: 800, details: 'Cookie Collection · Box of 6', href: 'cookie-jade-caramel.html', image: 'All Product Images/All Cookies/Oryn - Invitation-12.png' },
-  { sku: 'CLOUDCRUMB-BOX', name: 'Cloud Crumb', price: 800, details: 'Cookie Collection · Box of 6', href: 'cookie-cloud-crumb.html', image: 'All Product Images/All Cookies/Oryn - Invitation-17.png' },
-  { sku: 'ACC-500', name: 'Almond Cinnamon Cookies', price: 500, details: 'WOH DIN - Yaad Hai? · Pack of 4', href: 'almond-cinnamon-cookies.html', image: 'All Product Images/Almond Cinnamon Cookies/1.jpg' },
-  { sku: 'ACB-500', name: 'Almond Chocolate Biscotti', price: 500, details: 'WOH DIN - Yaad Hai? · Pack of 6', href: 'almond-chocolate-biscotti.html', image: 'All Product Images/Almond Chocolate Biscotti/1.jpg' },
-  { sku: 'ANTC-600', name: 'Almond & Nuts Tea Cake', price: 600, details: 'WOH DIN - Yaad Hai? · 1 loaf', href: 'almond-nuts-tea-cake.html', image: 'All Product Images/Almond Nuts Tea Cake/1.jpg' },
-  { sku: 'DCAB-400', name: 'Dark Chocolate Almond Bars', price: 400, details: 'WOH DIN - Yaad Hai? · Pack of 4', href: 'dark-chocolate-almond-bars.html', image: 'All Product Images/Dark Chocolate Almond Bars/1.jpg' },
-  { sku: 'MALABAR-ECL', name: 'Malabar Gold Éclair', price: 600, details: 'Flavours of India · Set of 3', href: 'eclair-malabar-gold.html', image: 'All Product Images/Malabar Gold Éclair/1.png' },
-  { sku: 'NOLEN-CUP', name: 'Nolen Halo Cupcake', price: 600, details: 'Flavours of India · Set of 4', href: 'cupcake-nolen-halo.html', image: 'All Product Images/Nolen Halo Cupcake/1.png' },
-  { sku: 'APRICUS-BENTO', name: 'Apricus Bento Cake', price: 450, details: 'Flavours of India · 1 box', href: 'bento-apricus.html', image: 'All Product Images/Apricus Bento Cake/1.png' },
-  { sku: 'SAANJH-BOX', name: 'Saanjh', price: 400, details: 'Best Sellers · Box of 6', href: 'saanjh.html', image: 'All Product Images/Saanjh/1.png' },
-  { sku: 'BCM-350', name: 'Banana Cookie Melt', price: 350, details: 'Best Sellers · 350g', href: 'banana-cookie-melt.html', image: 'All Product Images/Banana Cookie Melt Loaf/1.png' },
+  { sku: 'JADECARAMEL-BOX', name: 'Jade Caramel', price: 800, details: 'Cookie Collection · Box of 6', href: 'cookie-jade-caramel.html', image: 'Jade_Caramel_Card.png' },
+  { sku: 'CLOUDCRUMB-BOX', name: 'Cloud Crumb', price: 800, details: 'Cookie Collection · Box of 6', href: 'cookie-cloud-crumb.html', image: 'Cloude_Crum_Cookie.png' },
+  { sku: 'ACC-500', name: 'Almond Cinnamon Cookies', price: 500, details: 'WOH DIN - Yaad Hai? · Pack of 4', href: 'almond-cinnamon-cookies.html', image: 'oryn_woh_din_yaad_hai/Almond Cinnamon Cookies/Image 1.png' },
+  { sku: 'ACB-500', name: 'Almond Chocolate Biscotti', price: 500, details: 'WOH DIN - Yaad Hai? · Pack of 6', href: 'almond-chocolate-biscotti.html', image: 'oryn_woh_din_yaad_hai/Chocolate Almond Biscotti/Image 1.png' },
+  { sku: 'ANTC-600', name: 'Almond & Nuts Tea Cake', price: 600, details: 'WOH DIN - Yaad Hai? · 1 loaf', href: 'almond-nuts-tea-cake.html', image: 'oryn_woh_din_yaad_hai/Almond &amp; Nuts Tea Cake/Image 1.png' },
+  { sku: 'DCAB-400', name: 'Dark Chocolate Almond Bars', price: 400, details: 'WOH DIN - Yaad Hai? · Pack of 4', href: 'dark-chocolate-almond-bars.html', image: 'oryn_woh_din_yaad_hai/Dark Chocolate Almond Bars/Image 1.png' },
+  { sku: 'MALABAR-ECL', name: 'Malabar Gold Éclair', price: 600, details: 'Flavours of India · Set of 3', href: 'eclair-malabar-gold.html', image: 'Malabar_gold_eclair_card_photo.png' },
+  { sku: 'NOLEN-CUP', name: 'Nolen Halo Cupcake', price: 600, details: 'Flavours of India · Set of 4', href: 'cupcake-nolen-halo.html', image: '4 (1).png' },
+  { sku: 'APRICUS-BENTO', name: 'Apricus Bento Cake', price: 450, details: 'Flavours of India · 1 box', href: 'bento-apricus.html', image: 'Apricus_Bento_Cake_Card_Photo.png' },
+  { sku: 'SAANJH-BOX', name: 'Saanjh', price: 400, details: 'Best Sellers · Box of 6', href: 'saanjh.html', image: 'Saanjh_Product_Photo.png' },
+  { sku: 'BCM-350', name: 'Banana Cookie Melt', price: 350, details: 'Best Sellers · 350g', href: 'banana-cookie-melt.html', image: '5 (1).png' },
   { sku: 'HALFHALF-ASSORTED', name: '1/2 & 1/2 Cookies', price: 1000, details: 'Best Sellers · Box of 8', href: 'half-and-half-cookies.html', image: 'All Product Images/Half and Half Cookies/eclipse-standing.png' },
 ];
 
@@ -590,10 +585,20 @@ function closeCartDrawer() {
   document.body.classList.remove('cart-drawer-locked');
 }
 
+/* Per-variant cart thumbnails — SKUs that share a product page and aren't
+   in PRODUCT_CATALOG (which lists one representative SKU per product for the
+   "You May Also Like" suggestions). */
+const CART_VARIANT_IMAGES = {
+  'HALFHALF-ECLIPSE': 'All Product Images/Half and Half Cookies/eclipse-1.png',
+  'HALFHALF-SOLSTICE': 'All Product Images/Half and Half Cookies/solstice-1.png',
+  'BCM-500': 'All Product Images/Banana Cookie Melt Loaf/1.png',
+};
+
 function cartThumbHtml(sku, extraClass) {
   const product = PRODUCT_CATALOG.find(p => p.sku === sku);
-  if (product && product.image) {
-    return `<div class="${extraClass}"><img src="${product.image}" alt="${product.name}" loading="lazy"></div>`;
+  const image = (product && product.image) || CART_VARIANT_IMAGES[sku];
+  if (image) {
+    return `<div class="${extraClass}"><img src="${image}" alt="${product ? product.name : ''}" loading="lazy"></div>`;
   }
   return `<div class="${extraClass} ph" data-ph=""></div>`;
 }
@@ -736,8 +741,7 @@ function renderCartPage() {
         <h3 class="cart-empty-title">Your cart is empty.</h3>
         <p class="cart-empty-copy">Add products from any product or collection page and they will appear here instantly.</p>
         <div class="cart-empty-links">
-          <a href="muffins.html" class="btn btn-b btn-sm">Browse Muffins</a>
-          <a href="cookies.html" class="btn btn-ob btn-sm">Browse Cookies</a>
+          <a href="all-products.html" class="btn btn-b btn-sm">Browse All Products</a>
         </div>
       </div>`;
     return;
@@ -785,8 +789,8 @@ function renderCartPage() {
           : 'Shipping, delivery confirmation, and availability are finalised after enquiry based on the product mix and delivery zone.'}</p>
         <div class="cart-summary-actions">
           ${isCheckout
-            ? '<a href="muffins.html" class="btn btn-ob">Keep Shopping</a>'
-            : '<a href="checkout.html" class="btn btn-b">Complete Order</a><a href="muffins.html" class="btn btn-ob">Keep Shopping</a>'}
+            ? '<a href="all-products.html" class="btn btn-ob">Keep Shopping</a>'
+            : '<a href="checkout.html" class="btn btn-b">Complete Order</a><a href="all-products.html" class="btn btn-ob">Keep Shopping</a>'}
         </div>
       </aside>
     </div>`;

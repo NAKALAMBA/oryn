@@ -143,6 +143,15 @@
       .cart-summary-actions, .cart-empty-links { flex-direction: column; align-items: stretch; }
       .cart-summary-actions .btn, .cart-empty-links .btn { width: 100%; justify-content: center; }
     }
+
+    /* This page has no nav CTA button — pin the links to the true centre so
+       the bar matches every other page instead of drifting right. */
+    #nav .nav-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   </style>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -244,7 +253,6 @@
       <a href="about.html"          class="nav-link">About</a>
       <a href="contact.html" class="nav-link">Contact</a>
     </div>
-    <a href="#enquiry" class="nav-cta-btn desktop-only">Dashboard</a>
     <button class="hamburger" id="ham" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
 
