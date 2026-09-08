@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Register for The Oryn Table Noida on 26th July 2026. Reserve your seat and share your guest details with Oryn.">
+  <meta name="description" content="The Oryn Table Noida, 19th September 2026 — an invitation-only gathering. Registration is closed to public applications.">
   <title>Noida Registration - The Oryn Table - Oryn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -322,9 +322,9 @@
 
   <section id="reg-hero" data-dark data-hero-dark>
     <div class="reg-hero-inner">
-      <p class="reg-kicker r">The Oryn Table · Noida · 26th July 2026</p>
-      <h1 class="reg-title r d1">Reserve Your Seat</h1>
-      <p class="reg-copy r d2">Share your details below to register for the Noida edition of The Oryn Table. Once you submit the form, we will confirm your registration flow and redirect you back to the main Oryn homepage.</p>
+      <p class="reg-kicker r">The Oryn Table · Noida · 19th September 2026</p>
+      <h1 class="reg-title r d1">Invitation Only</h1>
+      <p class="reg-copy r d2">The Oryn Table 04 in Noida is an invitation-only gathering. Registration is closed and not open to public applications.</p>
     </div>
   </section>
 
@@ -335,8 +335,8 @@
         <h2>Your place at the Noida table starts here.</h2>
         <p>Please complete the registration form with your contact details, guest count, and any dietary or accessibility notes we should know in advance.</p>
         <ul class="reg-points">
-          <li><strong>Edition</strong>The Oryn Table 03 · Noida</li>
-          <li><strong>Date</strong>26th July 2026</li>
+          <li><strong>Edition</strong>The Oryn Table 04 · Noida</li>
+          <li><strong>Date</strong>19th September 2026</li>
           <li><strong>Ideal For</strong>Guests joining the curated dessert dining experience and needing a reservation record.</li>
         </ul>
       </div>
@@ -344,7 +344,7 @@
       <div class="reg-form-card r-r" id="registration-form" data-dark>
         <span class="eye eye-w mb16" id="reg-form-eye">Guest Registration</span>
         <h2 id="reg-form-heading">Register for Noida</h2>
-        <p id="reg-form-desc">Fill in the required information exactly as you would like us to use it for the reservation.</p>
+        <p id="reg-form-desc" style="color:#ffb4b0;font-weight:600;">Registration is closed — The Oryn Table 04 is an invitation-only event. Public applications are not being accepted.</p>
         <form class="form-dark" id="reg-attendee-form" data-success-text="Thanks for registering." data-redirect-url="index.html" data-redirect-delay="2200">
           <div class="form-grid">
             <div class="fg" id="fg-full-name">
@@ -381,7 +381,7 @@
             </div>
             <div class="fg">
               <label for="event-date">Event Date</label>
-              <input id="event-date" type="text" value="26th July 2026" readonly>
+              <input id="event-date" type="text" value="19th September 2026" readonly>
             </div>
           </div>
           <div class="fg reg-rest">
@@ -395,7 +395,7 @@
           <p id="reg-duplicate-error" class="reg-error" hidden role="alert"></p>
           <div class="reg-nav-row reg-rest" id="reg-nav-row">
             <button type="button" class="btn btn-ow" id="reg-back-btn" hidden>← Previous Attendee</button>
-            <button type="submit" class="btn btn-w" id="reg-submit-btn">Submit Registration →</button>
+            <button type="submit" class="btn btn-w" id="reg-submit-btn" disabled style="opacity:.5;cursor:not-allowed;">Registration Closed — Invitation Only</button>
           </div>
           <div class="attendee-progress" id="attendee-progress" hidden></div>
           <p id="reg-success" class="reg-success" hidden aria-live="polite"></p>
@@ -499,7 +499,7 @@
       // This page is the Noida seating for The Oryn Table. Stored on every
       // registration row so the admin "Oryn Table" tab can filter by
       // location + date and count guests event-wise.
-      const EVENT = { name: 'The Oryn Table — Noida', location: 'Noida', date: '2026-07-26' };
+      const EVENT = { name: 'The Oryn Table — Noida', location: 'Noida', date: '2026-09-19' };
 
       const guestCountSelect = document.getElementById('guest-count');
       const attendeeForm     = document.getElementById('reg-attendee-form');

@@ -150,6 +150,24 @@
         flex: none;
         text-align: center;
       }
+      /* Registration is closed — a fully covered, non-clickable "Invitation
+         Only" block replaces the Reserve Your Seat button entirely. */
+      .btn-invite {
+        display: block;
+        width: 100%;
+        background: repeating-linear-gradient(
+          45deg,
+          #767b85,
+          #767b85 8px,
+          #b7bac1 8px,
+          #b7bac1 16px
+        );
+        color: var(--white);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        cursor: default;
+        user-select: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+      }
       .ot-scroll-hint {
         position: absolute;
         bottom: 32px;
@@ -1831,11 +1849,11 @@
         <span></span><span></span><span></span><span></span><span></span>
         <span></span><span></span><span></span><span></span><span></span>
       </div>
-      <div class="ot-num-big">03</div>
-      <p class="ot-edition r">The Oryn Table · Edition 03</p>
+      <div class="ot-num-big">04</div>
+      <p class="ot-edition r">The Oryn Table · Edition 04</p>
       <h1 class="ot-city r d1" lang="hi">नोएडा</h1>
       </div>
-      <p class="ot-date r d2">26th July, 2026</p>
+      <p class="ot-date r d2">19th September, 2026</p>
       <div class="ot-tags r d3">
         <span class="badge badge-w">Curated Dessert Menu</span>
         <span class="badge badge-w">Live Music</span>
@@ -1845,7 +1863,9 @@
       </div>
       <div class="ot-btns r d4">
         <a href="#intro" class="btn btn-ow">What is the Table?</a>
-        <a href="Noida-registration.html" class="btn btn-w">Reserve Your Seat</a>
+<!-- ARCHIVED — invitation-only marker, kept for later use, not currently shown:
+        <div class="btn btn-invite" role="note" aria-label="Registration is invitation-only and closed to public applications">Invitation Only</div>
+        -->
       </div>
       <p class="ot-scroll-hint">Scroll to Explore</p>
     </section>
@@ -1951,33 +1971,33 @@
 
     <div class="marquee">
       <div class="marquee-track">
-        <span class="marquee-item">Table 03 · Noida, Delhi</span>
-        <span class="marquee-item">26th July 2026</span>
+        <span class="marquee-item">Table 04 · Noida, Delhi</span>
+        <span class="marquee-item">19th September 2026</span>
         <span class="marquee-item">Limited Seats</span>
         <span class="marquee-item">Curated Dessert Experience</span>
         <span class="marquee-item">An Evening to Remember</span>
-        <span class="marquee-item">Table 03 · Noida, Delhi</span>
-        <span class="marquee-item">26th July 2026</span>
+        <span class="marquee-item">Table 04 · Noida, Delhi</span>
+        <span class="marquee-item">19th September 2026</span>
         <span class="marquee-item">Limited Seats</span>
         <span class="marquee-item">Curated Dessert Experience</span>
         <span class="marquee-item">An Evening to Remember</span>
-        <span class="marquee-item">Table 03 · Noida, Delhi</span>
-        <span class="marquee-item">26th July 2026</span>
+        <span class="marquee-item">Table 04 · Noida, Delhi</span>
+        <span class="marquee-item">19th September 2026</span>
         <span class="marquee-item">Limited Seats</span>
         <span class="marquee-item">Curated Dessert Experience</span>
         <span class="marquee-item">An Evening to Remember</span>
-        <span class="marquee-item">Table 03 · Noida, Delhi</span>
-        <span class="marquee-item">26th July 2026</span>
+        <span class="marquee-item">Table 04 · Noida, Delhi</span>
+        <span class="marquee-item">19th September 2026</span>
         <span class="marquee-item">Limited Seats</span>
         <span class="marquee-item">Curated Dessert Experience</span>
         <span class="marquee-item">An Evening to Remember</span>
-        <span class="marquee-item">Table 03 · Noida, Delhi</span>
-        <span class="marquee-item">26th July 2026</span>
+        <span class="marquee-item">Table 04 · Noida, Delhi</span>
+        <span class="marquee-item">19th September 2026</span>
         <span class="marquee-item">Limited Seats</span>
         <span class="marquee-item">Curated Dessert Experience</span>
         <span class="marquee-item">An Evening to Remember</span>
-        <span class="marquee-item">Table 03 · Noida, Delhi</span>
-        <span class="marquee-item">26th July 2026</span>
+        <span class="marquee-item">Table 04 · Noida, Delhi</span>
+        <span class="marquee-item">19th September 2026</span>
         <span class="marquee-item">Limited Seats</span>
         <span class="marquee-item">Curated Dessert Experience</span>
         <span class="marquee-item">An Evening to Remember</span>
@@ -2250,7 +2270,7 @@
             class="ec-gallery"
             data-gallery
             data-label="Table 03"
-            data-images="Table%20No3%20Images/1.png,Table%20No3%20Images/2.png,Table%20No3%20Images/20.png,Table%20No3%20Images/7.png,Table%20No3%20Images/21.png,Table%20No3%20Images/23.png,Table%20No3%20Images/31.png,Table%20No3%20Images/37.png"
+            data-images="Table%20No3%20Images/1.png,Table%20No3%20Images/2.png,Table%20No3%20Images/20.png,Table%20No3%20Images/7.png,Table%20No3%20Images/21.png,3%20(1).png,8%20(2).png,Table%20No3%20Images/37.png"
           ></div>
         </div>
       </div>
@@ -2307,8 +2327,8 @@
       <div class="ns-inner">
         <p class="ns-eyebrow r">Next Stop</p>
         <h2 class="ns-city r d1">Noida</h2>
-        <p class="ns-edition r d2">The Oryn Table · 03</p>
-        <p class="ns-date r d3">26th July, 2026</p>
+        <p class="ns-edition r d2">The Oryn Table · 04</p>
+        <p class="ns-date r d3">19th September, 2026</p>
         <div class="ns-rule r d3"></div>
         <div class="ns-lines r d4">
           <span class="eye eye-b mb16">The Vision</span>
