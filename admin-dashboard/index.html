@@ -81,8 +81,23 @@
   td.num,th.num{text-align:right;white-space:nowrap}
   tr:hover td{background:rgba(12,54,123,.02)}
   .muted{color:var(--blue-45)}
+  .msg-cell{max-width:420px;white-space:pre-wrap;line-height:1.5}
   .stack-line{padding:2px 0}
   .stack-line + .stack-line{border-top:1px dashed var(--blue-10);margin-top:4px;padding-top:6px}
+  tfoot .orders-subtotal-row td{background:var(--blue-06);border-top:2px solid var(--blue-20);border-bottom:none;font-weight:600;padding:14px 12px}
+  tfoot .orders-subtotal-row td:first-child{text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;color:var(--blue-45)}
+  tfoot .orders-subtotal-row strong{font-family:var(--f-display);font-size:1.05rem}
+  tfoot .orders-grandtotal-row td{border-top:2px solid var(--blue);border-bottom:none;background:var(--blue-06);padding:16px 14px}
+  .gt-wrap{display:flex;align-items:baseline;gap:14px}
+  .gt-label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-45)}
+  .gt-amount{margin-left:auto;font-family:var(--f-display);font-size:1.5rem;font-weight:500;color:var(--blue)}
+  .gt-sub{margin-top:6px;text-align:right;font-size:.74rem;color:var(--blue-45)}
+  .link-btn{background:none;border:none;padding:0;font-size:.72rem;letter-spacing:.02em;color:var(--blue);text-decoration:underline;text-underline-offset:2px}
+  .link-btn:hover{color:var(--blue-70)}
+  .addr-modal .row{justify-content:flex-end;margin-top:8px}
+  .addr-field{margin-bottom:14px}
+  .addr-field .l{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-45);margin-bottom:3px}
+  .addr-field .v{font-size:.92rem;line-height:1.5}
 
   .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
   .badge.pending{background:var(--amber-bg);color:var(--amber)}
@@ -148,6 +163,7 @@
   <div class="tabs">
     <button class="tab active" data-tab="orders">Orders</button>
     <button class="tab" data-tab="messages">Messages</button>
+    <button class="tab" data-tab="enquire">Enquire</button>
     <button class="tab" data-tab="newsletter">Newsletter</button>
     <button class="tab" data-tab="oryntable">Oryn Table</button>
   </div>
@@ -182,10 +198,11 @@
       <table id="ordersTable">
         <thead><tr>
           <th>Customer Name</th><th>Product</th><th class="num">Quantity</th><th>Variant</th>
-          <th class="num">Price</th><th class="num">Discount</th><th class="num">Final Payment</th>
-          <th class="num">Shipping</th><th>Order Status</th><th>Payment</th><th>Order Date</th>
+          <th class="num">Price</th><th class="num">Discount</th><th class="num">Shipping</th><th class="num">Final Payment</th>
+          <th>Order Status</th><th>Payment</th><th>Order Date</th>
         </tr></thead>
         <tbody id="ordersBody"></tbody>
+        <tfoot id="ordersFoot"></tfoot>
       </table>
       <div class="state" id="ordersState">Loading <span class="spinner"></span></div>
     </div>
@@ -241,6 +258,34 @@
         <tbody id="msgBody"></tbody>
       </table>
       <div class="state" id="msgState">Loading <span class="spinner"></span></div>
+    </div>
+  </section>
+
+  <!-- ENQUIRE (order.html "Ready to Order?" form) -->
+  <section id="tab-enquire" hidden>
+    <h1 class="page">Enquire</h1>
+    <p class="sub">Order enquiries submitted through the "Ready to Order?" form on the site. Status is managed from the Orders tab.</p>
+
+    <div class="filters">
+      <div class="fg"><label for="eSearch">Search</label><input type="search" id="eSearch" placeholder="Name, email, phone, product, details"></div>
+      <div class="actions">
+        <button class="btn btn-solid" id="eApplyBtn">Search</button>
+        <button class="btn" id="eResetBtn">Reset</button>
+        <button class="btn" id="eExportBtn">Export Excel</button>
+      </div>
+    </div>
+
+    <div class="tiles" id="enqTiles"></div>
+
+    <div class="table-wrap">
+      <table id="enqTable">
+        <thead><tr>
+          <th>Received</th><th>Customer</th><th>Delivery</th><th>Product Interest</th>
+          <th>Quantity &amp; Details</th><th>Gift / Message</th><th>Cart Items</th><th>Order Status</th><th>Payment</th>
+        </tr></thead>
+        <tbody id="enqBody"></tbody>
+      </table>
+      <div class="state" id="enqState">Loading <span class="spinner"></span></div>
     </div>
   </section>
 
@@ -399,10 +444,12 @@
       var name = b.dataset.tab;
       $("tab-orders").hidden = name !== "orders";
       $("tab-messages").hidden = name !== "messages";
+      $("tab-enquire").hidden = name !== "enquire";
       $("tab-newsletter").hidden = name !== "newsletter";
       $("tab-oryntable").hidden = name !== "oryntable";
       if(name === "newsletter" && !nlLoaded) loadNewsletter();
       if(name === "messages" && !msgLoaded) loadMessages();
+      if(name === "enquire" && !enqLoaded) loadEnquiries();
       if(name === "oryntable" && !regLoaded) loadRegistrations();
     });
   });
@@ -450,6 +497,7 @@
       $("ordersState").hidden = false;
       $("ordersState").textContent = "No orders match these filters.";
       renderOrderTiles();
+      renderOrderFoot();
       return;
     }
     $("ordersState").hidden = true;
@@ -457,21 +505,30 @@
       var items = (o.items && o.items.length) ? o.items : [{ name:o.product_interest||"—", quantity:"", variant:"", price:"" }];
       var stack = function(fn){ return items.map(function(i){ return '<div class="stack-line">'+fn(i)+'</div>'; }).join(""); };
       return '<tr data-id="'+esc(o.id)+'">'
-        + '<td>'+esc(o.full_name)+'<div class="muted" style="font-size:.72rem">'+esc(o.email)+'<br>'+esc(o.phone)+'</div></td>'
+        + '<td>'+esc(o.full_name)+'<div class="muted" style="font-size:.72rem">'+esc(o.email)+'<br>'+esc(o.phone)+'</div>'
+            +'<button type="button" class="link-btn" data-view-address style="margin-top:6px">View Address</button></td>'
         + '<td>'+stack(function(i){ return esc(i.name); })+'</td>'
         + '<td class="num">'+stack(function(i){ return esc(i.quantity); })+'</td>'
         + '<td>'+stack(function(i){ return esc(i.variant||"") || '<span class="muted">—</span>'; })+'</td>'
         + '<td class="num">'+stack(function(i){ return i.price===""?"":fmtMoney(i.price); })
             +'<div class="muted" style="font-size:.72rem;margin-top:4px">Subtotal '+fmtMoney(o.subtotal)+'</div></td>'
         + '<td class="num"><input class="inline money" type="number" min="0" step="1" data-field="discount" value="'+(o.discount||0)+'"></td>'
-        + '<td class="num" data-final><strong>'+fmtMoney(o.final_payment)+'</strong></td>'
         + '<td class="num"><input class="inline money" type="number" min="0" step="1" placeholder="—" data-field="shipping" value="'+(o.shipping===null||o.shipping===undefined?"":o.shipping)+'"></td>'
+        + '<td class="num" data-final><strong>'+fmtMoney(o.final_payment)+'</strong>'
+            +'<div class="muted" style="font-size:.68rem;margin-top:3px">Price − Disc + Ship</div></td>'
         + '<td><select class="inline" data-field="order_status">'+statusOpts(["Pending","Completed","Cancelled"], o.order_status)+'</select></td>'
         + '<td><select class="inline" data-field="payment_status">'+statusOpts(["Pending","Paid"], o.payment_status)+'</select></td>'
         + '<td class="muted" style="white-space:nowrap">'+esc(fmtDate(o.created_at))+'</td>'
         + '</tr>';
     }).join("");
 
+    tb.querySelectorAll("[data-view-address]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var tr = btn.closest("tr");
+        var o = orders.find(function(x){ return String(x.id) === String(tr.dataset.id); });
+        if(o) showAddressModal(o);
+      });
+    });
     tb.querySelectorAll("[data-field]").forEach(function(el){
       var evt = el.tagName === "SELECT" ? "change" : "change";
       el.addEventListener(evt, function(){
@@ -487,6 +544,7 @@
             tr.querySelector("[data-final] strong").textContent = fmtMoney(updated.final_payment);
             paintBadges();
             renderOrderTiles();
+            renderOrderFoot();
             toast("Saved");
           })
           .catch(function(e){ showError(e.message); loadOrders(); })
@@ -495,6 +553,26 @@
     });
     paintBadges();
     renderOrderTiles();
+    renderOrderFoot();
+  }
+
+  function addressField(label, value){
+    return '<div class="addr-field"><div class="l">'+esc(label)+'</div><div class="v">'+
+      (value ? esc(value) : '<span class="muted">Not provided</span>') + '</div></div>';
+  }
+  function showAddressModal(o){
+    var back = document.createElement("div"); back.className = "modal-back";
+    back.innerHTML = '<div class="modal addr-modal"><h3>Delivery Address</h3>'
+      + '<p style="margin-bottom:16px">'+esc(o.full_name)+' · '+esc(o.phone)+'</p>'
+      + addressField("Delivery Address", o.address)
+      + addressField("City", o.city)
+      + addressField("State", o.state)
+      + addressField("PIN Code", o.pin_code)
+      + '<div class="row"><button class="btn btn-solid" data-close>Close</button></div></div>';
+    $("modalRoot").appendChild(back);
+    var close = function(){ back.remove(); };
+    back.addEventListener("click", function(e){ if(e.target === back) close(); });
+    back.querySelector("[data-close]").addEventListener("click", close);
   }
 
   function statusOpts(list, current){
@@ -510,14 +588,55 @@
     });
   }
 
+  function orderTotals(){
+    return orders.reduce(function(t,o){
+      t.price   += Number(o.subtotal)      || 0;
+      t.discount+= Number(o.discount)      || 0;
+      t.shipping+= Number(o.shipping)      || 0;
+      t.final   += Number(o.final_payment) || 0;
+      return t;
+    }, { price:0, discount:0, shipping:0, final:0 });
+  }
+  function paidTotal(){
+    return orders.reduce(function(s,o){ return s + (o.payment_status === "Paid" ? (Number(o.final_payment)||0) : 0); }, 0);
+  }
+
   function renderOrderTiles(){
     var count = orders.length;
-    var revenue = orders.reduce(function(s,o){ return s + (Number(o.final_payment)||0); }, 0);
+    var t = orderTotals();
     var paid = orders.filter(function(o){ return o.payment_status === "Paid"; }).length;
     var pending = orders.filter(function(o){ return o.order_status === "Pending"; }).length;
     $("orderTiles").innerHTML =
-      tile(count, "Orders") + tile(fmtMoney(revenue), "Final Payment Total") +
+      tile(count, "Orders") + tile(fmtMoney(t.final), "Total Final Payment") +
       tile(paid + " / " + count, "Paid") + tile(pending, "Order Pending");
+  }
+
+  // Cumulative totals at the bottom of the table: a per-column breakdown,
+  // then a ruled grand-total line.
+  function renderOrderFoot(){
+    var foot = $("ordersFoot");
+    if(!foot) return;
+    if(!orders.length){ foot.innerHTML = ""; return; }
+    var t = orderTotals();
+    var paid = paidTotal();
+    foot.innerHTML =
+        '<tr class="orders-subtotal-row">'
+      +   '<td colspan="4">Column totals · ' + orders.length + ' order' + (orders.length === 1 ? '' : 's') + '</td>'
+      +   '<td class="num">' + fmtMoney(t.price) + '</td>'
+      +   '<td class="num">' + (t.discount ? '− ' + fmtMoney(t.discount) : fmtMoney(0)) + '</td>'
+      +   '<td class="num">' + (t.shipping ? '+ ' + fmtMoney(t.shipping) : fmtMoney(0)) + '</td>'
+      +   '<td class="num"><strong>' + fmtMoney(t.final) + '</strong></td>'
+      +   '<td colspan="3"></td>'
+      + '</tr>'
+      + '<tr class="orders-grandtotal-row">'
+      +   '<td colspan="11">'
+      +     '<div class="gt-wrap"><span class="gt-label">Total Amount Received — all orders</span>'
+      +       '<span class="gt-amount">' + fmtMoney(t.final) + '</span></div>'
+      +     (paid !== t.final
+              ? '<div class="gt-sub">' + fmtMoney(paid) + ' received (paid) · ' + fmtMoney(t.final - paid) + ' still pending</div>'
+              : '')
+      +   '</td>'
+      + '</tr>';
   }
   function tile(n, l){ return '<div class="tile"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div></div>'; }
 
@@ -534,14 +653,27 @@
         "Variant": join(function(i){ return i.variant || ""; }),
         "Price": o.subtotal,
         "Discount": o.discount || 0,
-        "Final Payment": o.final_payment,
         "Shipping": (o.shipping===null||o.shipping===undefined) ? "" : o.shipping,
+        "Final Payment": o.final_payment,
         "Order Status": o.order_status,
         "Payment Status": o.payment_status,
-        "Order Date": fmtDate(o.created_at)
+        "Order Date": fmtDate(o.created_at),
+        "Delivery Address": o.address || "",
+        "City": o.city || "",
+        "State": o.state || "",
+        "PIN Code": o.pin_code || ""
       };
     });
-    var ws = XLSX.utils.json_to_sheet(rows, { header:["Customer Name","Product","Quantity","Variant","Price","Discount","Final Payment","Shipping","Order Status","Payment Status","Order Date"] });
+    var header = ["Customer Name","Product","Quantity","Variant","Price","Discount","Shipping","Final Payment","Order Status","Payment Status","Order Date","Delivery Address","City","State","PIN Code"];
+    var ws = XLSX.utils.json_to_sheet(rows, { header: header });
+    var tot = orderTotals(); var paid = paidTotal();
+    XLSX.utils.sheet_add_aoa(ws, [
+      ["TOTAL — " + orders.length + " orders", "", "", "", tot.price, tot.discount, tot.shipping, tot.final, "", "", "", "", "", "", ""],
+      [],
+      ["TOTAL AMOUNT RECEIVED (ALL ORDERS)", "", "", "", "", "", "", tot.final, "", "", "", "", "", "", ""],
+      ["  of which paid", "", "", "", "", "", "", paid, "", "", "", "", "", "", ""],
+      ["  still pending", "", "", "", "", "", "", tot.final - paid, "", "", "", "", "", "", ""]
+    ], { origin: -1 });
     // ₹ number format on the money columns (E,F,G,H), skipping blanks.
     var range = XLSX.utils.decode_range(ws["!ref"]);
     ["E","F","G","H"].forEach(function(col){
@@ -550,7 +682,7 @@
         if(cell && typeof cell.v === "number"){ cell.z = '"₹"#,##0'; }
       }
     });
-    ws["!cols"] = [{wch:20},{wch:30},{wch:10},{wch:24},{wch:12},{wch:10},{wch:14},{wch:10},{wch:13},{wch:14},{wch:18}];
+    ws["!cols"] = [{wch:20},{wch:30},{wch:10},{wch:24},{wch:12},{wch:10},{wch:10},{wch:14},{wch:13},{wch:14},{wch:18},{wch:30},{wch:16},{wch:16},{wch:10}];
     var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Orders");
     var tag = ($("fStart").value || "all") + "_" + ($("fEnd").value || "all");
@@ -564,7 +696,99 @@
     loadOrders();
   });
   $("exportBtn").addEventListener("click", exportOrders);
-  $("refreshBtn").addEventListener("click", function(){ loadOrders(); if(nlLoaded) loadNewsletter(); if(msgLoaded) loadMessages(); if(regLoaded) loadRegistrations(); });
+  $("refreshBtn").addEventListener("click", function(){ loadOrders(); if(nlLoaded) loadNewsletter(); if(msgLoaded) loadMessages(); if(enqLoaded) loadEnquiries(); if(regLoaded) loadRegistrations(); });
+
+  /* ══ ENQUIRE (order.html "Ready to Order?" form) ══
+     Rows in the orders table that came from the enquiry form — identified
+     by a Product Interest and/or free-text Quantity & Details (checkout
+     orders never carry those). */
+  var enquiries = [];
+  var enqLoaded = false;
+
+  function isEnquiry(o){ return !!(o.product_interest || o.quantity_details); }
+
+  function loadEnquiries(){
+    enqLoaded = true;
+    $("enqState").hidden = false;
+    $("enqState").innerHTML = 'Loading <span class="spinner"></span>';
+    return api("/api/admin/orders").then(function(rows){
+      enquiries = (rows || []).filter(isEnquiry);
+      renderEnquiries();
+    }).catch(function(e){
+      showError("Couldn't load enquiries — " + e.message);
+      $("enqState").hidden = false;
+      $("enqState").textContent = "Could not load enquiries.";
+    });
+  }
+
+  function enqDelivery(o){
+    var parts = [o.city, o.pin_code].filter(Boolean).join(" · ");
+    return parts || '<span class="muted">—</span>';
+  }
+
+  function renderEnquiries(){
+    var q = $("eSearch").value.trim().toLowerCase();
+    var rows = enquiries.filter(function(o){
+      if(!q) return true;
+      var hay = [o.full_name, o.email, o.phone, o.city, o.pin_code, o.product_interest, o.quantity_details, o.gift_message]
+        .concat((o.items||[]).map(function(i){ return i.name; })).join(" ").toLowerCase();
+      return hay.indexOf(q) > -1;
+    });
+    var tb = $("enqBody");
+    $("enqTiles").innerHTML = tile(enquiries.length, "Enquiries");
+    if(!rows.length){
+      tb.innerHTML = "";
+      $("enqState").hidden = false;
+      $("enqState").textContent = enquiries.length ? "No enquiries match that search." : "No order enquiries yet.";
+      return;
+    }
+    $("enqState").hidden = true;
+    tb.innerHTML = rows.map(function(o){
+      var cart = (o.items && o.items.length)
+        ? o.items.map(function(i){ return esc(i.quantity + " × " + i.name); }).join("<br>")
+        : '<span class="muted">—</span>';
+      return '<tr>'
+        + '<td class="muted" style="white-space:nowrap">'+esc(fmtDate(o.created_at))+'</td>'
+        + '<td>'+esc(o.full_name)+'<div class="muted" style="font-size:.72rem">'+esc(o.email)+'<br>'+esc(o.phone)+'</div></td>'
+        + '<td class="muted">'+enqDelivery(o)+'</td>'
+        + '<td>'+ (esc(o.product_interest) || '<span class="muted">—</span>') +'</td>'
+        + '<td class="msg-cell">'+ (esc(o.quantity_details) || '<span class="muted">—</span>') +'</td>'
+        + '<td class="msg-cell">'+ (esc(o.gift_message) || '<span class="muted">—</span>') +'</td>'
+        + '<td class="muted" style="font-size:.78rem">'+cart+'</td>'
+        + '<td><span class="badge '+esc(String(o.order_status||"").toLowerCase())+'">'+esc(o.order_status)+'</span></td>'
+        + '<td><span class="badge '+(o.payment_status==="Paid"?"paid":"unpaid")+'">'+esc(o.payment_status)+'</span></td>'
+        + '</tr>';
+    }).join("");
+  }
+
+  function exportEnquiries(){
+    if(!enquiries.length){ toast("Nothing to export"); return; }
+    var ws = XLSX.utils.json_to_sheet(enquiries.map(function(o){
+      return {
+        "Received": fmtDate(o.created_at),
+        "Name": o.full_name || "",
+        "Email": o.email || "",
+        "Phone": o.phone || "",
+        "City": o.city || "",
+        "PIN Code": o.pin_code || "",
+        "Product Interest": o.product_interest || "",
+        "Quantity & Details": o.quantity_details || "",
+        "Gift / Message": o.gift_message || "",
+        "Cart Items": (o.items||[]).map(function(i){ return i.quantity + " x " + i.name; }).join(" / "),
+        "Order Status": o.order_status || "",
+        "Payment Status": o.payment_status || ""
+      };
+    }), { header:["Received","Name","Email","Phone","City","PIN Code","Product Interest","Quantity & Details","Gift / Message","Cart Items","Order Status","Payment Status"] });
+    ws["!cols"] = [{wch:18},{wch:20},{wch:26},{wch:16},{wch:16},{wch:10},{wch:26},{wch:40},{wch:34},{wch:30},{wch:13},{wch:14}];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Enquiries");
+    XLSX.writeFile(wb, "oryn-enquiries.xlsx");
+  }
+
+  $("eApplyBtn").addEventListener("click", renderEnquiries);
+  $("eSearch").addEventListener("keydown", function(e){ if(e.key === "Enter") renderEnquiries(); });
+  $("eResetBtn").addEventListener("click", function(){ $("eSearch").value = ""; renderEnquiries(); });
+  $("eExportBtn").addEventListener("click", exportEnquiries);
 
   /* ══ NEWSLETTER ══ */
   var newsletter = [];
