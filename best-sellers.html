@@ -53,10 +53,6 @@
     /* ── CLOSING CTA ── */
     #cta-band { background: linear-gradient(140deg, rgba(12,54,123,.98), rgba(12,54,123,.84)); color: var(--white); padding: 90px var(--px); text-align: center; }
     .cta-inner { max-width: 1000px; margin: 0 auto; }
-    .cta-title { font-size: clamp(1.05rem, 1.7vw, 1.6rem); white-space: nowrap; }
-    @media (max-width: 900px) {
-      .cta-title { white-space: normal; }
-    }
 
     @media (max-width: 1100px) {
       .ch-layout { grid-template-columns: 1fr; }
@@ -356,12 +352,10 @@ Crafted with the same attention to detail and uncompromising quality that define
   <!-- CLOSING CTA -->
   <section id="cta-band" data-dark>
     <div class="cta-inner">
-      <h2 class="h1 w-white mb20 r d1 cta-title">Happy with your selections? Visit your cart to complete your order.</h2>
-      <p class="body-lg mb32 r d2" style="color:rgba(255,255,255,.7)">Place your order or explore the rest of our collections.</p>
-      <div class="r d3" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <a href="order.html" class="btn btn-w" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;">Go to Cart</a>
-        <a href="all-products.html" class="btn btn-ow" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;">See All Products</a>
-      </div>
+      <span class="eye eye-w mb16 r">More to Explore</span>
+      <h2 class="h1 w-white mb20 r d1">Looking to<br>browse more?</h2>
+      <p class="body-lg mb32 r d2" style="color:rgba(255,255,255,.7)">See the full Oryn range — every muffin, cookie, cake and sweet treat in one place.</p>
+      <a href="all-products.html" class="btn btn-w r d3">Browse All Products</a>
     </div>
   </section>
 
