@@ -12,3 +12,5 @@ server/node_modules/
 *.docx
 *.doc
 *.svg
+
+.wrangler/
