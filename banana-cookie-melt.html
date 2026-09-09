@@ -54,7 +54,7 @@
     .fs-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .9s var(--ease); }
     .fs-photo:hover img { transform: scale(1.05); }
     .fs-grid { display: flex; justify-content: center; }
-    .fs-txt { max-width: 680px; width: 100%; text-align: center; }
+    .fs-txt { max-width: 680px; width: 100%; text-align: center; scroll-margin-top: calc(var(--nav-h, 72px) + 24px); }
     .fs-txt .eye { margin-bottom: 18px; }
     .fs-txt h2 { margin-bottom: 44px; }
     .fs-txt blockquote {
@@ -279,7 +279,7 @@
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;" class="r d5">
         <button type="button" class="btn btn-w btn-cart" id="bcmHeroAddBtn" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;white-space:nowrap;"><svg class="btn-cart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Add to Cart</button>
-        <a href="#full-story" class="btn btn-ow" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;white-space:nowrap;">The Story</a>
+        <a href="#the-story" class="btn btn-ow" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:180px;white-space:nowrap;">The Story</a>
       </div>
     </div>
   </section>
@@ -315,7 +315,7 @@
     </div>
     <div class="fs-inner">
       <div class="fs-grid">
-        <div class="fs-txt r d1">
+        <div class="fs-txt r d1" id="the-story">
           <span class="eye eye-b">The Story</span>
           <h2 class="h2">The Story Behind the Loaf</h2>
           <blockquote>"The loaf that started as a conversation about what great comfort food really means."</blockquote>
