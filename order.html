@@ -109,6 +109,8 @@
       display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     }
     #orderDetailsFieldset { border: none; margin: 0; padding: 0; }
+    .enq-opt { font-family: var(--f-body); font-size: .55rem; letter-spacing: .16em; padding: 3px 8px; border: 1px solid rgba(255,255,255,.22); color: rgba(255,255,255,.5); }
+    .enq-note { font-family: var(--f-body); font-size: .82rem; line-height: 1.6; color: rgba(255,255,255,.4); margin: -4px 0 16px; text-transform: none; letter-spacing: normal; }
     .field-hint { font-family: var(--f-body); font-size: .8rem; color: rgba(255,255,255,.75); line-height: 1.6; }
     .field-hint:not(:empty) { margin-top: 8px; }
     .field-hint.is-error { color: #ff9d9d; }
@@ -395,9 +397,10 @@
           </div>
 
           <fieldset id="orderDetailsFieldset">
-            <p class="enq-section-head">Order Details</p>
+            <p class="enq-section-head">Bulk &amp; Custom Orders <span class="enq-opt">Optional</span></p>
+            <p class="enq-note">Only for large quantities, corporate gifting, or custom mixes. Leave blank for a standard order.</p>
             <div class="fg fg-b">
-              <label>What would you like to order?</label>
+              <label>Type of order</label>
               <select name="product">
                 <option value="">Select an option</option>
                 <option value="custom">Custom / Multiple products</option>
@@ -405,7 +408,7 @@
               </select>
             </div>
             <div class="fg fg-b">
-              <label>Quantity &amp; Details</label>
+              <label>Quantity &amp; Requirements</label>
               <textarea rows="3" name="quantityDetails" placeholder="Please specify quantities, any flavour preferences, mix requirements, or personalisation requests"></textarea>
             </div>
           </fieldset>
