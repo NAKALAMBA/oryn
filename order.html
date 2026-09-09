@@ -114,6 +114,35 @@
     .field-hint:not(:empty) { margin-top: 8px; }
     .field-hint.is-error { color: #ff9d9d; }
 
+    /* ── Cart-summary product picker (multi-select) ── */
+    .prodpick { position: relative; margin: 10px 0 18px; }
+    .prodpick-toggle {
+      width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: transparent; border: 1px solid rgba(255,255,255,.14); color: var(--white);
+      font-family: var(--f-body); font-size: .9rem; padding: 11px 15px; cursor: pointer; transition: border-color .3s;
+    }
+    .prodpick-toggle:hover, .prodpick.is-open .prodpick-toggle { border-color: rgba(255,255,255,.45); }
+    .prodpick-chev { width: 10px; height: 6px; flex-shrink: 0; transition: transform .3s; }
+    .prodpick.is-open .prodpick-chev { transform: rotate(180deg); }
+    .prodpick-panel {
+      margin-top: 6px; border: 1px solid rgba(255,255,255,.14); background: #0a2a63;
+      max-height: 320px; overflow-y: auto; padding: 6px 0;
+    }
+    .prodpick-glabel {
+      font-family: var(--f-body); font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(255,255,255,.4); padding: 13px 16px 5px;
+    }
+    .prodpick-opt {
+      display: flex; align-items: flex-start; gap: 11px; padding: 8px 16px; cursor: pointer;
+      font-family: var(--f-body); font-size: .9rem; color: rgba(255,255,255,.82); line-height: 1.4;
+    }
+    .prodpick-opt:hover { background: rgba(255,255,255,.05); }
+    .prodpick-opt input[type="checkbox"] {
+      -webkit-appearance: auto; appearance: auto; width: 15px; height: 15px; min-width: 15px;
+      margin: 2px 0 0; padding: 0; flex-shrink: 0; accent-color: #fff; cursor: pointer;
+    }
+    .prodpick-opt .ppo-unit { color: rgba(255,255,255,.4); }
+
     /* ── FAQ ── */
     #faq { padding: var(--py) var(--px); }
     .faq-inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
@@ -351,6 +380,14 @@
           <div class="fg fg-b">
             <label>Your Cart Summary</label>
             <textarea rows="4" data-cart-summary readonly></textarea>
+          </div>
+
+          <div class="prodpick" data-prodpick>
+            <button type="button" class="prodpick-toggle" data-prodpick-toggle aria-expanded="false">
+              <span data-prodpick-label>Add products from the catalogue</span>
+              <svg class="prodpick-chev" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </button>
+            <div class="prodpick-panel" data-prodpick-panel hidden></div>
           </div>
 
           <fieldset id="orderDetailsFieldset">
@@ -879,6 +916,80 @@
           emailInput.setCustomValidity('');
         }
       });
+    })();
+  </script>
+  <script>
+    /* Multi-select product picker inside "Your Cart Summary" — lets a
+       customer pick any number of catalogue products straight into the
+       cart, which keeps the summary textarea + cart list in sync. */
+    (() => {
+      const root = document.querySelector('[data-prodpick]');
+      if (!root || typeof PRODUCT_CATALOG === 'undefined') { if (root) root.hidden = true; return; }
+
+      const toggle = root.querySelector('[data-prodpick-toggle]');
+      const panel = root.querySelector('[data-prodpick-panel]');
+      const labelEl = root.querySelector('[data-prodpick-label]');
+      const money = v => '₹' + Number(v).toLocaleString('en-IN');
+
+      // Build the grouped checklist once, preserving catalogue order.
+      const groups = [];
+      PRODUCT_CATALOG.forEach(p => {
+        const g = String(p.details || '').split('·')[0].trim() || 'Products';
+        let bucket = groups.find(x => x.name === g);
+        if (!bucket) { bucket = { name: g, items: [] }; groups.push(bucket); }
+        bucket.items.push(p);
+      });
+      panel.innerHTML = groups.map(g =>
+        '<p class="prodpick-glabel">' + g.name + '</p>' +
+        g.items.map(p => {
+          const unit = String(p.details || '').split('·').slice(1).join('·').trim();
+          return '<label class="prodpick-opt">' +
+            '<input type="checkbox" data-sku="' + p.sku + '">' +
+            '<span>' + p.name + ' — ' + money(p.price) +
+            (unit ? ' <span class="ppo-unit">· ' + unit + '</span>' : '') + '</span>' +
+          '</label>';
+        }).join('')
+      ).join('');
+
+      const bySku = Object.fromEntries(PRODUCT_CATALOG.map(p => [p.sku, p]));
+
+      function syncFromCart() {
+        const inCart = new Set((readCart() || []).map(i => i.sku));
+        let n = 0;
+        panel.querySelectorAll('input[data-sku]').forEach(cb => {
+          cb.checked = inCart.has(cb.dataset.sku);
+          if (cb.checked) n++;
+        });
+        labelEl.textContent = n ? (n + ' product' + (n === 1 ? '' : 's') + ' selected') : 'Add products from the catalogue';
+      }
+
+      function setOpen(open) {
+        root.classList.toggle('is-open', open);
+        panel.hidden = !open;
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) syncFromCart();
+      }
+
+      toggle.addEventListener('click', () => setOpen(panel.hidden));
+
+      panel.addEventListener('change', e => {
+        const cb = e.target.closest('input[data-sku]');
+        if (!cb) return;
+        const p = bySku[cb.dataset.sku];
+        if (!p) return;
+        if (cb.checked) {
+          addItemToCart({ sku: p.sku, name: p.name, price: p.price, details: p.details, quantity: 1 });
+        } else {
+          writeCart((readCart() || []).filter(i => i.sku !== p.sku));
+        }
+        syncFromCart();
+      });
+
+      document.addEventListener('click', e => {
+        if (!root.contains(e.target) && !panel.hidden) setOpen(false);
+      });
+
+      syncFromCart();
     })();
   </script>
 </body>
