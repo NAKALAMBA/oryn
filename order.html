@@ -108,7 +108,6 @@
       color: rgba(255,255,255,.4); margin: 28px 0 14px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.1);
       display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     }
-    .enq-form-wrap fieldset:first-of-type .enq-section-head { margin-top: 0; padding-top: 0; border-top: none; }
     #orderDetailsFieldset { border: none; margin: 0; padding: 0; }
     .field-hint { font-family: var(--f-body); font-size: .8rem; color: rgba(255,255,255,.75); line-height: 1.6; }
     .field-hint:not(:empty) { margin-top: 8px; }
@@ -377,11 +376,6 @@
         <p class="enq-form-title">Order Enquiry</p>
         <p class="enq-form-sub">We will confirm your order within 24 hours.</p>
         <form data-enquiry data-enquiry-type="order">
-          <div class="fg fg-b">
-            <label>Your Cart Summary</label>
-            <textarea rows="4" data-cart-summary readonly></textarea>
-          </div>
-
           <div class="prodpick" data-prodpick>
             <button type="button" class="prodpick-toggle" data-prodpick-toggle aria-expanded="false">
               <span data-prodpick-label>Add products from the catalogue</span>
@@ -390,12 +384,18 @@
             <div class="prodpick-panel" data-prodpick-panel hidden></div>
           </div>
 
+          <div class="fg fg-b">
+            <label>Your Cart Summary</label>
+            <textarea rows="4" data-cart-summary readonly placeholder="Items you choose above will appear here. You can still send this form for a custom or gifting enquiry."></textarea>
+          </div>
+
+          <div class="fg fg-b">
+            <label>Is this a gift? Any message to include?</label>
+            <textarea rows="2" name="giftMessage" placeholder="Optional personalised message for the recipient"></textarea>
+          </div>
+
           <fieldset id="orderDetailsFieldset">
             <p class="enq-section-head">Order Details</p>
-            <div class="fg fg-b">
-              <label>Is this a gift? Any message to include?</label>
-              <textarea rows="2" name="giftMessage" placeholder="Optional personalised message for the recipient"></textarea>
-            </div>
             <div class="fg fg-b">
               <label>What would you like to order?</label>
               <select name="product">

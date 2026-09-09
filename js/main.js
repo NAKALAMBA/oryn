@@ -699,7 +699,7 @@ function syncCartSummaryField() {
   if (!field) return;
   const items = readCart();
   if (!items.length) {
-    field.value = 'Your cart is currently empty. You can still use this form for custom or gifting enquiries.';
+    field.value = '';
     return;
   }
   field.value = items.map(item => `${item.quantity} × ${item.name} — ${formatCartPrice(item.price * item.quantity)}${item.details ? ` (${item.details})` : ''}`).join('\n');
