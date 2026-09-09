@@ -19,7 +19,6 @@ alter table public.orders add column if not exists shipping       integer;      
 alter table public.orders add column if not exists final_payment  integer;
 alter table public.orders add column if not exists payment_status text not null default 'Pending';  -- Pending | Paid
 alter table public.orders add column if not exists order_status   text not null default 'Pending';  -- Pending | Completed | Cancelled
-alter table public.orders add column if not exists messaged       boolean not null default false;   -- have we replied to the customer about this order?
 alter table public.orders add column if not exists refunded       boolean not null default false;   -- for a Cancelled + Paid order: has the money been refunded?
 
 update public.orders

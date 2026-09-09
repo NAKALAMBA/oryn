@@ -207,7 +207,7 @@
         <thead><tr>
           <th>Customer Name</th><th>Product</th><th class="num">Quantity</th><th>Variant</th>
           <th class="num">Price</th><th class="num">Discount</th><th class="num">Shipping</th><th class="num">Final Payment</th>
-          <th>Order Status</th><th>Payment</th><th>Messaged</th><th>Refunded</th><th>Order Date</th>
+          <th>Order Status</th><th>Payment</th><th>Refunded</th><th>Order Date</th>
         </tr></thead>
         <tbody id="ordersBody"></tbody>
         <tfoot id="ordersFoot"></tfoot>
@@ -530,7 +530,6 @@
             +'<div class="muted" style="font-size:.66rem">Price − Disc + Ship</div></td>'
         + '<td'+rs+'><select class="inline" data-field="order_status">'+statusOpts(["Pending","Completed","Cancelled"], o.order_status)+'</select></td>'
         + '<td'+rs+'><select class="inline" data-field="payment_status">'+statusOpts(["Pending","Paid"], o.payment_status)+'</select></td>'
-        + '<td'+rs+'><select class="inline" data-field="messaged">'+statusOpts(["No","Yes"], o.messaged ? "Yes" : "No")+'</select></td>'
         + '<td'+rs+'><select class="inline" data-field="refunded">'+statusOpts(["No","Yes"], o.refunded ? "Yes" : "No")+'</select></td>'
         + '<td class="muted"'+rs+' style="white-space:nowrap">'+esc(fmtDate(o.created_at))+'</td>'
         + '</tr>';
@@ -601,7 +600,7 @@
   function paintBadges(){
     document.querySelectorAll('#ordersBody select[data-field]').forEach(function(sel){
       var f = sel.dataset.field;
-      if(["order_status","payment_status","messaged","refunded"].indexOf(f) === -1) return;
+      if(["order_status","payment_status","refunded"].indexOf(f) === -1) return;
       var v = sel.value.toLowerCase();
       var map = { pending:["#fdf3e2","#b7791f"], completed:["#e7f4ec","#2f7d4f"], cancelled:["#fbeae9","#b23b34"],
                   paid:["#e7f4ec","#2f7d4f"], yes:["#e7f4ec","#2f7d4f"], no:["#efefec","#7a7a72"] };
@@ -654,10 +653,10 @@
       +   '<td class="num">' + (t.discount ? '− ' + fmtMoney(t.discount) : fmtMoney(0)) + '</td>'
       +   '<td class="num">' + (t.shipping ? '+ ' + fmtMoney(t.shipping) : fmtMoney(0)) + '</td>'
       +   '<td class="num"><strong>' + fmtMoney(t.final) + '</strong></td>'
-      +   '<td colspan="5"></td>'
+      +   '<td colspan="4"></td>'
       + '</tr>'
       + '<tr class="orders-grandtotal-row">'
-      +   '<td colspan="13">'
+      +   '<td colspan="12">'
       +     '<div class="gt-wrap"><span class="gt-label">Total Amount Received — all orders</span>'
       +       '<span class="gt-amount">' + fmtMoney(t.final) + '</span></div>'
       +     (paid !== t.final
@@ -685,7 +684,6 @@
         "Final Payment": o.final_payment,
         "Order Status": o.order_status,
         "Payment Status": o.payment_status,
-        "Messaged": o.messaged ? "Yes" : "No",
         "Refunded": o.refunded ? "Yes" : "No",
         "Order Date": fmtDate(o.created_at),
         "Delivery Address": o.address || "",
@@ -694,15 +692,15 @@
         "PIN Code": o.pin_code || ""
       };
     });
-    var header = ["Customer Name","Product","Quantity","Variant","Price","Discount","Shipping","Final Payment","Order Status","Payment Status","Messaged","Refunded","Order Date","Delivery Address","City","State","PIN Code"];
+    var header = ["Customer Name","Product","Quantity","Variant","Price","Discount","Shipping","Final Payment","Order Status","Payment Status","Refunded","Order Date","Delivery Address","City","State","PIN Code"];
     var ws = XLSX.utils.json_to_sheet(rows, { header: header });
     var tot = orderTotals(); var paid = paidTotal();
     XLSX.utils.sheet_add_aoa(ws, [
-      ["TOTAL — " + orders.length + " orders", "", "", "", tot.price, tot.discount, tot.shipping, tot.final, "", "", "", "", "", "", "", "", ""],
+      ["TOTAL — " + orders.length + " orders", "", "", "", tot.price, tot.discount, tot.shipping, tot.final, "", "", "", "", "", "", "", ""],
       [],
-      ["TOTAL AMOUNT RECEIVED (ALL ORDERS)", "", "", "", "", "", "", tot.final, "", "", "", "", "", "", "", "", ""],
-      ["  of which paid", "", "", "", "", "", "", paid, "", "", "", "", "", "", "", "", ""],
-      ["  still pending", "", "", "", "", "", "", tot.final - paid, "", "", "", "", "", "", "", "", ""]
+      ["TOTAL AMOUNT RECEIVED (ALL ORDERS)", "", "", "", "", "", "", tot.final, "", "", "", "", "", "", "", ""],
+      ["  of which paid", "", "", "", "", "", "", paid, "", "", "", "", "", "", "", ""],
+      ["  still pending", "", "", "", "", "", "", tot.final - paid, "", "", "", "", "", "", "", ""]
     ], { origin: -1 });
     // ₹ number format on the money columns (E,F,G,H), skipping blanks.
     var range = XLSX.utils.decode_range(ws["!ref"]);
@@ -712,7 +710,7 @@
         if(cell && typeof cell.v === "number"){ cell.z = '"₹"#,##0'; }
       }
     });
-    ws["!cols"] = [{wch:20},{wch:30},{wch:10},{wch:24},{wch:12},{wch:10},{wch:10},{wch:14},{wch:13},{wch:14},{wch:10},{wch:10},{wch:18},{wch:30},{wch:16},{wch:16},{wch:10}];
+    ws["!cols"] = [{wch:20},{wch:30},{wch:10},{wch:24},{wch:12},{wch:10},{wch:10},{wch:14},{wch:13},{wch:14},{wch:10},{wch:18},{wch:30},{wch:16},{wch:16},{wch:10}];
     var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Orders");
     var tag = ($("fStart").value || "all") + "_" + ($("fEnd").value || "all");

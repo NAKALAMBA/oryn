@@ -47,25 +47,18 @@ describe('Admin orders — filtering & inline updates', () => {
     assert.equal(updated.payment_status, 'Paid');
   });
 
-  it('defaults messaged/refunded to false and toggles them via PATCH', async () => {
+  it('defaults refunded to false and toggles it via PATCH', async () => {
     const id = await placeOrder(baseUrl);
-    let list = await (await fetch(`${baseUrl}/api/admin/orders`)).json();
-    let row = list.find(o => o.order_number === id || String(o.id) === String(id));
-    assert.equal(row.messaged, false);
+    const list = await (await fetch(`${baseUrl}/api/admin/orders`)).json();
+    const row = list.find(o => o.order_number === id || String(o.id) === String(id));
     assert.equal(row.refunded, false);
 
     const res = await fetch(`${baseUrl}/api/admin/orders/${id}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messaged: 'Yes' }),
-    });
-    assert.equal(res.status, 200);
-    assert.equal((await res.json()).messaged, true);
-
-    const res2 = await fetch(`${baseUrl}/api/admin/orders/${id}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refunded: true }),
     });
-    assert.equal((await res2.json()).refunded, true);
+    assert.equal(res.status, 200);
+    assert.equal((await res.json()).refunded, true);
   });
 
   it('treats a blank shipping value as "not set" (null), not zero', async () => {
