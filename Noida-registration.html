@@ -121,21 +121,49 @@
       line-height: 1.6;
       color: #ffb3ae;
     }
-    /* ── Form nav row (Back + Submit) ── */
+    /* ── Form nav row (Back / Next / Submit) ── */
     .reg-nav-row {
       display: flex;
       gap: 12px;
       margin-top: 8px;
     }
     .reg-nav-row .btn {
-      flex: 1;
+      flex: 1 1 0;
+      min-width: 0;
       text-align: center;
     }
-    #reg-back-btn { flex: 0 0 auto; }
+    /* .btn sets display:inline-block, which beats the [hidden] attribute —
+       force it off so a button only shows when the script un-hides it. */
+    .reg-nav-row .btn[hidden] { display: none !important; }
     @media (max-width: 520px) {
       .reg-nav-row { flex-direction: column-reverse; }
-      #reg-back-btn { flex: 1; }
     }
+
+    /* ── Review summary (final step) ── */
+    .reg-review { display: grid; gap: 8px; margin: 4px 0 6px; }
+    .reg-review-head {
+      font-family: var(--f-body); font-size: .8rem; line-height: 1.55;
+      color: rgba(255,255,255,.55); margin: 0 0 4px;
+    }
+    .reg-review-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 11px 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .reg-review-who {
+      display: block; font-family: var(--f-body); font-size: .64rem;
+      letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.45);
+      margin-bottom: 3px;
+    }
+    .reg-review-name { font-family: var(--f-body); font-size: .9rem; color: rgba(255,255,255,.9); }
+    .reg-review-name em { color: #ffb3ae; font-style: normal; }
+    .reg-review-edit {
+      flex-shrink: 0; background: none; border: none; cursor: pointer;
+      font-family: var(--f-body); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: underline; padding: 4px 0;
+    }
+    .reg-review-edit:hover { color: var(--white); }
     /* ── Multi-attendee progress dots ── */
     .attendee-progress {
       display: flex;
@@ -342,14 +370,15 @@
       </div>
 
       <div class="reg-form-card r-r" id="registration-form" data-dark>
-        <span class="eye eye-w mb16" id="reg-form-eye">Guest Registration</span>
-        <h2 id="reg-form-heading">Register for Noida</h2>
-        <p id="reg-form-desc">Fill in the required information exactly as you would like us to use it for the reservation.</p>
+        <span class="eye eye-w mb16" id="reg-form-eye">Your Details</span>
+        <h2 id="reg-form-heading">Reserve Your Seat</h2>
+        <p id="reg-form-desc">Fill in your details and choose how many guests you're bringing. You'll add each guest on the next steps.</p>
         <form class="form-dark" id="reg-attendee-form" data-success-text="Thanks for registering." data-redirect-url="index.html" data-redirect-delay="2200">
+          <div class="reg-review reg-rest" id="reg-review" hidden></div>
           <div class="form-grid">
             <div class="fg" id="fg-full-name">
               <label for="full-name">Full Name</label>
-              <input id="full-name" type="text" placeholder="Your full name" required>
+              <input id="full-name" type="text" placeholder="Full name" required>
             </div>
             <div class="fg" id="fg-guest-count">
               <label for="guest-count">Number of Guests</label>
@@ -375,18 +404,18 @@
             </div>
           </div>
           <div class="form-grid reg-rest">
-            <div class="fg">
+            <div class="fg" id="fg-city">
               <label for="city">Current City</label>
               <input id="city" type="text" placeholder="Noida, Delhi, Mumbai, etc." required>
             </div>
-            <div class="fg">
+            <div class="fg" id="fg-event-date">
               <label for="event-date">Event Date</label>
               <input id="event-date" type="text" value="26th July 2026" readonly>
             </div>
           </div>
           <div class="fg reg-rest">
             <label for="dietary">Dietary Restrictions / Allergies</label>
-            <textarea id="dietary" rows="3" placeholder="Please mention allergies, dietary preferences, or anything the team should note before confirming your registration."></textarea>
+            <textarea id="dietary" rows="3" placeholder="Please mention allergies, dietary preferences, or anything the team should note before confirming this reservation."></textarea>
           </div>
           <div class="fg reg-rest">
             <label for="notes">Additional Notes</label>
@@ -394,8 +423,9 @@
           </div>
           <p id="reg-duplicate-error" class="reg-error" hidden role="alert"></p>
           <div class="reg-nav-row reg-rest" id="reg-nav-row">
-            <button type="button" class="btn btn-ow" id="reg-back-btn" hidden>← Previous Attendee</button>
-            <button type="submit" class="btn btn-w" id="reg-submit-btn">Submit Registration →</button>
+            <button type="button" class="btn btn-ow" id="reg-back-btn" hidden>← Back</button>
+            <button type="button" class="btn btn-w" id="reg-next-btn">Next →</button>
+            <button type="submit" class="btn btn-w" id="reg-submit-btn" hidden>Submit Registration →</button>
           </div>
           <div class="attendee-progress" id="attendee-progress" hidden></div>
           <p id="reg-success" class="reg-success" hidden aria-live="polite"></p>
@@ -496,25 +526,33 @@
   <script src="js/main.js"></script>
   <script>
     (function () {
-      // This page is the Noida seating for The Oryn Table. Stored on every
-      // registration row so the admin "Oryn Table" tab can filter by
-      // location + date and count guests event-wise.
+      // The Noida seating for The Oryn Table. Every field the guest enters is
+      // held in `state` and NEVER wiped by changing the guest count — the
+      // form is a step wizard: Your Details -> Guest 1 -> ... -> Guest N.
+      // On submit, one row per person (you + each guest) is inserted into
+      // event_registrations. Schema / row shape are unchanged.
       const EVENT = { name: 'The Oryn Table — Noida', location: 'Noida', date: '2026-07-26' };
 
+      const form        = document.getElementById('reg-attendee-form');
+      const formCard    = document.getElementById('registration-form');
       const guestCountSelect = document.getElementById('guest-count');
-      const attendeeForm     = document.getElementById('reg-attendee-form');
-      const submitBtn        = document.getElementById('reg-submit-btn');
-      const backBtn          = document.getElementById('reg-back-btn');
-      const progressEl       = document.getElementById('attendee-progress');
-      const largeGroupCard   = document.getElementById('large-group-card');
-      const fgFullName       = document.getElementById('fg-full-name');
-      const fgGuestCount     = document.getElementById('fg-guest-count');
-      const formHeading      = document.getElementById('reg-form-heading');
-      const formDesc         = document.getElementById('reg-form-desc');
-      const formEye          = document.getElementById('reg-form-eye');
-      const restEls          = attendeeForm.querySelectorAll('.reg-rest');
-      const successEl        = document.getElementById('reg-success');
-      const duplicateErrorEl = document.getElementById('reg-duplicate-error');
+      const backBtn     = document.getElementById('reg-back-btn');
+      const nextBtn     = document.getElementById('reg-next-btn');
+      const submitBtn   = document.getElementById('reg-submit-btn');
+      const progressEl  = document.getElementById('attendee-progress');
+      const reviewEl    = document.getElementById('reg-review');
+      const largeGroupCard = document.getElementById('large-group-card');
+      const formEye     = document.getElementById('reg-form-eye');
+      const formHeading = document.getElementById('reg-form-heading');
+      const formDesc    = document.getElementById('reg-form-desc');
+      const successEl   = document.getElementById('reg-success');
+      const dupErrorEl  = document.getElementById('reg-duplicate-error');
+      const restEls     = form.querySelectorAll('.reg-rest');
+
+      const fgFullName  = document.getElementById('fg-full-name');
+      const fgGuestCount = document.getElementById('fg-guest-count');
+      const fgCity      = document.getElementById('fg-city');
+      const fgEventDate = document.getElementById('fg-event-date');
 
       const fullNameInput = document.getElementById('full-name');
       const emailInput    = document.getElementById('email');
@@ -523,14 +561,30 @@
       const dietaryInput  = document.getElementById('dietary');
       const notesInput    = document.getElementById('notes');
 
-      const DEFAULT_HEADING = 'Register for Noida';
-      const DEFAULT_DESC = 'Fill in the required information exactly as you would like us to use it for the reservation.';
+      const emptyPerson = () => ({ fullName: '', email: '', phone: '', city: '', allergies: '', notes: '' });
 
-      let attendees = [];
-      let currentIndex = 0;
-      let totalGuests = 1;
+      // ── Persistent state. Changing the guest count never clears any of it. ──
+      const state = {
+        main: emptyPerson(),
+        guests: [],       // one record per guest slot; grows as the count rises
+                          // and is NOT trimmed when it falls, so lowering then
+                          // raising the count brings the earlier guests back.
+        guestCount: 0,    // number of guests chosen (0 until a value is picked)
+      };
+      let step = 0;       // 0 = Your Details; 1..guestCount = Guest n
+      let mode = 'form';  // 'form' | 'large-group'
 
-      function getAttendeeValues() {
+      /* ── small helpers ─────────────────────────────────── */
+      function setHidden(el, hidden) {
+        el.hidden = hidden;
+        el.style.display = hidden ? 'none' : '';
+      }
+      function normalizePhone(p) { return String(p || '').replace(/\D/g, ''); }
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      }
+
+      function readInputs() {
         return {
           fullName: fullNameInput.value.trim(),
           email: emailInput.value.trim(),
@@ -540,89 +594,199 @@
           notes: notesInput.value.trim(),
         };
       }
+      function writeInputs(rec) {
+        rec = rec || emptyPerson();
+        fullNameInput.value = rec.fullName || '';
+        emailInput.value    = rec.email || '';
+        phoneInput.value    = rec.phone || '';
+        cityInput.value     = rec.city || '';
+        dietaryInput.value  = rec.allergies || '';
+        notesInput.value    = rec.notes || '';
+      }
+      function recordAt(i) { return i === 0 ? state.main : (state.guests[i - 1] || emptyPerson()); }
+      // Save whatever is currently typed into the record for the current step.
+      function stashCurrent() {
+        const rec = readInputs();
+        if (step === 0) state.main = rec;
+        else state.guests[step - 1] = rec;
+      }
+      function activeGuests() { return state.guests.slice(0, state.guestCount); }
 
-      function setHidden(el, isHidden) {
-        el.hidden = isHidden;
-        el.style.display = isHidden ? 'none' : '';
+      function personComplete(p) {
+        return !!(p && p.fullName && p.email && p.phone && p.city);
+      }
+      function allComplete() {
+        if (!personComplete(state.main)) return false;
+        if (state.guestCount < 1) return false;
+        for (let i = 0; i < state.guestCount; i++) {
+          if (!personComplete(state.guests[i])) return false;
+        }
+        return true;
       }
 
-      function clearAttendeeInputs() {
-        fullNameInput.value = '';
-        emailInput.value = '';
-        phoneInput.value = '';
-        cityInput.value = '';
-        dietaryInput.value = '';
-        notesInput.value = '';
+      /* ── duplicate detection ───────────────────────────── */
+      function hideDupError() { setHidden(dupErrorEl, true); dupErrorEl.textContent = ''; }
+      function showDupError(field) {
+        dupErrorEl.textContent = `That ${field} is already used by someone else in this reservation. Please enter a different ${field}.`;
+        setHidden(dupErrorEl, false);
       }
-
-      function fillAttendeeInputs(a) {
-        a = a || {};
-        fullNameInput.value = a.fullName || '';
-        emailInput.value = a.email || '';
-        phoneInput.value = a.phone || '';
-        cityInput.value = a.city || '';
-        dietaryInput.value = a.allergies || '';
-        notesInput.value = a.notes || '';
-      }
-
-      // The "← Previous Attendee" button only applies mid multi-guest flow,
-      // once at least one attendee has been filled in.
-      function updateBackBtn() {
-        setHidden(backBtn, progressEl.hidden || currentIndex === 0);
-      }
-
-      function normalizePhone(phone) {
-        return phone.replace(/\D/g, '');
-      }
-
-      function hideDuplicateError() {
-        setHidden(duplicateErrorEl, true);
-        duplicateErrorEl.textContent = '';
-      }
-
-      function showDuplicateError(field) {
-        duplicateErrorEl.textContent = `This ${field} has already been used for another guest in this registration. Please enter a different ${field} for this attendee.`;
-        setHidden(duplicateErrorEl, false);
-      }
-
-      function findDuplicateField(newAttendee, list, uptoIndex) {
-        const name = newAttendee.fullName.toLowerCase();
-        const email = newAttendee.email.toLowerCase();
-        const phone = normalizePhone(newAttendee.phone);
-        for (let i = 0; i < uptoIndex; i++) {
-          const other = list[i];
-          if (!other) continue;
-          if (other.fullName.toLowerCase() === name) return 'full name';
-          if (other.email.toLowerCase() === email) return 'email address';
-          if (normalizePhone(other.phone) === phone) return 'phone number';
+      // Compare the record being edited against every OTHER person entered.
+      function duplicateField(rec) {
+        const others = [];
+        if (step !== 0) others.push(state.main);
+        for (let i = 0; i < state.guestCount; i++) {
+          if (i !== step - 1) others.push(state.guests[i]);
+        }
+        const name = rec.fullName.toLowerCase();
+        const email = rec.email.toLowerCase();
+        const phone = normalizePhone(rec.phone);
+        for (const o of others) {
+          if (!o) continue;
+          if (o.fullName && o.fullName.toLowerCase() === name) return 'name';
+          if (o.email && o.email.toLowerCase() === email) return 'email address';
+          if (o.phone && phone && normalizePhone(o.phone) === phone) return 'phone number';
         }
         return null;
       }
 
-      function buildProgressDots(n) {
+      /* ── progress dots (Your Details + one per guest) ──── */
+      function buildDots(n) {
         progressEl.innerHTML = '';
         for (let i = 0; i < n; i++) {
           const dot = document.createElement('span');
-          dot.className = 'attendee-dot' + (i === 0 ? ' current' : '');
+          dot.className = 'attendee-dot';
           progressEl.appendChild(dot);
         }
       }
-
-      function markDotDone(i) {
-        const dot = progressEl.children[i];
-        if (dot) {
-          dot.classList.add('done');
-          dot.classList.remove('current');
-        }
-      }
-
-      function setCurrentDot(i) {
-        Array.from(progressEl.children).forEach((dot, idx) => {
-          dot.classList.toggle('current', idx === i);
+      function paintDots() {
+        Array.from(progressEl.children).forEach((dot, i) => {
+          dot.classList.toggle('current', i === step);
+          dot.classList.toggle('done', i !== step && personComplete(recordAt(i)));
         });
       }
 
+      /* ── review summary, shown on the final step ───────── */
+      function reviewRow(who, rec, gotoStep) {
+        rec = rec || emptyPerson();
+        const detail = rec.fullName
+          ? esc(rec.fullName) + (rec.email ? ' · ' + esc(rec.email) : '')
+          : '<em>Not filled in yet</em>';
+        return '<div class="reg-review-item"><span>'
+          + '<span class="reg-review-who">' + esc(who) + '</span>'
+          + '<span class="reg-review-name">' + detail + '</span></span>'
+          + '<button type="button" class="reg-review-edit" data-goto="' + gotoStep + '">Edit</button>'
+          + '</div>';
+      }
+      function renderReview() {
+        const rows = [reviewRow('You', state.main, 0)];
+        for (let i = 0; i < state.guestCount - 1; i++) {
+          rows.push(reviewRow('Guest ' + (i + 1), state.guests[i], i + 1));
+        }
+        reviewEl.innerHTML =
+          '<p class="reg-review-head">Everyone in your party so far — use Edit to change any detail before submitting. Add the last guest below.</p>'
+          + rows.join('');
+        reviewEl.querySelectorAll('[data-goto]').forEach(btn => {
+          btn.addEventListener('click', () => goToStep(Number(btn.dataset.goto)));
+        });
+      }
+
+      /* ── render the current step ───────────────────────── */
+      function lastStepIndex() { return state.guestCount >= 1 ? state.guestCount : 0; }
+      function onLastStep() { return state.guestCount >= 1 && step === state.guestCount; }
+
+      function render() {
+        if (mode === 'large-group') return;
+        setHidden(successEl, true);
+
+        const isMain = step === 0;
+
+        // Which field groups belong on this step
+        setHidden(fgGuestCount, !isMain);
+        setHidden(fgEventDate, !isMain);
+        guestCountSelect.disabled = !isMain;          // also bars it from validation off-step
+        fgFullName.style.gridColumn = isMain ? '' : '1 / -1';
+        fgCity.style.gridColumn = isMain ? '' : '1 / -1';
+
+        // Load this step's saved values
+        writeInputs(recordAt(step));
+
+        // Copy
+        if (isMain) {
+          formEye.textContent = 'Your Details';
+          formHeading.textContent = 'Reserve Your Seat';
+          formDesc.textContent = "Fill in your details and choose how many guests you're bringing. You'll add each guest on the next steps.";
+        } else {
+          formEye.textContent = 'Guest ' + step + ' of ' + state.guestCount;
+          formHeading.textContent = 'Guest ' + step + ' Details';
+          formDesc.textContent = "Fill in Guest " + step + "'s details. Back keeps everything you've already entered.";
+        }
+
+        // Progress dots
+        const totalSteps = state.guestCount + 1;
+        setHidden(progressEl, state.guestCount < 1);
+        if (progressEl.children.length !== totalSteps) buildDots(totalSteps);
+        paintDots();
+
+        // Review — final step only
+        const last = onLastStep();
+        if (last) { renderReview(); setHidden(reviewEl, false); }
+        else { setHidden(reviewEl, true); }
+
+        // Navigation buttons. Submit only appears once EVERY step is complete;
+        // until then the final step shows just the fields + review.
+        setHidden(backBtn, step === 0);
+        setHidden(nextBtn, last);
+        setHidden(submitBtn, !(last && allComplete()));
+        submitBtn.disabled = false;
+
+        hideDupError();
+      }
+
+      function focusForm() {
+        fullNameInput.focus();
+        if (formCard && formCard.scrollIntoView) {
+          formCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+
+      function goToStep(target) {
+        stashCurrent();
+        step = Math.max(0, Math.min(target, lastStepIndex()));
+        hideDupError();
+        render();
+        focusForm();
+      }
+
+      /* ── validate the current step before advancing ────── */
+      function validateCurrentStep() {
+        if (!form.reportValidity()) return false;   // native required-field check
+        const dup = duplicateField(readInputs());
+        if (dup) { showDupError(dup); return false; }
+        hideDupError();
+        return true;
+      }
+
+      /* ── guest count (only ever changeable on step 0) ──── */
+      guestCountSelect.addEventListener('change', () => {
+        if (guestCountSelect.disabled || step !== 0) return;
+        setHidden(successEl, true);
+        hideDupError();
+
+        // On step 0 the inputs ARE the main person — persist them first so
+        // changing the count can never wipe what's already been typed.
+        state.main = readInputs();
+
+        if (guestCountSelect.value === '6+') { showLargeGroup(); return; }
+        showFormMode();
+
+        const n = guestCountSelect.value ? parseInt(guestCountSelect.value, 10) : 0;
+        state.guestCount = n;
+        while (state.guests.length < n) state.guests.push(emptyPerson());
+        render();
+      });
+
       function showLargeGroup() {
+        mode = 'large-group';
         setHidden(formEye, true);
         setHidden(formHeading, true);
         setHidden(formDesc, true);
@@ -632,8 +796,9 @@
         setHidden(progressEl, true);
         setHidden(largeGroupCard, false);
       }
-
-      function showAttendeeForm() {
+      function showFormMode() {
+        if (mode === 'form') return;
+        mode = 'form';
         setHidden(formEye, false);
         setHidden(formHeading, false);
         setHidden(formDesc, false);
@@ -641,155 +806,81 @@
         fgGuestCount.style.gridColumn = '';
         restEls.forEach(el => setHidden(el, false));
         setHidden(largeGroupCard, true);
+        // render() (called right after) fixes review + button visibility.
       }
 
-      function resetToSingleGuest() {
-        setHidden(progressEl, true);
-        formHeading.textContent = DEFAULT_HEADING;
-        formDesc.textContent = DEFAULT_DESC;
-        submitBtn.textContent = 'Submit Registration →';
-        updateBackBtn();
-      }
-
-      function startMultiGuestFlow(n) {
-        totalGuests = n;
-        attendees = new Array(n).fill(null);
-        currentIndex = 0;
-        buildProgressDots(n);
-        setHidden(progressEl, false);
-        formHeading.textContent = `Attendee 1 of ${n}`;
-        formDesc.textContent = `Fill in Attendee 1's details for the reservation.`;
-        submitBtn.textContent = 'Next Attendee Details →';
-        updateBackBtn();
-      }
-
-      guestCountSelect.addEventListener('change', () => {
-        const value = guestCountSelect.value;
-        attendees = [];
-        currentIndex = 0;
-        clearAttendeeInputs();
-        setHidden(successEl, true);
-        hideDuplicateError();
-
-        if (value === '6+') {
-          showLargeGroup();
-          return;
-        }
-
-        showAttendeeForm();
-        const n = value ? parseInt(value, 10) : 1;
-        if (n <= 1) {
-          resetToSingleGuest();
-        } else {
-          startMultiGuestFlow(n);
-        }
-      });
-
-      attendeeForm.addEventListener('submit', e => {
-        e.preventDefault();
-        if (largeGroupCard.hidden === false) return;
-        if (!attendeeForm.reportValidity()) return;
-
-        const value = guestCountSelect.value;
-        const n = value ? parseInt(value, 10) : 1;
-
-        if (n <= 1) {
-          hideDuplicateError();
-          finalSubmit([getAttendeeValues()]);
-          return;
-        }
-
-        const newAttendee = getAttendeeValues();
-        const dupField = findDuplicateField(newAttendee, attendees, currentIndex);
-        if (dupField) {
-          showDuplicateError(dupField);
-          return;
-        }
-        hideDuplicateError();
-
-        attendees[currentIndex] = newAttendee;
-        markDotDone(currentIndex);
-        currentIndex++;
-
-        if (!guestCountSelect.disabled) {
-          guestCountSelect.disabled = true;
-          guestCountSelect.title = 'Guest count is locked once registration has started.';
-        }
-
-        if (currentIndex < n) {
-          // Coming back to an attendee that was filled in before shows their
-          // saved values; a fresh attendee starts blank.
-          fillAttendeeInputs(attendees[currentIndex]);
-          setCurrentDot(currentIndex);
-          formHeading.textContent = `Attendee ${currentIndex + 1} of ${n}`;
-          formDesc.textContent = `Fill in Attendee ${currentIndex + 1}'s details for the reservation.`;
-          submitBtn.textContent = currentIndex === n - 1
-            ? 'Submit Registration →'
-            : 'Next Attendee Details →';
-          updateBackBtn();
-          fullNameInput.focus();
-        } else {
-          finalSubmit(attendees);
-        }
+      /* ── navigation ────────────────────────────────────── */
+      nextBtn.addEventListener('click', () => {
+        if (!validateCurrentStep()) return;
+        stashCurrent();
+        if (step < lastStepIndex()) step++;
+        render();
+        focusForm();
       });
 
       backBtn.addEventListener('click', () => {
-        if (currentIndex === 0) return;
-        hideDuplicateError();
-
-        // Keep whatever is typed for the current attendee so stepping
-        // forward again doesn't lose it.
-        const partial = getAttendeeValues();
-        if (partial.fullName || partial.email || partial.phone ||
-            partial.city || partial.allergies || partial.notes) {
-          attendees[currentIndex] = partial;
-        }
-
-        currentIndex--;
-        const n = parseInt(guestCountSelect.value, 10) || 1;
-
-        fillAttendeeInputs(attendees[currentIndex]);
-        setCurrentDot(currentIndex);
-        const dot = progressEl.children[currentIndex];
-        if (dot) dot.classList.remove('done');
-        formHeading.textContent = `Attendee ${currentIndex + 1} of ${n}`;
-        formDesc.textContent = `Fill in Attendee ${currentIndex + 1}'s details for the reservation.`;
-        submitBtn.textContent = currentIndex === n - 1
-          ? 'Submit Registration →'
-          : 'Next Attendee Details →';
-        updateBackBtn();
-        fullNameInput.focus();
+        stashCurrent();               // preserve partial input — no validation
+        if (step > 0) step--;
+        hideDupError();
+        render();
+        focusForm();
       });
 
-      async function finalSubmit(allAttendees) {
-        const successText = attendeeForm.dataset.successText || 'Registered ✓';
-        const redirectUrl = attendeeForm.dataset.redirectUrl;
-        const redirectDelay = Number(attendeeForm.dataset.redirectDelay || 2200);
+      // Keep state live on every keystroke so Back/Next/Submit always have the
+      // latest values and the Submit button enables the moment the form is done.
+      form.addEventListener('input', e => {
+        if (mode !== 'form' || e.target === guestCountSelect) return;
+        stashCurrent();
+        paintDots();
+        if (onLastStep()) setHidden(submitBtn, !allComplete());
+      });
 
-        hideDuplicateError();
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        if (mode === 'large-group') return;
+        if (!onLastStep()) { nextBtn.click(); return; }   // Enter key on an earlier step
+        if (!validateCurrentStep()) return;
+        stashCurrent();
+        if (!allComplete()) { render(); return; }
+        submitRegistration();
+      });
+
+      /* ── submit ────────────────────────────────────────── */
+      async function submitRegistration() {
+        const successText = form.dataset.successText || 'Registered ✓';
+        const redirectUrl = form.dataset.redirectUrl;
+        const redirectDelay = Number(form.dataset.redirectDelay || 2200);
+
+        hideDupError();
         submitBtn.disabled = true;
         submitBtn.style.opacity = '.6';
+        backBtn.disabled = true;
 
         try {
           if (!window.orynSupabase) throw new Error('Supabase not configured');
           const groupId = (window.crypto && crypto.randomUUID)
             ? crypto.randomUUID()
             : 'grp-' + Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const rows = allAttendees.map(function (a) {
+
+          // One row per person: you + every guest. Same columns as before.
+          const people = [state.main].concat(activeGuests());
+          const partySize = people.length;
+          const rows = people.map(function (p) {
             return {
               group_id: groupId,
               event_name: EVENT.name,
               event_location: EVENT.location,
               event_date: EVENT.date,
-              guest_count: Number(totalGuests) || allAttendees.length,
-              full_name: a.fullName,
-              email: a.email,
-              phone: a.phone,
-              city: a.city || null,
-              allergies: a.allergies || null,
-              notes: a.notes || null,
+              guest_count: partySize,
+              full_name: p.fullName,
+              email: p.email,
+              phone: p.phone,
+              city: p.city || null,
+              allergies: p.allergies || null,
+              notes: p.notes || null,
             };
           });
+
           const { error } = await window.orynSupabase
             .from('event_registrations')
             .insert(rows);
@@ -799,18 +890,18 @@
           successEl.textContent = successText;
           setHidden(successEl, false);
 
-          setTimeout(() => {
-            if (redirectUrl) {
-              window.location.href = redirectUrl;
-            }
-          }, redirectDelay);
+          setTimeout(() => { if (redirectUrl) window.location.href = redirectUrl; }, redirectDelay);
         } catch (err) {
           submitBtn.disabled = false;
           submitBtn.style.opacity = '1';
-          duplicateErrorEl.textContent = "Couldn't submit your registration — please check your connection and try again, or reach us on Instagram @oryn.patisserie.";
-          setHidden(duplicateErrorEl, false);
+          backBtn.disabled = false;
+          dupErrorEl.textContent = "Couldn't submit your registration — please check your connection and try again, or reach us on Instagram @oryn.patisserie.";
+          setHidden(dupErrorEl, false);
         }
       }
+
+      /* ── boot ──────────────────────────────────────────── */
+      render();
     })();
   </script>
 </body>
