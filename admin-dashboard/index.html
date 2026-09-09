@@ -282,10 +282,10 @@
   <!-- ENQUIRE (order.html "Ready to Order?" form) -->
   <section id="tab-enquire" hidden>
     <h1 class="page">Enquire</h1>
-    <p class="sub">Every enquiry from the "Ready to Order?" form, with all submitted details. Click <strong>View</strong> for the full record. Order &amp; payment status are managed from the Orders tab.</p>
+    <p class="sub">Every submission from the <strong>Ready to Order?</strong> form on the site, laid out the way the form is filled in. Click <strong>View</strong> for the full record. Order &amp; payment status are managed from the Orders tab.</p>
 
     <div class="filters">
-      <div class="fg"><label for="eSearch">Search</label><input type="search" id="eSearch" placeholder="Name, email, phone, product, details"></div>
+      <div class="fg"><label for="eSearch">Search</label><input type="search" id="eSearch" placeholder="Name, email, phone, product, notes"></div>
       <div class="actions">
         <button class="btn btn-solid" id="eApplyBtn">Search</button>
         <button class="btn" id="eResetBtn">Reset</button>
@@ -298,8 +298,8 @@
     <div class="table-wrap">
       <table id="enqTable">
         <thead><tr>
-          <th>Received</th><th class="num">Enq #</th><th>Customer</th><th>Delivery</th><th>Type of Order</th>
-          <th>Quantity &amp; Requirements</th><th>Gift Message</th><th>Cart Items</th><th class="num">Subtotal</th>
+          <th>Received</th><th class="num">Enq #</th><th>Customer</th><th>City / PIN</th><th>Products</th>
+          <th class="num">Cart Value</th><th>Order Type</th><th>Bulk Requirements</th><th>Gift Message</th>
           <th>Order Status</th><th>Payment</th><th></th>
         </tr></thead>
         <tbody id="enqBody"></tbody>
@@ -746,26 +746,25 @@
      summary, the View button opens the full record. */
   var enquiries = [];
   var enqLoaded = false;
-  var ENQ_TYPE_LABELS = { custom: "Custom / Multiple products", gifting: "Corporate / Bulk bookings" };
 
   function isEnquiry(o){
     if(o.source === "enquiry") return true;
     if(o.source === "checkout") return false;
-    return !!(o.product_interest || o.quantity_details);
+    return !!(o.product_interest || o.quantity_details);   // legacy rows, pre-source-column
   }
+
+  // The "Type of order" select on the form: "" (standard) / custom / gifting.
+  // Legacy enquiries carry a free-text product name instead.
   function enqType(o){
-    if(!o.product_interest) return "";
-    return ENQ_TYPE_LABELS[o.product_interest] || o.product_interest;
+    var v = o.product_interest;
+    if(!v) return "Standard order";
+    if(v === "custom")  return "Custom / Multiple products";
+    if(v === "gifting") return "Corporate / Bulk bookings";
+    return v;
   }
-  function enqDelivery(o){
-    return [o.city, o.pin_code].filter(Boolean).join(" · ") || "";
-  }
-  function enqFullAddress(o){
-    return [o.address, o.city, o.state, o.pin_code].filter(Boolean).join(", ");
-  }
-  function enqItemsSubtotal(o){
-    return (o.items || []).reduce(function(s,i){ return s + (Number(i.price)||0) * (Number(i.quantity)||0); }, 0);
-  }
+  function enqIsBulk(o){ return o.product_interest === "custom" || o.product_interest === "gifting"; }
+  function enqCity(o){ return [o.city, o.pin_code].filter(Boolean).join(" · "); }
+  function enqValue(o){ return Number(o.subtotal) || (o.items||[]).reduce(function(s,i){ return s + (Number(i.price)||0)*(Number(i.quantity)||0); }, 0); }
   function mdash(v){ return v ? esc(v) : '<span class="muted">—</span>'; }
 
   function loadEnquiries(){
@@ -786,9 +785,8 @@
     var q = $("eSearch").value.trim().toLowerCase();
     if(!q) return enquiries.slice();
     return enquiries.filter(function(o){
-      var hay = [o.order_number, o.full_name, o.email, o.phone, o.address, o.city, o.state, o.pin_code,
-                 o.delivery_date, enqType(o), o.quantity_details, o.gift_message, o.cart_summary,
-                 o.order_status, o.payment_status]
+      var hay = [o.order_number, o.full_name, o.email, o.phone, o.city, o.pin_code, o.address,
+                 enqType(o), o.quantity_details, o.gift_message, o.cart_summary, o.order_status, o.payment_status]
         .concat((o.items||[]).map(function(i){ return i.name + " " + (i.variant||i.details||""); }))
         .join(" ").toLowerCase();
       return hay.indexOf(q) > -1;
@@ -798,56 +796,63 @@
   function renderEnquiries(){
     var rows = enqFiltered();
     var tb = $("enqBody");
-    var totalSub = enquiries.reduce(function(s,o){ return s + (Number(o.subtotal) || enqItemsSubtotal(o)); }, 0);
-    $("enqTiles").innerHTML = tile(enquiries.length, "Enquiries") + tile(fmtMoney(totalSub), "Cart Value (all)");
+    var totalVal = enquiries.reduce(function(s,o){ return s + enqValue(o); }, 0);
+    var bulkCount = enquiries.filter(enqIsBulk).length;
+    $("enqTiles").innerHTML =
+        tile(enquiries.length, "Enquiries")
+      + tile(fmtMoney(totalVal), "Cart Value (all)")
+      + tile(bulkCount, "Bulk / Custom");
     if(!rows.length){
       tb.innerHTML = "";
       $("enqFoot").innerHTML = "";
       $("enqState").hidden = false;
-      $("enqState").textContent = enquiries.length ? "No enquiries match that search." : "No order enquiries yet.";
+      $("enqState").textContent = enquiries.length ? "No enquiries match that search." : "No enquiries yet.";
       return;
     }
     $("enqState").hidden = true;
     tb.innerHTML = rows.map(function(o){
       var idx = enquiries.indexOf(o);
-      var cart = (o.items && o.items.length)
-        ? o.items.map(function(i){ return esc(i.quantity + " × " + i.name); }).join("<br>")
-        : '<span class="muted">—</span>';
-      var sub = Number(o.subtotal) || enqItemsSubtotal(o);
-      var deliv = enqDelivery(o);
+      var products = (o.items && o.items.length)
+        ? o.items.map(function(i){ return esc(i.quantity + " × " + i.name) + (i.variant||i.details ? ' <span class="muted">· '+esc(i.variant||i.details)+'</span>' : ''); }).join("<br>")
+        : '<span class="muted">— none picked —</span>';
+      var val = enqValue(o);
+      var typeCell = enqIsBulk(o)
+        ? '<span class="badge pending">'+esc(enqType(o))+'</span>'
+        : (o.product_interest ? esc(enqType(o)) : '<span class="muted">Standard</span>');
       return '<tr>'
         + '<td class="muted" style="white-space:nowrap">'+esc(fmtDate(o.created_at))+'</td>'
         + '<td class="num">'+ (o.order_number != null ? "#"+esc(o.order_number) : '<span class="muted">—</span>') +'</td>'
         + '<td>'+esc(o.full_name)+'<div class="muted" style="font-size:.72rem">'+esc(o.email)+'<br>'+esc(o.phone)+'</div></td>'
-        + '<td class="muted">'+ (deliv ? esc(deliv) : '<span class="muted">—</span>') + (o.address ? '<div class="muted" style="font-size:.72rem">'+esc(o.address)+'</div>' : '') +'</td>'
-        + '<td>'+ mdash(enqType(o)) +'</td>'
+        + '<td class="muted">'+ mdash(enqCity(o)) +'</td>'
+        + '<td style="font-size:.78rem;max-width:240px">'+products+'</td>'
+        + '<td class="num">'+ (val ? fmtMoney(val) : '<span class="muted">—</span>') +'</td>'
+        + '<td>'+typeCell+'</td>'
         + '<td class="msg-cell">'+ mdash(o.quantity_details) +'</td>'
         + '<td class="msg-cell">'+ mdash(o.gift_message) +'</td>'
-        + '<td class="muted" style="font-size:.78rem">'+cart+'</td>'
-        + '<td class="num">'+ (sub ? fmtMoney(sub) : '<span class="muted">—</span>') +'</td>'
         + '<td><span class="badge '+esc(String(o.order_status||"").toLowerCase())+'">'+esc(o.order_status)+'</span></td>'
         + '<td><span class="badge '+(o.payment_status==="Paid"?"paid":"unpaid")+'">'+esc(o.payment_status)+'</span></td>'
         + '<td><button type="button" class="link-btn" data-enq-view="'+idx+'">View</button></td>'
         + '</tr>';
     }).join("");
     $("enqFoot").innerHTML = '<tr class="orders-subtotal-row">'
-      + '<td colspan="8">'+ rows.length +' enqu'+(rows.length===1?'iry':'iries')+' shown</td>'
-      + '<td class="num">'+ fmtMoney(rows.reduce(function(s,o){ return s + (Number(o.subtotal)||enqItemsSubtotal(o)); }, 0)) +'</td>'
-      + '<td colspan="3"></td></tr>';
+      + '<td colspan="5">'+ rows.length +' enqu'+(rows.length===1?'iry':'iries')+' shown</td>'
+      + '<td class="num">'+ fmtMoney(rows.reduce(function(s,o){ return s + enqValue(o); }, 0)) +'</td>'
+      + '<td colspan="6"></td></tr>';
 
     tb.querySelectorAll("[data-enq-view]").forEach(function(btn){
       btn.addEventListener("click", function(){ showEnquiryModal(enquiries[Number(btn.dataset.enqView)]); });
     });
   }
 
-  function efield(label, value){
+  function efield(label, value, opt){
+    if(opt && !value) return "";
     return '<div class="addr-field"><div class="l">'+esc(label)+'</div><div class="v">'+
       (value ? esc(value) : '<span class="muted">Not provided</span>') + '</div></div>';
   }
   function showEnquiryModal(o){
     if(!o) return;
     var items = o.items || [];
-    var sub = Number(o.subtotal) || enqItemsSubtotal(o);
+    var val = enqValue(o);
     var itemRows = items.length
       ? items.map(function(i){
           return '<tr><td>'+esc(i.name)+ (i.variant||i.details ? '<div class="muted" style="font-size:.72rem">'+esc(i.variant||i.details)+'</div>' : '') +'</td>'
@@ -855,39 +860,40 @@
             + '<td class="num">'+fmtMoney(i.price)+'</td>'
             + '<td class="num">'+fmtMoney((Number(i.price)||0)*(Number(i.quantity)||0))+'</td></tr>';
         }).join("")
-      : '<tr><td colspan="4" class="muted">No cart items — enquiry only.</td></tr>';
+      : '<tr><td colspan="4" class="muted">No products picked — sent as a custom / bulk enquiry.</td></tr>';
+
+    var priceExtras = "";
+    if(o.discount) priceExtras += '<tr><td colspan="3">Discount</td><td class="num">− '+fmtMoney(o.discount)+'</td></tr>';
+    if(o.shipping!==null && o.shipping!==undefined) priceExtras += '<tr><td colspan="3">Shipping</td><td class="num">'+fmtMoney(o.shipping)+'</td></tr>';
+    if(priceExtras) priceExtras += '<tr><td colspan="3">Final payment</td><td class="num">'+fmtMoney(o.final_payment != null ? o.final_payment : val)+'</td></tr>';
 
     var back = document.createElement("div"); back.className = "modal-back";
     back.innerHTML = '<div class="modal enq-modal">'
       + '<h3>Enquiry '+ (o.order_number != null ? "#"+esc(o.order_number) : "") +'</h3>'
-      + '<p class="enq-modal-sub">Received '+esc(fmtDate(o.created_at))+' · via the “Ready to Order?” form</p>'
+      + '<p class="enq-modal-sub">Received '+esc(fmtDate(o.created_at))+' &middot; via the Ready to Order? form</p>'
 
-      + '<p class="enq-modal-sec">Customer</p>'
+      + '<p class="enq-modal-sec">Products chosen</p>'
+      + '<table class="enq-modal-items"><tbody>'+itemRows+'</tbody>'
+      + '<tfoot><tr><td colspan="3">Cart value</td><td class="num">'+fmtMoney(val)+'</td></tr>'+ priceExtras +'</tfoot></table>'
+      + (o.cart_summary ? '<div class="addr-field"><div class="l">Cart summary (as shown on the form)</div><div class="v" style="white-space:pre-wrap">'+esc(o.cart_summary)+'</div></div>' : "")
+
+      + '<p class="enq-modal-sec">Gift message</p>'
+      + '<div class="addr-field"><div class="v">'+ (o.gift_message ? esc(o.gift_message) : '<span class="muted">Not a gift / no message</span>') +'</div></div>'
+
+      + '<p class="enq-modal-sec">Bulk &amp; custom order</p>'
+      + efield("Type of order", enqType(o))
+      + efield("Quantity &amp; requirements", o.quantity_details)
+
+      + '<p class="enq-modal-sec">Contact &amp; delivery</p>'
       + efield("Name", o.full_name)
       + efield("Email", o.email)
       + efield("Phone", o.phone)
+      + efield("Delivery city / PIN", enqCity(o))
+      + efield("Address", o.address, true)
+      + efield("State", o.state, true)
+      + efield("Preferred date", o.delivery_date, true)
 
-      + '<p class="enq-modal-sec">Delivery</p>'
-      + efield("Delivery address", enqFullAddress(o))
-      + efield("City", o.city)
-      + efield("State", o.state)
-      + efield("PIN code", o.pin_code)
-      + efield("Preferred date", o.delivery_date)
-
-      + '<p class="enq-modal-sec">Order</p>'
-      + efield("Type of order", enqType(o))
-      + efield("Quantity & requirements", o.quantity_details)
-      + efield("Gift message", o.gift_message)
-      + efield("Cart summary (as submitted)", o.cart_summary)
-
-      + '<p class="enq-modal-sec">Cart items</p>'
-      + '<table class="enq-modal-items"><tbody>'+itemRows+'</tbody>'
-      + '<tfoot><tr><td colspan="3">Subtotal</td><td class="num">'+fmtMoney(sub)+'</td></tr>'
-      + (o.discount ? '<tr><td colspan="3">Discount</td><td class="num">− '+fmtMoney(o.discount)+'</td></tr>' : '')
-      + ((o.shipping!==null&&o.shipping!==undefined) ? '<tr><td colspan="3">Shipping</td><td class="num">'+fmtMoney(o.shipping)+'</td></tr>' : '')
-      + '<tr><td colspan="3">Final payment</td><td class="num">'+fmtMoney(o.final_payment != null ? o.final_payment : sub)+'</td></tr></tfoot></table>'
-
-      + '<p class="enq-modal-sec">Status</p>'
+      + '<p class="enq-modal-sec">Admin status &middot; set in the Orders tab</p>'
       + efield("Order status", o.order_status)
       + efield("Payment status", o.payment_status)
       + efield("Refunded", o.refunded ? "Yes" : "No")
@@ -902,48 +908,47 @@
   function exportEnquiries(){
     var rows = enqFiltered();
     if(!rows.length){ toast("Nothing to export"); return; }
-    var header = ["Received","Enquiry #","Name","Email","Phone","Delivery Address","City","State","PIN Code",
-      "Preferred Date","Type of Order","Quantity & Requirements","Gift Message","Cart Summary","Cart Items",
-      "Subtotal","Discount","Shipping","Final Payment","Order Status","Payment Status","Refunded"];
+    var header = ["Received","Enquiry #","Name","Email","Phone","Delivery City / PIN",
+      "Order Type","Quantity & Requirements","Gift Message","Products","Cart Summary","Cart Value",
+      "Discount","Shipping","Final Payment","Order Status","Payment Status","Refunded","Address","State","Preferred Date"];
     var data = rows.map(function(o){
-      var sub = Number(o.subtotal) || enqItemsSubtotal(o);
+      var val = enqValue(o);
       return {
         "Received": fmtDate(o.created_at),
         "Enquiry #": o.order_number != null ? o.order_number : "",
         "Name": o.full_name || "",
         "Email": o.email || "",
         "Phone": o.phone || "",
-        "Delivery Address": o.address || "",
-        "City": o.city || "",
-        "State": o.state || "",
-        "PIN Code": o.pin_code || "",
-        "Preferred Date": o.delivery_date || "",
-        "Type of Order": enqType(o),
+        "Delivery City / PIN": enqCity(o),
+        "Order Type": enqType(o),
         "Quantity & Requirements": o.quantity_details || "",
         "Gift Message": o.gift_message || "",
+        "Products": (o.items||[]).map(function(i){ return i.quantity + " x " + i.name + (i.variant||i.details ? " ("+(i.variant||i.details)+")" : ""); }).join(" / "),
         "Cart Summary": o.cart_summary || "",
-        "Cart Items": (o.items||[]).map(function(i){ return i.quantity + " x " + i.name + (i.variant||i.details ? " ("+(i.variant||i.details)+")" : ""); }).join(" / "),
-        "Subtotal": sub,
+        "Cart Value": val,
         "Discount": o.discount || 0,
         "Shipping": (o.shipping===null||o.shipping===undefined) ? "" : o.shipping,
-        "Final Payment": o.final_payment != null ? o.final_payment : sub,
+        "Final Payment": o.final_payment != null ? o.final_payment : val,
         "Order Status": o.order_status || "",
         "Payment Status": o.payment_status || "",
-        "Refunded": o.refunded ? "Yes" : "No"
+        "Refunded": o.refunded ? "Yes" : "No",
+        "Address": o.address || "",
+        "State": o.state || "",
+        "Preferred Date": o.delivery_date || ""
       };
     });
     var ws = XLSX.utils.json_to_sheet(data, { header: header });
-    var totSub = data.reduce(function(s,r){ return s + (Number(r["Subtotal"])||0); }, 0);
+    var totVal = data.reduce(function(s,r){ return s + (Number(r["Cart Value"])||0); }, 0);
     var totFinal = data.reduce(function(s,r){ return s + (Number(r["Final Payment"])||0); }, 0);
     XLSX.utils.sheet_add_aoa(ws, [
-      ["TOTAL — " + data.length + " enquiries","","","","","","","","","","","","","","", totSub, "", "", totFinal, "", "", ""]
+      ["TOTAL — " + data.length + " enquiries","","","","","","","","","","", totVal, "", "", totFinal, "", "", "", "", "", ""]
     ], { origin: -1 });
     var range = XLSX.utils.decode_range(ws["!ref"]);
-    ["P","Q","R","S"].forEach(function(col){
+    ["L","M","N","O"].forEach(function(col){
       for(var r = 1; r <= range.e.r; r++){ var c = ws[col+(r+1)]; if(c && typeof c.v === "number") c.z = '"₹"#,##0'; }
     });
-    ws["!cols"] = [{wch:17},{wch:9},{wch:20},{wch:26},{wch:15},{wch:30},{wch:14},{wch:14},{wch:10},{wch:14},
-      {wch:22},{wch:38},{wch:32},{wch:40},{wch:36},{wch:11},{wch:10},{wch:10},{wch:13},{wch:13},{wch:13},{wch:9}];
+    ws["!cols"] = [{wch:17},{wch:9},{wch:20},{wch:26},{wch:15},{wch:20},{wch:24},{wch:40},{wch:34},{wch:40},
+      {wch:40},{wch:11},{wch:10},{wch:10},{wch:13},{wch:13},{wch:13},{wch:9},{wch:28},{wch:14},{wch:14}];
     var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Enquiries");
     XLSX.writeFile(wb, "oryn-enquiries.xlsx");
