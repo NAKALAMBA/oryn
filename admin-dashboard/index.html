@@ -300,7 +300,7 @@
         <thead><tr>
           <th>Received</th><th class="num">Enq #</th><th>Customer</th><th>City / PIN</th><th>Products</th>
           <th class="num">Cart Value</th><th>Order Type</th><th>Bulk Requirements</th><th>Gift Message</th>
-          <th>Order Status</th><th>Payment</th><th></th>
+          <th>Order Status</th><th>Payment</th><th>Refunded</th><th></th>
         </tr></thead>
         <tbody id="enqBody"></tbody>
         <tfoot id="enqFoot"></tfoot>
@@ -819,7 +819,7 @@
       var typeCell = enqIsBulk(o)
         ? '<span class="badge pending">'+esc(enqType(o))+'</span>'
         : (o.product_interest ? esc(enqType(o)) : '<span class="muted">Standard</span>');
-      return '<tr>'
+      return '<tr data-id="'+esc(o.id)+'">'
         + '<td class="muted" style="white-space:nowrap">'+esc(fmtDate(o.created_at))+'</td>'
         + '<td class="num">'+ (o.order_number != null ? "#"+esc(o.order_number) : '<span class="muted">—</span>') +'</td>'
         + '<td>'+esc(o.full_name)+'<div class="muted" style="font-size:.72rem">'+esc(o.email)+'<br>'+esc(o.phone)+'</div></td>'
@@ -829,19 +829,45 @@
         + '<td>'+typeCell+'</td>'
         + '<td class="msg-cell">'+ mdash(o.quantity_details) +'</td>'
         + '<td class="msg-cell">'+ mdash(o.gift_message) +'</td>'
-        + '<td><span class="badge '+esc(String(o.order_status||"").toLowerCase())+'">'+esc(o.order_status)+'</span></td>'
-        + '<td><span class="badge '+(o.payment_status==="Paid"?"paid":"unpaid")+'">'+esc(o.payment_status)+'</span></td>'
+        + '<td><select class="inline" data-efield="order_status">'+statusOpts(["Pending","Completed","Cancelled"], o.order_status)+'</select></td>'
+        + '<td><select class="inline" data-efield="payment_status">'+statusOpts(["Pending","Paid"], o.payment_status)+'</select></td>'
+        + '<td><select class="inline" data-efield="refunded">'+statusOpts(["No","Yes"], o.refunded ? "Yes" : "No")+'</select></td>'
         + '<td><button type="button" class="link-btn" data-enq-view="'+idx+'">View</button></td>'
         + '</tr>';
     }).join("");
     $("enqFoot").innerHTML = '<tr class="orders-subtotal-row">'
       + '<td colspan="5">'+ rows.length +' enqu'+(rows.length===1?'iry':'iries')+' shown</td>'
       + '<td class="num">'+ fmtMoney(rows.reduce(function(s,o){ return s + enqValue(o); }, 0)) +'</td>'
-      + '<td colspan="6"></td></tr>';
+      + '<td colspan="7"></td></tr>';
 
     tb.querySelectorAll("[data-enq-view]").forEach(function(btn){
       btn.addEventListener("click", function(){ showEnquiryModal(enquiries[Number(btn.dataset.enqView)]); });
     });
+    tb.querySelectorAll("select[data-efield]").forEach(function(sel){
+      enqTint(sel);
+      sel.addEventListener("change", function(){
+        var tr = sel.closest("tr");
+        var f = sel.dataset.efield;
+        var patch = {}; patch[f] = sel.value;   // server coerces "Yes"/"No" for refunded
+        sel.disabled = true;
+        api("/api/admin/orders/" + tr.dataset.id, { method:"PATCH", body: patch })
+          .then(function(updated){
+            var i = enquiries.findIndex(function(x){ return String(x.id) === String(tr.dataset.id); });
+            if(i > -1) enquiries[i] = updated;
+            renderEnquiries();
+            toast("Saved");
+          })
+          .catch(function(e){ showError(e.message); sel.disabled = false; loadEnquiries(); });
+      });
+    });
+  }
+
+  function enqTint(sel){
+    var v = String(sel.value).toLowerCase();
+    var map = { pending:["#fdf3e2","#b7791f"], completed:["#e7f4ec","#2f7d4f"], cancelled:["#fbeae9","#b23b34"],
+                paid:["#e7f4ec","#2f7d4f"], yes:["#e7f4ec","#2f7d4f"], no:["#efefec","#7a7a72"] };
+    var c = map[v] || ["#efefec","#7a7a72"];
+    sel.style.background = c[0]; sel.style.color = c[1]; sel.style.borderColor = c[0];
   }
 
   function efield(label, value, opt){
