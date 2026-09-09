@@ -327,6 +327,79 @@
     </div>
   </section>
 
+  <!-- ENQUIRY FORM -->
+  <section id="enquiry" data-dark>
+    <div class="enq-inner inner">
+      <div class="enq-info r-l">
+        <span class="eye eye-w mb16">Place an Order</span>
+        <h2>Ready to<br>Order?</h2>
+        <p>All Oryn products are made to order. Fill in this form and we will get back to you within 24 hours with availability, confirmation, and payment details.</p>
+        <p>For urgent enquiries or large custom orders, please reach out directly via Instagram at @oryn.patisserie</p>
+        <ul class="enq-notes r d2">
+          <li>Delhi NCR orders require 48 hours advance notice</li>
+          <li>Pan-India orders require 72 hours advance notice</li>
+          <li>Custom gifting and bulk orders available on request</li>
+          <li>Corporate accounts available for repeat orders</li>
+          <li>Custom flavours available with 5+ days notice</li>
+          <li>Events &amp; catering enquiries welcome</li>
+        </ul>
+      </div>
+      <div class="enq-form-wrap r-r">
+        <p class="enq-form-title">Order Enquiry</p>
+        <p class="enq-form-sub">We will confirm your order within 24 hours.</p>
+        <form data-enquiry data-enquiry-type="order">
+          <div class="fg fg-b">
+            <label>Your Cart Summary</label>
+            <textarea rows="4" data-cart-summary readonly></textarea>
+          </div>
+
+          <fieldset id="orderDetailsFieldset">
+            <p class="enq-section-head">Order Details</p>
+            <div class="fg fg-b">
+              <label>Is this a gift? Any message to include?</label>
+              <textarea rows="2" name="giftMessage" placeholder="Optional personalised message for the recipient"></textarea>
+            </div>
+            <div class="fg fg-b">
+              <label>What would you like to order?</label>
+              <select name="product">
+                <option value="">Select an option</option>
+                <option value="custom">Custom / Multiple products</option>
+                <option value="gifting">Corporate / Bulk bookings</option>
+              </select>
+            </div>
+            <div class="fg fg-b">
+              <label>Quantity &amp; Details</label>
+              <textarea rows="3" name="quantityDetails" placeholder="Please specify quantities, any flavour preferences, mix requirements, or personalisation requests"></textarea>
+            </div>
+          </fieldset>
+
+          <p class="enq-section-head">Delivery Information</p>
+
+          <div class="fg fg-b">
+            <label>Full Name</label>
+            <input type="text" name="fullName" placeholder="Your name" required>
+          </div>
+          <div class="fg fg-b">
+            <label>Email Address</label>
+            <input type="email" name="email" id="orderEmail" placeholder="your@email.com" required>
+            <p class="field-hint" id="orderEmailHint"></p>
+          </div>
+          <div class="fg fg-b">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" id="orderPhone" placeholder="+91 ···" required>
+          </div>
+          <div class="fg fg-b">
+            <label>Delivery City / Pin Code</label>
+            <input type="text" name="city" placeholder="Delhi, Gurgaon, Mumbai, etc." required>
+          </div>
+
+          <p class="enq-form-error" data-form-error hidden style="color:#c0392b;font-size:.85rem;margin:0 0 12px;"></p>
+          <button type="submit" class="btn btn-w" data-submit style="width:100%;justify-content:center;margin-top:8px;">Send Order Enquiry →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <!-- DELIVERY ZONES -->
   <section id="zones">
     <div class="zones-inner">
@@ -595,107 +668,6 @@
         </table>
       </div>
 
-    </div>
-  </section>
-
-  <!-- ENQUIRY FORM -->
-  <section id="enquiry" data-dark>
-    <div class="enq-inner inner">
-      <div class="enq-info r-l">
-        <span class="eye eye-w mb16">Place an Order</span>
-        <h2>Ready to<br>Order?</h2>
-        <p>All Oryn products are made to order. Fill in this form and we will get back to you within 24 hours with availability, confirmation, and payment details.</p>
-        <p>For urgent enquiries or large custom orders, please reach out directly via Instagram at @oryn.patisserie</p>
-        <ul class="enq-notes r d2">
-          <li>Delhi NCR orders require 48 hours advance notice</li>
-          <li>Pan-India orders require 72 hours advance notice</li>
-          <li>Custom gifting and bulk orders available on request</li>
-          <li>Corporate accounts available for repeat orders</li>
-          <li>Custom flavours available with 5+ days notice</li>
-          <li>Events &amp; catering enquiries welcome</li>
-        </ul>
-      </div>
-      <div class="enq-form-wrap r-r">
-        <p class="enq-form-title">Order Enquiry</p>
-        <p class="enq-form-sub">We will confirm your order within 24 hours.</p>
-        <form data-enquiry data-enquiry-type="order">
-          <div class="fg fg-b">
-            <label>Your Cart Summary</label>
-            <textarea rows="4" data-cart-summary readonly></textarea>
-          </div>
-
-          <p class="enq-section-head">Delivery Information</p>
-
-          <div class="fg fg-b">
-            <label>Full Name</label>
-            <input type="text" name="fullName" placeholder="Your name" required>
-          </div>
-          <div class="fg fg-b">
-            <label>Email Address</label>
-            <input type="email" name="email" id="orderEmail" placeholder="your@email.com" required>
-            <p class="field-hint" id="orderEmailHint"></p>
-          </div>
-          <div class="fg fg-b">
-            <label>Phone Number</label>
-            <input type="tel" name="phone" id="orderPhone" placeholder="+91 ···" required>
-          </div>
-          <div class="fg fg-b">
-            <label>Delivery City / Pin Code</label>
-            <input type="text" name="city" placeholder="Delhi, Gurgaon, Mumbai, etc." required>
-          </div>
-          <fieldset id="orderDetailsFieldset">
-            <p class="enq-section-head">Order Details</p>
-            <div class="fg fg-b">
-              <label>What would you like to order?</label>
-              <select name="product">
-                <option value="">Select a product</option>
-                <optgroup label="A Delhi Love Story (Delhi NCR)">
-                  <option>Citrus Spice Bloom Muffin — ₹600</option>
-                  <option>Mace Latte Muffin — ₹600</option>
-                  <option>Matcha Butterscotch Muffin — ₹720</option>
-                  <option>Spiced Cocoa Ember Muffin — ₹600</option>
-                  <option>Salted Caramel Power Crunch — ₹720</option>
-                </optgroup>
-                <optgroup label="Cookie Collection (Pan India · Free Shipping)">
-                  <option>Cookie Box of 6 — ₹800</option>
-                  <option>Make Your Own Box — ₹800</option>
-                </optgroup>
-                <optgroup label="Flavours of India (Delhi NCR)">
-                  <option>Malabar Gold Éclair (Kerala) — ₹600 / set of 3</option>
-                  <option>Nolen Halo Cupcake (Kolkata) — ₹600 / set of 4</option>
-                  <option>Apricus Bento Cake (Gujarat) — ₹450</option>
-                </optgroup>
-                <optgroup label="Saanjh (Pan India · Free Shipping)">
-                  <option>Saanjh Financier Box of 6 — ₹400</option>
-                </optgroup>
-                <optgroup label="WOH DIN - Yaad Hai? (Delhi NCR)">
-                  <option>Almond Cinnamon Cookies — ₹500 / pack of 4</option>
-                  <option>Almond Chocolate Biscotti — ₹500 / pack of 6</option>
-                  <option>Almond &amp; Nuts Tea Cake — ₹600 / loaf</option>
-                  <option>Dark Chocolate Almond Bars — ₹400 / pack of 4</option>
-                </optgroup>
-                <optgroup label="Banana Cookie Melt (Delhi NCR)">
-                  <option>Banana Cookie Melt 350g — ₹350</option>
-                  <option>Banana Cookie Melt 500g — ₹500</option>
-                </optgroup>
-                <option value="custom">Custom / Multiple Products</option>
-                <option value="gifting">Corporate / Bulk Gifting</option>
-              </select>
-            </div>
-            <div class="fg fg-b">
-              <label>Quantity &amp; Details</label>
-              <textarea rows="3" name="quantityDetails" placeholder="Please specify quantities, any flavour preferences, mix requirements, or personalisation requests"></textarea>
-            </div>
-            <div class="fg fg-b">
-              <label>Is this a gift? Any message to include?</label>
-              <textarea rows="2" name="giftMessage" placeholder="Optional personalised message for the recipient"></textarea>
-            </div>
-          </fieldset>
-
-          <p class="enq-form-error" data-form-error hidden style="color:#c0392b;font-size:.85rem;margin:0 0 12px;"></p>
-          <button type="submit" class="btn btn-w" data-submit style="width:100%;justify-content:center;margin-top:8px;">Send Order Enquiry →</button>
-        </form>
-      </div>
     </div>
   </section>
 
