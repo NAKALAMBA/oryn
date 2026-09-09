@@ -84,6 +84,14 @@
   .msg-cell{max-width:420px;white-space:pre-wrap;line-height:1.5}
   .stack-line{padding:2px 0}
   .stack-line + .stack-line{border-top:1px dashed var(--blue-10);margin-top:4px;padding-top:6px}
+  /* Orders table: one line-item per row, rowspan keeps order-level cells aligned. */
+  #ordersBody td{border-bottom:none}
+  #ordersBody tr.ord-first > td{border-top:2px solid var(--blue-20)}
+  #ordersBody tr.ord-item > td{border-top:1px dashed var(--blue-10)}
+  #ordersBody tr.ord-first:hover td,#ordersBody tr.ord-item:hover td{background:rgba(12,54,123,.03)}
+  #ordersBody td.li-name{line-height:1.35;max-width:230px}
+  #ordersBody td.li-variant{color:var(--blue-45);font-size:.78rem;max-width:260px;white-space:normal}
+  #ordersBody td.li-qty{font-variant-numeric:tabular-nums}
   tfoot .orders-subtotal-row td{background:var(--blue-06);border-top:2px solid var(--blue-20);border-bottom:none;font-weight:600;padding:14px 12px}
   tfoot .orders-subtotal-row td:first-child{text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;color:var(--blue-45)}
   tfoot .orders-subtotal-row strong{font-family:var(--f-display);font-size:1.05rem}
@@ -199,7 +207,7 @@
         <thead><tr>
           <th>Customer Name</th><th>Product</th><th class="num">Quantity</th><th>Variant</th>
           <th class="num">Price</th><th class="num">Discount</th><th class="num">Shipping</th><th class="num">Final Payment</th>
-          <th>Order Status</th><th>Payment</th><th>Order Date</th>
+          <th>Order Status</th><th>Payment</th><th>Messaged</th><th>Refunded</th><th>Order Date</th>
         </tr></thead>
         <tbody id="ordersBody"></tbody>
         <tfoot id="ordersFoot"></tfoot>
@@ -503,23 +511,34 @@
     $("ordersState").hidden = true;
     tb.innerHTML = orders.map(function(o){
       var items = (o.items && o.items.length) ? o.items : [{ name:o.product_interest||"—", quantity:"", variant:"", price:"" }];
-      var stack = function(fn){ return items.map(function(i){ return '<div class="stack-line">'+fn(i)+'</div>'; }).join(""); };
-      return '<tr data-id="'+esc(o.id)+'">'
-        + '<td>'+esc(o.full_name)+'<div class="muted" style="font-size:.72rem">'+esc(o.email)+'<br>'+esc(o.phone)+'</div>'
+      var n = items.length;
+      var rs = n > 1 ? ' rowspan="'+n+'"' : '';
+      var itemCells = function(i){
+        return '<td class="li-name">'+esc(i.name)+'</td>'
+          + '<td class="num li-qty">'+esc(i.quantity)+'</td>'
+          + '<td class="li-variant">'+(esc(i.variant||"") || '<span class="muted">—</span>')+'</td>'
+          + '<td class="num li-price">'+(i.price===""?"":fmtMoney(i.price))+'</td>';
+      };
+      var head = '<tr data-id="'+esc(o.id)+'" class="ord-first">'
+        + '<td'+rs+'>'+esc(o.full_name)+'<div class="muted" style="font-size:.72rem">'+esc(o.email)+'<br>'+esc(o.phone)+'</div>'
             +'<button type="button" class="link-btn" data-view-address style="margin-top:6px">View Address</button></td>'
-        + '<td>'+stack(function(i){ return esc(i.name); })+'</td>'
-        + '<td class="num">'+stack(function(i){ return esc(i.quantity); })+'</td>'
-        + '<td>'+stack(function(i){ return esc(i.variant||"") || '<span class="muted">—</span>'; })+'</td>'
-        + '<td class="num">'+stack(function(i){ return i.price===""?"":fmtMoney(i.price); })
-            +'<div class="muted" style="font-size:.72rem;margin-top:4px">Subtotal '+fmtMoney(o.subtotal)+'</div></td>'
-        + '<td class="num"><input class="inline money" type="number" min="0" step="1" data-field="discount" value="'+(o.discount||0)+'"></td>'
-        + '<td class="num"><input class="inline money" type="number" min="0" step="1" placeholder="—" data-field="shipping" value="'+(o.shipping===null||o.shipping===undefined?"":o.shipping)+'"></td>'
-        + '<td class="num" data-final><strong>'+fmtMoney(o.final_payment)+'</strong>'
-            +'<div class="muted" style="font-size:.68rem;margin-top:3px">Price − Disc + Ship</div></td>'
-        + '<td><select class="inline" data-field="order_status">'+statusOpts(["Pending","Completed","Cancelled"], o.order_status)+'</select></td>'
-        + '<td><select class="inline" data-field="payment_status">'+statusOpts(["Pending","Paid"], o.payment_status)+'</select></td>'
-        + '<td class="muted" style="white-space:nowrap">'+esc(fmtDate(o.created_at))+'</td>'
+        + itemCells(items[0])
+        + '<td class="num"'+rs+'><input class="inline money" type="number" min="0" step="1" data-field="discount" value="'+(o.discount||0)+'"></td>'
+        + '<td class="num"'+rs+'><input class="inline money" type="number" min="0" step="1" placeholder="—" data-field="shipping" value="'+(o.shipping===null||o.shipping===undefined?"":o.shipping)+'"></td>'
+        + '<td class="num" data-final'+rs+'><strong>'+fmtMoney(o.final_payment)+'</strong>'
+            +'<div class="muted" style="font-size:.7rem;margin-top:3px">on '+fmtMoney(o.subtotal)+' subtotal</div>'
+            +'<div class="muted" style="font-size:.66rem">Price − Disc + Ship</div></td>'
+        + '<td'+rs+'><select class="inline" data-field="order_status">'+statusOpts(["Pending","Completed","Cancelled"], o.order_status)+'</select></td>'
+        + '<td'+rs+'><select class="inline" data-field="payment_status">'+statusOpts(["Pending","Paid"], o.payment_status)+'</select></td>'
+        + '<td'+rs+'><select class="inline" data-field="messaged">'+statusOpts(["No","Yes"], o.messaged ? "Yes" : "No")+'</select></td>'
+        + '<td'+rs+'><select class="inline" data-field="refunded">'+statusOpts(["No","Yes"], o.refunded ? "Yes" : "No")+'</select></td>'
+        + '<td class="muted"'+rs+' style="white-space:nowrap">'+esc(fmtDate(o.created_at))+'</td>'
         + '</tr>';
+      var rest = "";
+      for(var k = 1; k < n; k++){
+        rest += '<tr class="ord-item" data-id="'+esc(o.id)+'">'+itemCells(items[k])+'</tr>';
+      }
+      return head + rest;
     }).join("");
 
     tb.querySelectorAll("[data-view-address]").forEach(function(btn){
@@ -580,10 +599,19 @@
   }
   // Tint the status selects to read like badges.
   function paintBadges(){
-    document.querySelectorAll('#ordersBody select[data-field="order_status"], #ordersBody select[data-field="payment_status"]').forEach(function(sel){
+    document.querySelectorAll('#ordersBody select[data-field]').forEach(function(sel){
+      var f = sel.dataset.field;
+      if(["order_status","payment_status","messaged","refunded"].indexOf(f) === -1) return;
       var v = sel.value.toLowerCase();
-      var map = { pending:["#fdf3e2","#b7791f"], completed:["#e7f4ec","#2f7d4f"], cancelled:["#fbeae9","#b23b34"], paid:["#e7f4ec","#2f7d4f"] };
+      var map = { pending:["#fdf3e2","#b7791f"], completed:["#e7f4ec","#2f7d4f"], cancelled:["#fbeae9","#b23b34"],
+                  paid:["#e7f4ec","#2f7d4f"], yes:["#e7f4ec","#2f7d4f"], no:["#efefec","#7a7a72"] };
       var c = map[v] || ["#efefec","#7a7a72"];
+      // A refund that's owed (order Cancelled + payment Paid) but not yet done → amber flag.
+      if(f === "refunded" && v === "no"){
+        var tr = sel.closest("tr");
+        var o = orders.find(function(x){ return String(x.id) === String(tr && tr.dataset.id); });
+        if(o && o.order_status === "Cancelled" && o.payment_status === "Paid") c = ["#fdf3e2","#b7791f"];
+      }
       sel.style.background = c[0]; sel.style.color = c[1]; sel.style.borderColor = c[0];
     });
   }
@@ -626,10 +654,10 @@
       +   '<td class="num">' + (t.discount ? '− ' + fmtMoney(t.discount) : fmtMoney(0)) + '</td>'
       +   '<td class="num">' + (t.shipping ? '+ ' + fmtMoney(t.shipping) : fmtMoney(0)) + '</td>'
       +   '<td class="num"><strong>' + fmtMoney(t.final) + '</strong></td>'
-      +   '<td colspan="3"></td>'
+      +   '<td colspan="5"></td>'
       + '</tr>'
       + '<tr class="orders-grandtotal-row">'
-      +   '<td colspan="11">'
+      +   '<td colspan="13">'
       +     '<div class="gt-wrap"><span class="gt-label">Total Amount Received — all orders</span>'
       +       '<span class="gt-amount">' + fmtMoney(t.final) + '</span></div>'
       +     (paid !== t.final
@@ -657,6 +685,8 @@
         "Final Payment": o.final_payment,
         "Order Status": o.order_status,
         "Payment Status": o.payment_status,
+        "Messaged": o.messaged ? "Yes" : "No",
+        "Refunded": o.refunded ? "Yes" : "No",
         "Order Date": fmtDate(o.created_at),
         "Delivery Address": o.address || "",
         "City": o.city || "",
@@ -664,15 +694,15 @@
         "PIN Code": o.pin_code || ""
       };
     });
-    var header = ["Customer Name","Product","Quantity","Variant","Price","Discount","Shipping","Final Payment","Order Status","Payment Status","Order Date","Delivery Address","City","State","PIN Code"];
+    var header = ["Customer Name","Product","Quantity","Variant","Price","Discount","Shipping","Final Payment","Order Status","Payment Status","Messaged","Refunded","Order Date","Delivery Address","City","State","PIN Code"];
     var ws = XLSX.utils.json_to_sheet(rows, { header: header });
     var tot = orderTotals(); var paid = paidTotal();
     XLSX.utils.sheet_add_aoa(ws, [
-      ["TOTAL — " + orders.length + " orders", "", "", "", tot.price, tot.discount, tot.shipping, tot.final, "", "", "", "", "", "", ""],
+      ["TOTAL — " + orders.length + " orders", "", "", "", tot.price, tot.discount, tot.shipping, tot.final, "", "", "", "", "", "", "", "", ""],
       [],
-      ["TOTAL AMOUNT RECEIVED (ALL ORDERS)", "", "", "", "", "", "", tot.final, "", "", "", "", "", "", ""],
-      ["  of which paid", "", "", "", "", "", "", paid, "", "", "", "", "", "", ""],
-      ["  still pending", "", "", "", "", "", "", tot.final - paid, "", "", "", "", "", "", ""]
+      ["TOTAL AMOUNT RECEIVED (ALL ORDERS)", "", "", "", "", "", "", tot.final, "", "", "", "", "", "", "", "", ""],
+      ["  of which paid", "", "", "", "", "", "", paid, "", "", "", "", "", "", "", "", ""],
+      ["  still pending", "", "", "", "", "", "", tot.final - paid, "", "", "", "", "", "", "", "", ""]
     ], { origin: -1 });
     // ₹ number format on the money columns (E,F,G,H), skipping blanks.
     var range = XLSX.utils.decode_range(ws["!ref"]);
@@ -682,7 +712,7 @@
         if(cell && typeof cell.v === "number"){ cell.z = '"₹"#,##0'; }
       }
     });
-    ws["!cols"] = [{wch:20},{wch:30},{wch:10},{wch:24},{wch:12},{wch:10},{wch:10},{wch:14},{wch:13},{wch:14},{wch:18},{wch:30},{wch:16},{wch:16},{wch:10}];
+    ws["!cols"] = [{wch:20},{wch:30},{wch:10},{wch:24},{wch:12},{wch:10},{wch:10},{wch:14},{wch:13},{wch:14},{wch:10},{wch:10},{wch:18},{wch:30},{wch:16},{wch:16},{wch:10}];
     var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Orders");
     var tag = ($("fStart").value || "all") + "_" + ($("fEnd").value || "all");

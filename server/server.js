@@ -335,6 +335,8 @@ function shapeOrder(order) {
     final_payment: subtotal - discount + (shipping || 0),
     payment_status: PAYMENT_STATUSES.includes(order.payment_status) ? order.payment_status : 'Pending',
     order_status: ORDER_STATUSES.includes(order.order_status) ? order.order_status : 'Pending',
+    messaged: order.messaged === true || order.messaged === 'true',
+    refunded: order.refunded === true || order.refunded === 'true',
     items,
   };
 }
@@ -403,8 +405,12 @@ app.get('/api/admin/orders', async (req, res) => {
 });
 
 app.patch('/api/admin/orders/:id', async (req, res) => {
-  const { order_status, payment_status, discount, shipping } = req.body || {};
+  const { order_status, payment_status, discount, shipping, messaged, refunded } = req.body || {};
   const patch = {};
+
+  const toBool = (v) => v === true || v === 'true' || v === 'Yes' || v === 'yes' || v === 1 || v === '1';
+  if (messaged !== undefined) patch.messaged = toBool(messaged);
+  if (refunded !== undefined) patch.refunded = toBool(refunded);
 
   if (order_status !== undefined) {
     if (!ORDER_STATUSES.includes(order_status)) {
