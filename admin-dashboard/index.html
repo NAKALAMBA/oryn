@@ -130,6 +130,16 @@
   .modal h3{font-size:1.4rem;margin-bottom:10px}
   .modal p{font-size:.9rem;color:var(--blue-70);margin-bottom:22px}
   .modal .row{display:flex;gap:10px;justify-content:flex-end}
+  .modal.enq-modal{max-width:600px;max-height:86vh;overflow-y:auto}
+  .enq-modal h3{margin-bottom:4px}
+  .enq-modal .enq-modal-sub{font-size:.82rem;color:var(--blue-45);margin-bottom:20px}
+  .enq-modal .addr-field .v{white-space:pre-wrap}
+  .enq-modal-sec{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-45);
+    border-top:1px solid var(--blue-10);padding-top:14px;margin:18px 0 12px}
+  .enq-modal-items{width:100%;border-collapse:collapse;font-size:.82rem;margin-bottom:8px}
+  .enq-modal-items td{padding:6px 8px;border-bottom:1px solid var(--blue-06);vertical-align:top}
+  .enq-modal-items td.num{text-align:right;white-space:nowrap}
+  .enq-modal-items tfoot td{border-top:1px solid var(--blue-20);border-bottom:none;font-weight:600}
 
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--blue);color:var(--white);
     padding:11px 20px;font-size:.82rem;z-index:60;box-shadow:0 12px 30px rgba(12,54,123,.25)}
@@ -272,7 +282,7 @@
   <!-- ENQUIRE (order.html "Ready to Order?" form) -->
   <section id="tab-enquire" hidden>
     <h1 class="page">Enquire</h1>
-    <p class="sub">Order enquiries submitted through the "Ready to Order?" form on the site. Status is managed from the Orders tab.</p>
+    <p class="sub">Every enquiry from the "Ready to Order?" form, with all submitted details. Click <strong>View</strong> for the full record. Order &amp; payment status are managed from the Orders tab.</p>
 
     <div class="filters">
       <div class="fg"><label for="eSearch">Search</label><input type="search" id="eSearch" placeholder="Name, email, phone, product, details"></div>
@@ -288,10 +298,12 @@
     <div class="table-wrap">
       <table id="enqTable">
         <thead><tr>
-          <th>Received</th><th>Customer</th><th>Delivery</th><th>Product Interest</th>
-          <th>Quantity &amp; Details</th><th>Gift / Message</th><th>Cart Items</th><th>Order Status</th><th>Payment</th>
+          <th>Received</th><th class="num">Enq #</th><th>Customer</th><th>Delivery</th><th>Type of Order</th>
+          <th>Quantity &amp; Requirements</th><th>Gift Message</th><th>Cart Items</th><th class="num">Subtotal</th>
+          <th>Order Status</th><th>Payment</th><th></th>
         </tr></thead>
         <tbody id="enqBody"></tbody>
+        <tfoot id="enqFoot"></tfoot>
       </table>
       <div class="state" id="enqState">Loading <span class="spinner"></span></div>
     </div>
@@ -727,13 +739,34 @@
   $("refreshBtn").addEventListener("click", function(){ loadOrders(); if(nlLoaded) loadNewsletter(); if(msgLoaded) loadMessages(); if(enqLoaded) loadEnquiries(); if(regLoaded) loadRegistrations(); });
 
   /* ══ ENQUIRE (order.html "Ready to Order?" form) ══
-     Rows in the orders table that came from the enquiry form — identified
-     by a Product Interest and/or free-text Quantity & Details (checkout
-     orders never carry those). */
+     Orders with source === 'enquiry'. The server tags every order with a
+     source ('checkout' | 'enquiry'); for rows created before that column
+     existed it falls back to "has a product interest / quantity note".
+     Every field the enquiry form captures is shown here — the row is a
+     summary, the View button opens the full record. */
   var enquiries = [];
   var enqLoaded = false;
+  var ENQ_TYPE_LABELS = { custom: "Custom / Multiple products", gifting: "Corporate / Bulk bookings" };
 
-  function isEnquiry(o){ return !!(o.product_interest || o.quantity_details); }
+  function isEnquiry(o){
+    if(o.source === "enquiry") return true;
+    if(o.source === "checkout") return false;
+    return !!(o.product_interest || o.quantity_details);
+  }
+  function enqType(o){
+    if(!o.product_interest) return "";
+    return ENQ_TYPE_LABELS[o.product_interest] || o.product_interest;
+  }
+  function enqDelivery(o){
+    return [o.city, o.pin_code].filter(Boolean).join(" · ") || "";
+  }
+  function enqFullAddress(o){
+    return [o.address, o.city, o.state, o.pin_code].filter(Boolean).join(", ");
+  }
+  function enqItemsSubtotal(o){
+    return (o.items || []).reduce(function(s,i){ return s + (Number(i.price)||0) * (Number(i.quantity)||0); }, 0);
+  }
+  function mdash(v){ return v ? esc(v) : '<span class="muted">—</span>'; }
 
   function loadEnquiries(){
     enqLoaded = true;
@@ -749,65 +782,168 @@
     });
   }
 
-  function enqDelivery(o){
-    var parts = [o.city, o.pin_code].filter(Boolean).join(" · ");
-    return parts || '<span class="muted">—</span>';
+  function enqFiltered(){
+    var q = $("eSearch").value.trim().toLowerCase();
+    if(!q) return enquiries.slice();
+    return enquiries.filter(function(o){
+      var hay = [o.order_number, o.full_name, o.email, o.phone, o.address, o.city, o.state, o.pin_code,
+                 o.delivery_date, enqType(o), o.quantity_details, o.gift_message, o.cart_summary,
+                 o.order_status, o.payment_status]
+        .concat((o.items||[]).map(function(i){ return i.name + " " + (i.variant||i.details||""); }))
+        .join(" ").toLowerCase();
+      return hay.indexOf(q) > -1;
+    });
   }
 
   function renderEnquiries(){
-    var q = $("eSearch").value.trim().toLowerCase();
-    var rows = enquiries.filter(function(o){
-      if(!q) return true;
-      var hay = [o.full_name, o.email, o.phone, o.city, o.pin_code, o.product_interest, o.quantity_details, o.gift_message]
-        .concat((o.items||[]).map(function(i){ return i.name; })).join(" ").toLowerCase();
-      return hay.indexOf(q) > -1;
-    });
+    var rows = enqFiltered();
     var tb = $("enqBody");
-    $("enqTiles").innerHTML = tile(enquiries.length, "Enquiries");
+    var totalSub = enquiries.reduce(function(s,o){ return s + (Number(o.subtotal) || enqItemsSubtotal(o)); }, 0);
+    $("enqTiles").innerHTML = tile(enquiries.length, "Enquiries") + tile(fmtMoney(totalSub), "Cart Value (all)");
     if(!rows.length){
       tb.innerHTML = "";
+      $("enqFoot").innerHTML = "";
       $("enqState").hidden = false;
       $("enqState").textContent = enquiries.length ? "No enquiries match that search." : "No order enquiries yet.";
       return;
     }
     $("enqState").hidden = true;
     tb.innerHTML = rows.map(function(o){
+      var idx = enquiries.indexOf(o);
       var cart = (o.items && o.items.length)
         ? o.items.map(function(i){ return esc(i.quantity + " × " + i.name); }).join("<br>")
         : '<span class="muted">—</span>';
+      var sub = Number(o.subtotal) || enqItemsSubtotal(o);
+      var deliv = enqDelivery(o);
       return '<tr>'
         + '<td class="muted" style="white-space:nowrap">'+esc(fmtDate(o.created_at))+'</td>'
+        + '<td class="num">'+ (o.order_number != null ? "#"+esc(o.order_number) : '<span class="muted">—</span>') +'</td>'
         + '<td>'+esc(o.full_name)+'<div class="muted" style="font-size:.72rem">'+esc(o.email)+'<br>'+esc(o.phone)+'</div></td>'
-        + '<td class="muted">'+enqDelivery(o)+'</td>'
-        + '<td>'+ (esc(o.product_interest) || '<span class="muted">—</span>') +'</td>'
-        + '<td class="msg-cell">'+ (esc(o.quantity_details) || '<span class="muted">—</span>') +'</td>'
-        + '<td class="msg-cell">'+ (esc(o.gift_message) || '<span class="muted">—</span>') +'</td>'
+        + '<td class="muted">'+ (deliv ? esc(deliv) : '<span class="muted">—</span>') + (o.address ? '<div class="muted" style="font-size:.72rem">'+esc(o.address)+'</div>' : '') +'</td>'
+        + '<td>'+ mdash(enqType(o)) +'</td>'
+        + '<td class="msg-cell">'+ mdash(o.quantity_details) +'</td>'
+        + '<td class="msg-cell">'+ mdash(o.gift_message) +'</td>'
         + '<td class="muted" style="font-size:.78rem">'+cart+'</td>'
+        + '<td class="num">'+ (sub ? fmtMoney(sub) : '<span class="muted">—</span>') +'</td>'
         + '<td><span class="badge '+esc(String(o.order_status||"").toLowerCase())+'">'+esc(o.order_status)+'</span></td>'
         + '<td><span class="badge '+(o.payment_status==="Paid"?"paid":"unpaid")+'">'+esc(o.payment_status)+'</span></td>'
+        + '<td><button type="button" class="link-btn" data-enq-view="'+idx+'">View</button></td>'
         + '</tr>';
     }).join("");
+    $("enqFoot").innerHTML = '<tr class="orders-subtotal-row">'
+      + '<td colspan="8">'+ rows.length +' enqu'+(rows.length===1?'iry':'iries')+' shown</td>'
+      + '<td class="num">'+ fmtMoney(rows.reduce(function(s,o){ return s + (Number(o.subtotal)||enqItemsSubtotal(o)); }, 0)) +'</td>'
+      + '<td colspan="3"></td></tr>';
+
+    tb.querySelectorAll("[data-enq-view]").forEach(function(btn){
+      btn.addEventListener("click", function(){ showEnquiryModal(enquiries[Number(btn.dataset.enqView)]); });
+    });
+  }
+
+  function efield(label, value){
+    return '<div class="addr-field"><div class="l">'+esc(label)+'</div><div class="v">'+
+      (value ? esc(value) : '<span class="muted">Not provided</span>') + '</div></div>';
+  }
+  function showEnquiryModal(o){
+    if(!o) return;
+    var items = o.items || [];
+    var sub = Number(o.subtotal) || enqItemsSubtotal(o);
+    var itemRows = items.length
+      ? items.map(function(i){
+          return '<tr><td>'+esc(i.name)+ (i.variant||i.details ? '<div class="muted" style="font-size:.72rem">'+esc(i.variant||i.details)+'</div>' : '') +'</td>'
+            + '<td class="num">'+esc(i.quantity)+'</td>'
+            + '<td class="num">'+fmtMoney(i.price)+'</td>'
+            + '<td class="num">'+fmtMoney((Number(i.price)||0)*(Number(i.quantity)||0))+'</td></tr>';
+        }).join("")
+      : '<tr><td colspan="4" class="muted">No cart items — enquiry only.</td></tr>';
+
+    var back = document.createElement("div"); back.className = "modal-back";
+    back.innerHTML = '<div class="modal enq-modal">'
+      + '<h3>Enquiry '+ (o.order_number != null ? "#"+esc(o.order_number) : "") +'</h3>'
+      + '<p class="enq-modal-sub">Received '+esc(fmtDate(o.created_at))+' · via the “Ready to Order?” form</p>'
+
+      + '<p class="enq-modal-sec">Customer</p>'
+      + efield("Name", o.full_name)
+      + efield("Email", o.email)
+      + efield("Phone", o.phone)
+
+      + '<p class="enq-modal-sec">Delivery</p>'
+      + efield("Delivery address", enqFullAddress(o))
+      + efield("City", o.city)
+      + efield("State", o.state)
+      + efield("PIN code", o.pin_code)
+      + efield("Preferred date", o.delivery_date)
+
+      + '<p class="enq-modal-sec">Order</p>'
+      + efield("Type of order", enqType(o))
+      + efield("Quantity & requirements", o.quantity_details)
+      + efield("Gift message", o.gift_message)
+      + efield("Cart summary (as submitted)", o.cart_summary)
+
+      + '<p class="enq-modal-sec">Cart items</p>'
+      + '<table class="enq-modal-items"><tbody>'+itemRows+'</tbody>'
+      + '<tfoot><tr><td colspan="3">Subtotal</td><td class="num">'+fmtMoney(sub)+'</td></tr>'
+      + (o.discount ? '<tr><td colspan="3">Discount</td><td class="num">− '+fmtMoney(o.discount)+'</td></tr>' : '')
+      + ((o.shipping!==null&&o.shipping!==undefined) ? '<tr><td colspan="3">Shipping</td><td class="num">'+fmtMoney(o.shipping)+'</td></tr>' : '')
+      + '<tr><td colspan="3">Final payment</td><td class="num">'+fmtMoney(o.final_payment != null ? o.final_payment : sub)+'</td></tr></tfoot></table>'
+
+      + '<p class="enq-modal-sec">Status</p>'
+      + efield("Order status", o.order_status)
+      + efield("Payment status", o.payment_status)
+      + efield("Refunded", o.refunded ? "Yes" : "No")
+
+      + '<div class="row"><button class="btn btn-solid" data-close>Close</button></div></div>';
+    $("modalRoot").appendChild(back);
+    var close = function(){ back.remove(); };
+    back.addEventListener("click", function(e){ if(e.target === back) close(); });
+    back.querySelector("[data-close]").addEventListener("click", close);
   }
 
   function exportEnquiries(){
-    if(!enquiries.length){ toast("Nothing to export"); return; }
-    var ws = XLSX.utils.json_to_sheet(enquiries.map(function(o){
+    var rows = enqFiltered();
+    if(!rows.length){ toast("Nothing to export"); return; }
+    var header = ["Received","Enquiry #","Name","Email","Phone","Delivery Address","City","State","PIN Code",
+      "Preferred Date","Type of Order","Quantity & Requirements","Gift Message","Cart Summary","Cart Items",
+      "Subtotal","Discount","Shipping","Final Payment","Order Status","Payment Status","Refunded"];
+    var data = rows.map(function(o){
+      var sub = Number(o.subtotal) || enqItemsSubtotal(o);
       return {
         "Received": fmtDate(o.created_at),
+        "Enquiry #": o.order_number != null ? o.order_number : "",
         "Name": o.full_name || "",
         "Email": o.email || "",
         "Phone": o.phone || "",
+        "Delivery Address": o.address || "",
         "City": o.city || "",
+        "State": o.state || "",
         "PIN Code": o.pin_code || "",
-        "Product Interest": o.product_interest || "",
-        "Quantity & Details": o.quantity_details || "",
-        "Gift / Message": o.gift_message || "",
-        "Cart Items": (o.items||[]).map(function(i){ return i.quantity + " x " + i.name; }).join(" / "),
+        "Preferred Date": o.delivery_date || "",
+        "Type of Order": enqType(o),
+        "Quantity & Requirements": o.quantity_details || "",
+        "Gift Message": o.gift_message || "",
+        "Cart Summary": o.cart_summary || "",
+        "Cart Items": (o.items||[]).map(function(i){ return i.quantity + " x " + i.name + (i.variant||i.details ? " ("+(i.variant||i.details)+")" : ""); }).join(" / "),
+        "Subtotal": sub,
+        "Discount": o.discount || 0,
+        "Shipping": (o.shipping===null||o.shipping===undefined) ? "" : o.shipping,
+        "Final Payment": o.final_payment != null ? o.final_payment : sub,
         "Order Status": o.order_status || "",
-        "Payment Status": o.payment_status || ""
+        "Payment Status": o.payment_status || "",
+        "Refunded": o.refunded ? "Yes" : "No"
       };
-    }), { header:["Received","Name","Email","Phone","City","PIN Code","Product Interest","Quantity & Details","Gift / Message","Cart Items","Order Status","Payment Status"] });
-    ws["!cols"] = [{wch:18},{wch:20},{wch:26},{wch:16},{wch:16},{wch:10},{wch:26},{wch:40},{wch:34},{wch:30},{wch:13},{wch:14}];
+    });
+    var ws = XLSX.utils.json_to_sheet(data, { header: header });
+    var totSub = data.reduce(function(s,r){ return s + (Number(r["Subtotal"])||0); }, 0);
+    var totFinal = data.reduce(function(s,r){ return s + (Number(r["Final Payment"])||0); }, 0);
+    XLSX.utils.sheet_add_aoa(ws, [
+      ["TOTAL — " + data.length + " enquiries","","","","","","","","","","","","","","", totSub, "", "", totFinal, "", "", ""]
+    ], { origin: -1 });
+    var range = XLSX.utils.decode_range(ws["!ref"]);
+    ["P","Q","R","S"].forEach(function(col){
+      for(var r = 1; r <= range.e.r; r++){ var c = ws[col+(r+1)]; if(c && typeof c.v === "number") c.z = '"₹"#,##0'; }
+    });
+    ws["!cols"] = [{wch:17},{wch:9},{wch:20},{wch:26},{wch:15},{wch:30},{wch:14},{wch:14},{wch:10},{wch:14},
+      {wch:22},{wch:38},{wch:32},{wch:40},{wch:36},{wch:11},{wch:10},{wch:10},{wch:13},{wch:13},{wch:13},{wch:9}];
     var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Enquiries");
     XLSX.writeFile(wb, "oryn-enquiries.xlsx");

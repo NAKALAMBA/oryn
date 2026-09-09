@@ -21,6 +21,13 @@ alter table public.orders add column if not exists payment_status text not null 
 alter table public.orders add column if not exists order_status   text not null default 'Pending';  -- Pending | Completed | Cancelled
 alter table public.orders add column if not exists refunded       boolean not null default false;   -- for a Cancelled + Paid order: has the money been refunded?
 
+-- ── orders: where the order came from ────────────────────────────────
+-- 'checkout' = cart → checkout.html.  'enquiry' = the "Ready to Order?"
+-- form on order.html (shown in the /admin "Enquire" tab).
+alter table public.orders add column if not exists source text not null default 'checkout';
+update public.orders set source = 'enquiry'
+  where source = 'checkout' and (product_interest is not null or quantity_details is not null);
+
 update public.orders
   set final_payment = subtotal - discount + coalesce(shipping, 0)
   where final_payment is null;

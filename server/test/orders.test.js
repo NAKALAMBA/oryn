@@ -80,6 +80,24 @@ describe('Orders API', () => {
     assert.equal(created.subtotal, 1200);
     assert.equal(created.final_payment, 1200, 'final payment starts equal to the subtotal');
     assert.equal(created.items[0].variant, 'Box of 6', 'the cart item detail is stored as the line variant');
+    assert.equal(created.source, 'checkout', 'orders default to source=checkout');
+  });
+
+  it('tags an order from the enquiry form with source=enquiry', async () => {
+    const phone = uniquePhone();
+    const res = await fetch(`${baseUrl}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Enquiry Person', email: 'enq@example.com', phone, city: 'Delhi',
+        source: 'enquiry', product: 'custom', quantityDetails: '20 boxes for an office event',
+      }),
+    });
+    assert.equal(res.status, 201);
+    const { id } = await res.json();
+    const orders = await (await fetch(`${baseUrl}/api/admin/orders`)).json();
+    const created = orders.find(o => o.order_number === id);
+    assert.equal(created.source, 'enquiry');
   });
 
   it('stores the full billing address (address, state, city, pin code) and every customer detail from checkout', async () => {
