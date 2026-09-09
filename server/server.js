@@ -101,6 +101,7 @@ app.get('/api/catalog/collections/:id/products', (req, res) => {
 /* ── Orders (order.html enquiry form + cart) ── */
 app.post('/api/orders', async (req, res) => {
   const { fullName, email: emailAddress, phone, address, state, city, pinCode, deliveryDate, product, quantityDetails, giftMessage, cartSummary, cartItems } = req.body || {};
+  const source = req.body && req.body.source === 'enquiry' ? 'enquiry' : 'checkout';
 
   if (!isNonEmptyString(fullName) || !isNonEmptyString(emailAddress) || !isNonEmptyString(phone) || !isNonEmptyString(city)) {
     return res.status(400).json({ error: 'fullName, email, phone and city are required.' });
@@ -141,6 +142,17 @@ app.post('/api/orders', async (req, res) => {
   } catch (err) {
     console.error('[orders] could not save order:', err.message);
     return res.status(502).json({ error: "We couldn't save your order just now. Please try again in a moment, or reach us on Instagram @oryn.patisserie." });
+  }
+
+  // Tag enquiry-form submissions so the /admin "Enquire" tab can list them
+  // reliably. Best-effort: 'checkout' is the column default, and if the
+  // column isn't there yet (schema not migrated) the order is already safe.
+  if (source === 'enquiry') {
+    try {
+      await supabase.setOrderSource(created.id, 'enquiry');
+    } catch (err) {
+      console.warn('[orders] could not tag source=enquiry (run supabase-admin-schema.sql):', err.message);
+    }
   }
 
   const orderNumber = created.order_number;
@@ -336,6 +348,9 @@ function shapeOrder(order) {
     payment_status: PAYMENT_STATUSES.includes(order.payment_status) ? order.payment_status : 'Pending',
     order_status: ORDER_STATUSES.includes(order.order_status) ? order.order_status : 'Pending',
     refunded: order.refunded === true || order.refunded === 'true',
+    source: order.source === 'enquiry' ? 'enquiry'
+      : (order.source === 'checkout' ? 'checkout'
+        : ((order.product_interest || order.quantity_details) ? 'enquiry' : 'checkout')),
     items,
   };
 }

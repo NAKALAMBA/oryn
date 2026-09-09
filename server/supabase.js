@@ -139,6 +139,14 @@ async function setOrderShiprocket(orderId, fields) {
   });
 }
 
+// Tags where the order came from ('checkout' | 'enquiry'). Called
+// best-effort after createOrder — the column has a 'checkout' default, so
+// only 'enquiry' rows actually need flipping, and a missing column (schema
+// not migrated yet) is caught by the caller, not fatal to the order.
+async function setOrderSource(orderId, source) {
+  await updateWhere('orders', { id: orderId }, { source: source === 'enquiry' ? 'enquiry' : 'checkout' });
+}
+
 async function findOrderByNumber(orderNumber) {
   const rows = await selectWhere('orders', { order_number: orderNumber });
   return rows[0] || null;
@@ -221,6 +229,7 @@ module.exports = {
   SupabaseUnavailableError,
   createOrder,
   setOrderShiprocket,
+  setOrderSource,
   findOrderByNumber,
   listOrderItems,
   insertContact,

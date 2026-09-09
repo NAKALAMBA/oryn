@@ -27,6 +27,7 @@ create table if not exists public.orders (
   quantity_details text,
   gift_message text,
   cart_summary text,
+  source text not null default 'checkout',   -- 'checkout' (cart -> checkout.html) | 'enquiry' ("Ready to Order?" form)
   subtotal integer not null default 0
 );
 

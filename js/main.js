@@ -247,6 +247,7 @@ document.querySelectorAll('form[data-enquiry]').forEach(form => {
       giftMessage: data.get('giftMessage') || '',
       cartSummary: (form.querySelector('[data-cart-summary]') || {}).value || '',
       cartItems: readCart(),
+      source: form.dataset.orderSource || 'checkout',
     } : {
       fullName: data.get('fullName') || '',
       email: data.get('email') || '',
